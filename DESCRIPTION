@@ -1,0 +1,10 @@
+Package: paraFix
+Title: Automatic Pre-processing and Vertical Re-alignment of Paragraph Reading Fixations
+Version: 0.0.0.9000
+Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+Depends: R (>= 3.3.1)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
