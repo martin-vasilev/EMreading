@@ -8,24 +8,24 @@ paraFix(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
   maxtrial = 120, align = TRUE, plot = TRUE, keepLastFix = TRUE)
 }
 \arguments{
-\item{data_list}{A txt file containing all the data file names and the 
+\item{data_list}{A txt file containing all the data file names and the
 directory for accessing them: e.g. C:/My Data/subject1.asc. Each data file
 should appear on a separate row.}
 
-\item{ResX}{X Screen resolution in pixels}
+\item{ResX}{X screen resolution in pixels}
 
 \item{ResY}{Y screen resolution in pixels}
 
 \item{maxtrial}{Maximum number of trials in the experiment}
 
 \item{align}{A logical indicating whether to perform re-alignment of fixations.
-The default is TRUE. If set to FALSE, the script will return a data frame with 
+The default is TRUE. If set to FALSE, the script will return a data frame with
 only the raw fixations extracted from the data.}
 
-\item{plot}{A logical indicating whether to plot the raw and re-aligned fixations 
-as an image. The default is TRUE. If set to FALSE, no images will ve plotted. 
+\item{plot}{A logical indicating whether to plot the raw and re-aligned fixations
+as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
 Note that plotting images will generally take longer time to pre-process the data.
-The images are save in the current directory under "img".}
+The images are saved in the current working directory in the folder "img".}
 }
 \value{
 A data frame containing the data

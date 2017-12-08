@@ -9,7 +9,7 @@
 #' directory for accessing them: e.g. C:/My Data/subject1.asc. Each data file
 #' should appear on a separate row.
 #'
-#' @param ResX X Screen resolution in pixels
+#' @param ResX X screen resolution in pixels
 #'
 #' @param ResY Y screen resolution in pixels
 #'
@@ -20,9 +20,9 @@
 #' only the raw fixations extracted from the data.
 #'
 #' @param plot A logical indicating whether to plot the raw and re-aligned fixations
-#' as an image. The default is TRUE. If set to FALSE, no images will ve plotted.
+#' as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
 #' Note that plotting images will generally take longer time to pre-process the data.
-#' The images are save in the current directory under "img".
+#' The images are saved in the current working directory in the folder "img".
 #'
 #' @return A data frame containing the data
 #'
