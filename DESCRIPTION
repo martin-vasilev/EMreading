@@ -1,6 +1,6 @@
 Package: paraFix
 Title: Automatic Pre-processing and Vertical Re-alignment of Paragraph Reading Fixations
-Version: 0.0.0.9000
+Version: 0.0.1.1000
 Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends: R (>= 3.3.1)
@@ -11,3 +11,4 @@ RoxygenNote: 6.0.1
 Collate: 
     'utility.R'
     'paraFix.R'
+    'ocr.r'

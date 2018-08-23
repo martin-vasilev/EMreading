@@ -10,6 +10,7 @@
 
 ### OCR<- function(image_file, language= "English"){
 
+   language= "English"
   # default language is English
   # check if user defined another available language (gives better accuracy)
    allowedLangs<- c("Spanish", "Dutch", "Korean", "French", "Japanese")
@@ -65,5 +66,3 @@ if(lines[length(lines)]==""){
   lines<- lines[1:(length(lines)-1)]
 }
 
-cat(text)
-image<- readImage(image_file)

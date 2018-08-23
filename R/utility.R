@@ -410,41 +410,41 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
       }
 
       # saccade stuff:
-      if(j==1){
-        max_sent[j]<- sent[j]
-      } else{
-        max_sent[j]<- max_sent[j-1]
+      #if(j==1){
+      #  max_sent[j]<- sent[j]
+      #} else{
+      #  max_sent[j]<- max_sent[j-1]
 
-        if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
-          max_sent[j]<- sent[j]
-        }
-      }
+      #  if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+      #    max_sent[j]<- sent[j]
+      #  }
+      #}
 
       # maximum word:
-      if(j==1){
-        max_word[j]<- abs(word[j])
-        curr_sent[sent[j],2]<- abs(word[j])
-      } else{
-        max_word[j]<- curr_sent[sent[j],2]
-        if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
-          max_word[j]<- abs(word[j])
-          curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
-        }
-      }
+      #if(j==1){
+      #  max_word[j]<- abs(word[j])
+      #  curr_sent[sent[j],2]<- abs(word[j])
+      #} else{
+      #  max_word[j]<- curr_sent[sent[j],2]
+      #  if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
+      #    max_word[j]<- abs(word[j])
+      #    curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
+      #  }
+      #}
 
       # Regression stuff:
-      if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
-        intersent_regr[j]<- 1
-      } else{
-        intersent_regr[j]<- 0
-      }
+      #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
+      #  intersent_regr[j]<- 1
+      #} else{
+      #  intersent_regr[j]<- 0
+      #}
 
       # intra-sentence regressions:
-      if(!is.na(word[j])& abs(word[j])<max_word[j]){
-        intrasent_regr[j]<- 1
-      }else{
-        intrasent_regr[j]<- 0
-      }
+      #if(!is.na(word[j])& abs(word[j])<max_word[j]){
+      #  intrasent_regr[j]<- 1
+      #}else{
+      #  intrasent_regr[j]<- 0
+      #}
 
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;
@@ -460,10 +460,15 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
     outsideText[length(outsideText):length(item)]<- NA
   }
 
+#  raw_fix<- data.frame(sub,item, cond, seq, s_time, e_time,xPos, yPos, fix_num, fix_dur,
+#                       sent, max_sent, line, word, max_word, char_trial, intrasent_regr, intersent_regr, blink,
+#                       outOfBnds, outsideText)
+
   raw_fix<- data.frame(sub,item, cond, seq, s_time, e_time,xPos, yPos, fix_num, fix_dur,
-                       sent, max_sent, line, word, max_word, char_trial, intrasent_regr, intersent_regr, blink,
+                       sent, line, word, char_trial, blink,
                        outOfBnds, outsideText)
-  if(keepLastFix==FALSE){
+
+    if(keepLastFix==FALSE){
     # remove last fixation on trial (due to participants' making a decision to press the button)
     raw_fix<- raw_fix[-nrow(raw_fix),]
   }
