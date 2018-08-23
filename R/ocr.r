@@ -7,6 +7,31 @@
 #library(tesseract)
 
 ### functions:
+
+### OCR<- function(image_file, language= "English"){
+
+  # default language is English
+  # check if user defined another available language (gives better accuracy)
+   allowedLangs<- c("Spanish", "Dutch", "Korean", "French", "Japanese")
+   langCodes<- c("spa", "nld", "kor", "fra", "jpn")
+
+   if(language!= "English" & is.element(language, allowedLangs)){ # is lang valid?
+     whichLang<- langCodes[which(language== allowedLangs)]
+
+      if(!is.element(whichLang, tesseract::tesseract_info()$available)){ # already downloaded?
+        cat("downloading trained language data...")
+        tesseract::tesseract_download(whichLang) # if not, download
+        useLang<- tesseract::tesseract(whichLang) # then define
+      }else{
+        useLang<- tesseract::tesseract(whichLang) # if downloaded, directly define
+      }
+
+   }else{ # defaults to English:
+      useLang<- tesseract::tesseract("eng")
+   }
+
+#}
+
 #--------------------------------------------------------------------------#
 numerize<- function(string){as.numeric(unlist(strsplit(string, ",")))}
 #--------------------------------------------------------------------------#
@@ -17,10 +42,10 @@ image_file<-"C:/Users/Martin Vasilev/Documents/Oz/Oz/Dorothy/Dorothy2.bmp"
 input <- magick::image_read(image_file)
 
 # Recognize text image:
-text <- tesseract::ocr(input)
+text <- tesseract::ocr(input) #, engine= useLang
 
 # Get the pixel locations of words:
-loc<- tesseract::ocr_data(input)
+loc<- tesseract::ocr_data(input) #, engine= useLang
 
 # make coords in a matrix:
 coords<- as.data.frame(t(matrix(data = numerize(loc$bbox), nrow = 4)))
@@ -34,8 +59,6 @@ coords$word<- loc$word
 # window on the line.
 
 # Think also about what to do with empty spaces:
-
-
 
 lines<- unlist(strsplit(text, "\n"))
 if(lines[length(lines)]==""){
