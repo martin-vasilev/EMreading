@@ -60,3 +60,40 @@ OCR<- function(image_file= "C:/Users/Martin Vasilev/Documents/Oz/Oz/Dorothy/Doro
 #if(lines[length(lines)]==""){
 #  lines<- lines[1:(length(lines)-1)]
 #}
+
+letterize<- function(dat){
+
+  coords<- NULL
+  temp<- structure(list(char = structure(NA_integer_, .Label = character(0), class = "factor"),
+                        letter = NA_character_, x1 = NA_real_, y1 = NA_real_, x2 = NA_real_,
+                        y2 = NA_real_, space = NA_real_, sent = NA_real_, line = NA_integer_,
+                        word = NA_real_, line_char = NA_integer_), .Names = c("char",
+                        "letter", "x1", "y1", "x2", "y2", "space", "sent", "line", "word",
+                        "line_char"), row.names = 1L, class = "data.frame")
+
+  for(i in 1:nrow(data)){
+    if(i!= nrow(data)){
+      df<- temp[rep(seq_len(nrow(temp)), each=nchar(dat$word[i])+1),]
+      df$letter<- c(unlist(strsplit(dat$word[i], '')), "")
+
+      df$x1<- c(rep(dat$x1[i], nchar(dat$word[i])), NA)
+      df$x2<- c(rep(dat$x2[i], nchar(dat$word[i])), NA)
+      df$y1<- c(rep(dat$y1[i], nchar(dat$word[i])), NA)
+      df$y2<- c(rep(dat$y2[i], nchar(dat$word[i])), NA)
+    }else{
+      df<- temp[rep(seq_len(nrow(temp)), each=nchar(dat$word[i])),]
+      df$letter<- unlist(strsplit(dat$word[i], ''))
+
+      df$x1<- rep(dat$x1[i], nchar(dat$word[i]))
+      df$x2<- rep(dat$x2[i], nchar(dat$word[i]))
+      df$y1<- rep(dat$y1[i], nchar(dat$word[i]))
+      df$y2<- rep(dat$y2[i], nchar(dat$word[i]))
+    }
+
+
+    coords<- rbind(coords, df)
+  }
+  rownames(coords)<- seq(1, nrow(coords),1)
+  coords$char<- 0:(nrow(coords)-1)
+
+}

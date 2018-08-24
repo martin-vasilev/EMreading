@@ -9,7 +9,6 @@
 #' In the .txt file, each .asc data file should appear on a separate row, e.g.:
 #' C:/My Data/subject1.asc.
 #' C:/My Data/subject2.asc.
-#'
 #' If you want to process only one .asc file, just supply the file location in the string, e.g.:
 #' C:/My Data/subject1.asc.
 #'
