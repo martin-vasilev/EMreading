@@ -5,9 +5,13 @@
 #'
 #' @author Martin R. Vasilev
 #'
-#' @param data_list A txt file containing all the data file names and the
-#' directory for accessing them: e.g. C:/My Data/subject1.asc. Each data file
-#' should appear on a separate row.
+#' @param data_list Directory of a txt file that contains all the .asc data file names.
+#' In the .txt file, each .asc data file should appear on a separate row, e.g.:
+#' C:/My Data/subject1.asc.
+#' C:/My Data/subject2.asc.
+#'
+#' If you want to process only one .asc file, just supply the file location in the string, e.g.:
+#' C:/My Data/subject1.asc.
 #'
 #' @param ResX X screen resolution in pixels
 #'
@@ -34,12 +38,16 @@
 paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
                    align=TRUE, plot=TRUE, keepLastFix=TRUE){
 
-  data<- readLines(data_list, warn=F)
+  # check file input:
+  if(grepl('.txt', data_list)){
+    data<- readLines(data_list, warn=F) # process multiple files
+  }else{
+    data<- data_list # process only 1 file
+  }
 
   raw_fix<- NULL; RFalign<- NULL
 
   for (i in 1:length(data)){ # for each subject..
-    #  i=1; # temporary
 
     cat(sprintf("Processing subject %i", i)); cat("\n")
     cat(sprintf("Loading data %s ...", data[i]));
@@ -50,13 +58,14 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
 
     for(j in 1:nrow(trial_db)){ # for each item
 
-      text<- get_text(file[trial_db$ID[j]:trial_db$start[j]])
+      text<- get_text(file[trial_db$ID[j]:trial_db$start[j]]) # get text details (Eyetrack)
 
       if(text[1]!=0){ # if trial contained text
-        coords<- get_coord(text)
-        map<- coord_map(coords, x=ResX, y= ResY)
-        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, keepLastFix)
+        coords<- get_coord(text) # extract text coordinates
+        map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
+        # Extract raw fixations from data and map them to the text:
+        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, keepLastFix)
 
         # Align fixations:
         if(align){
@@ -84,7 +93,6 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
         }
       }
 
-
       cat(toString(j)); cat(" ")
     } # end of item loop
 
@@ -100,5 +108,4 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
     return(raw_fix)
   }
 
-
-}
+} # end of ParaFix
