@@ -228,7 +228,7 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
   duplicated<- trials[duplicated(trials)]
 
   if(length(duplicated)>0){ # if there were aborted trials..
-    message(paste(" Diplicated trial", duplicated, "for file:", data, "\n"))
+    message(paste(" Diplicated trial", duplicated, "\n"))
     message("Analysing only last attempt at the trial!")
 
     toBeRemoved<- NULL
@@ -655,9 +655,9 @@ plot_fix<- function(coords, raw_fix_temp, i, j, ResX, ResY, hasText=TRUE, plotSe
   # print original label:
 
   if(!reAligned){
-    text(ResX - 0.05*ResX, ResY -ResY*0.02, 'ORIGINAL', col= 'black', face=2)
+    text(ResX - 0.05*ResX, ResY -ResY*0.02, 'ORIGINAL', col= 'black', face=2, cex= 2)
   } else{
-    text(ResX - 0.05*ResX, ResY -ResY*0.02, 'REALIGNED', col= 'black', face=2)
+    text(ResX - 0.05*ResX, ResY -ResY*0.02, 'REALIGNED', col= 'red', face=2, cex=2)
   }
 
 
