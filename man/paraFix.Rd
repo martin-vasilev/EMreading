@@ -5,12 +5,16 @@
 \title{Main function for pre-processing fixations and vertical re-alignment}
 \usage{
 paraFix(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, align = TRUE, plot = TRUE, keepLastFix = TRUE)
+  maxtrial = 120, align = TRUE, RSpar = c(1/4, 8, 2/3), plot = TRUE,
+  keepLastFix = TRUE)
 }
 \arguments{
-\item{data_list}{A txt file containing all the data file names and the
-directory for accessing them: e.g. C:/My Data/subject1.asc. Each data file
-should appear on a separate row.}
+\item{data_list}{Directory of a txt file that contains all the .asc data file names.
+In the .txt file, each .asc data file should appear on a separate row, e.g.:
+C:/My Data/subject1.asc.
+C:/My Data/subject2.asc.
+If you want to process only one .asc file, just supply the file location in the string, e.g.:
+C:/My Data/subject1.asc.}
 
 \item{ResX}{X screen resolution in pixels}
 
@@ -21,6 +25,17 @@ should appear on a separate row.}
 \item{align}{A logical indicating whether to perform re-alignment of fixations.
 The default is TRUE. If set to FALSE, the script will return a data frame with
 only the raw fixations extracted from the data.}
+
+\item{RSpar}{A vector of parameter values (n=3) for detecting return sweeps in the data.
+It's usually best not to change this unless you know what you are doing. The default values
+have been tested to work well in most cases.
+1). Minimum Y-distance travelled as a function of line height (1= saccade has to travel
+the height of one line of text)
+2). Minimum X-distance travelled in characters to the left
+3). How much the saccade went down compared to the y postion of the previous fixation.
+This is again measured in line heights (1= the eye travelled 1 line height below the
+previous fixation).
+Use= c(1/4, 8, 2/3)}
 
 \item{plot}{A logical indicating whether to plot the raw and re-aligned fixations
 as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
