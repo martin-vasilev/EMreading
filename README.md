@@ -1,3 +1,5 @@
+<span style="color:red"> **Please note that the script is still under development and has not been extensively tested.**</span>
+
 ## Installation:
 
 To install the package, please run the following code in R:
@@ -16,6 +18,3 @@ install_github('martin-vasilev/paraFix')
 ## Fixation re-alignment algorithm:
 
 
-
-
-**Please note that the script is still under development and has not been extensively tested.**
