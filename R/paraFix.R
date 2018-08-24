@@ -27,15 +27,27 @@
 #' Note that plotting images will generally take longer time to pre-process the data.
 #' The images are saved in the current working directory in the folder "img".
 #'
+#' @param RSpar A vector of parameter values (n=3) for detecting return sweeps in the data.
+#' It's usually best not to change this unless you know what you are doing. The default values
+#' have been tested to work well in most cases.
+#' 1). Minimum Y-distance travelled as a function of line height (1= saccade has to travel
+#' the height of one line of text)
+#' 2). Minimum X-distance travelled in characters to the left
+#' 3). How much the saccade went down compared to the y postion of the previous fixation.
+#' This is again measured in line heights (1= the eye travelled 1 line height below the
+#' previous fixation).
+#' Use= c(1/4, 8, 2/3)
+#'
 #' @return A data frame containing the data
 #'
 #' @example
-#' myData<- paraFix(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,align=TRUE, plot=TRUE)
+#' myData<- paraFix(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
+#' align=TRUE, RSpar= c(1/4, 8, 2/3), plot=TRUE)
 #'
 #' @include utility.R
 
 paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
-                   align=TRUE, plot=TRUE, keepLastFix=TRUE){
+                   align=TRUE, RSpar= c(1/4, 8, 2/3), plot=TRUE, keepLastFix=TRUE){
 
   # check file input:
   if(grepl('.txt', data_list)){
@@ -68,7 +80,9 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
 
         # Align fixations:
         if(align){
-          RFalignTemp<- reAlign(raw_fix_temp, coords, map, ResX, ResY)
+          RFalignTemp<- reAlign(raw_fix_temp, coords, map, ResX, ResY,
+                                Ythresh= RSpar[1],Xthresh= RSpar[2],
+                                threshSimilar= RSpar[3])
           RFalign<- rbind(RFalign, RFalignTemp)
           # plot re-aligned fixations
           plot_fix(coords, RFalignTemp, i, j, ResX, ResY, reAligned=T)

@@ -666,15 +666,16 @@ plot_fix<- function(coords, raw_fix_temp, i, j, ResX, ResY, hasText=TRUE, plotSe
 }
 
 
-reAlign<- function(rawfix, coords, map, ResX, ResY){
+reAlign<- function(rawfix, coords, map, ResX, ResY, Ythresh,
+                   Xthresh, threshSimilar){
 
   #------------------------------------------
   #                Functions:
   #------------------------------------------
 
   # Check for a return sweep (RS):
-  RS<- function(i, rawfix, coords, reqYthresh=TRUE, reqXthresh=TRUE, Ythresh= 1/4,
-                Xthresh= 8, threshSimilar= 2/3){
+  RS<- function(i, rawfix, coords, reqYthresh=TRUE, reqXthresh=TRUE, Ythresh= Ythresh,
+                Xthresh= Xthresh, threshSimilar= threshSimilar){
 
     if(i==1){ # first fixation can't be a return sweep
       return(0)
