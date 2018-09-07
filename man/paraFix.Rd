@@ -5,16 +5,19 @@
 \title{Main function for pre-processing fixations and vertical re-alignment}
 \usage{
 paraFix(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, align = TRUE, RSpar = c(1/4, 8, 2/3), plot = TRUE,
+  maxtrial = 120, align = TRUE, RSpar = c(1/4, 8, 2/3), plot = FALSE,
   keepLastFix = TRUE)
 }
 \arguments{
-\item{data_list}{Directory of a txt file that contains all the .asc data file names.
-In the .txt file, each .asc data file should appear on a separate row, e.g.:
-C:/My Data/subject1.asc.
-C:/My Data/subject2.asc.
-If you want to process only one .asc file, just supply the file location in the string, e.g.:
-C:/My Data/subject1.asc.}
+\item{data_list}{Input of data files to be processed. This can be specified in three ways:
+1) a directory that contains all the files (it will select all files ending with ".asc",
+and order them by participant number, if present).
+2) Directory to a txt file that contains all the .asc data file names inside:
+e.g., data_list= "C:/My Data/data_list.txt".
+In the .txt file, the directory for each .asc data file should appear on a separate row,
+e.g.: C:/My Data/subject1.asc /n
+C:/My Data/subject2.asc
+3) A directory to a single .asc file: e.g., data_list= "C:/My Data/subject1.asc".}
 
 \item{ResX}{X screen resolution in pixels}
 

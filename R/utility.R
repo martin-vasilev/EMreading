@@ -7,6 +7,37 @@
 #  UTILITY FUNCTIONS   #
 ########################
 
+# get a list of .asc files from a user-provided directory
+get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
+
+  # get a list of all file in dir:
+  all_files<- list.files(dir)
+  # remove non-asc files (if present)
+  all_files<- all_files[grepl(".asc", all_files)]
+  # remove txt files (of present):
+  all_files<- all_files[!grepl(".txt", all_files)]
+
+  # sort files by number in string
+  get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
+  num<- get_num(all_files)
+
+  if(!is.na(num[1])){
+    all_files<- all_files[order(num, all_files)]
+  }
+  # convert to directory string for each data file:
+  if(length(all_files)>0){
+    all_dirs<- NULL
+    for(i in 1:length(all_files)){
+      all_dirs[i]<- paste(dir, "/", all_files[i], sep = "")
+    }
+
+    paste("Found", toString(length(all_files)), "asc files in the specified directory!")
+    return(all_dirs)
+  }else{
+    stop("Found no .asc files in the specified directory!")
+  }
+} # end of get_files()
+
 
 # Extract text containing stimuli info:
 get_text<- function(file){ ## extracts the loaded text material                         #

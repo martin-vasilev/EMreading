@@ -5,12 +5,15 @@
 #'
 #' @author Martin R. Vasilev
 #'
-#' @param data_list Directory of a txt file that contains all the .asc data file names.
-#' In the .txt file, each .asc data file should appear on a separate row, e.g.:
-#' C:/My Data/subject1.asc.
-#' C:/My Data/subject2.asc.
-#' If you want to process only one .asc file, just supply the file location in the string, e.g.:
-#' C:/My Data/subject1.asc.
+#' @param data_list Input of data files to be processed. This can be specified in three ways:
+#' 1) a directory that contains all the files (it will select all files ending with ".asc",
+#' and order them by participant number, if present).
+#' 2) Directory to a txt file that contains all the .asc data file names inside:
+#' e.g., data_list= "C:/My Data/data_list.txt".
+#' In the .txt file, the directory for each .asc data file should appear on a separate row,
+#' e.g.: C:/My Data/subject1.asc /n
+#' C:/My Data/subject2.asc
+#' 3) A directory to a single .asc file: e.g., data_list= "C:/My Data/subject1.asc".
 #'
 #' @param ResX X screen resolution in pixels
 #'
@@ -47,13 +50,19 @@
 #' @include utility.R
 
 paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
-                   align=TRUE, RSpar= c(1/4, 8, 2/3), plot=TRUE, keepLastFix=TRUE){
+                   align=TRUE, RSpar= c(1/4, 8, 2/3), plot=FALSE, keepLastFix=TRUE){
 
   # check file input:
   if(grepl('.txt', data_list)){
     data<- readLines(data_list, warn=F) # process multiple files
   }else{
-    data<- data_list # process only 1 file
+    if(grepl('.asc', data_list)){ # if a single .asc file was provided...
+      data<- data_list # process only 1 file
+    } else{ # otherwise, it must be a dir of files
+      data<- get_files(data_list)
+    }
+
+
   }
 
   raw_fix<- NULL; RFalign<- NULL
