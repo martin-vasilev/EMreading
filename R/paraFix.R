@@ -61,8 +61,6 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
     } else{ # otherwise, it must be a dir of files
       data<- get_files(data_list)
     }
-
-
   }
 
   raw_fix<- NULL; RFalign<- NULL
