@@ -316,6 +316,33 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
     return(y)
   }
 
+  get_seq<- function(start, end, file){
+    # find start:
+    lines<- grep(start, file)
+    hits<- file[lines]
+    loc<- grep("SFIX", hits)
+    s1<- lines[loc] +1
+
+    # find end:
+    lines2<- grep(end, file)
+    hits2<- file[lines2]
+    loc2<- grep("EFIX", hits2)
+    #hits2<- hits2[-loc2]
+    s2<- lines2
+    s2<- s2[-loc2]
+
+    # extract fixation txt data:
+    text<- file[s1:s2]
+    out <-  as.data.frame(do.call(rbind, strsplit( text, '\t' )))
+    out$V2<- as.numeric(as.character(out$V2))
+    out$V3<- as.numeric(as.character(out$V3))
+    out$V4<- as.numeric(as.character(out$V4))
+    return(out)
+
+  }
+
+  trialFile<- file[trial_db$start:trial_db$end]
+
 
   # get position of fixation stamps:
   SFIX_stamps<- which(grepl('SFIX', file[trial_db$start:trial_db$end]))
@@ -349,6 +376,19 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
 
   # get y pixel position:
   y<- get_y_pixel(file[EFIX_stamps+ trial_db$start-1])
+
+  # new blink code:
+#  blink<- NULL
+#  for(i in 1:length(s_time)){
+#    GP<-get_seq(s_time[i], e_time[i], trialFile)
+#    eye_clozed<- which(GP$V4==0)
+#    if(length(eye_clozed)>0){
+#      blink[i]<- 1
+#    }else{
+#      blink[i]<- 0
+#    }
+#  }
+
 
   # find blinks:
   blink_stamp<- which(grepl('EBLINK', file[trial_db$start:trial_db$end]))

@@ -11,5 +11,6 @@ RoxygenNote: 6.0.1
 Collate: 
     'utility.R'
     'SLpreproc.R'
+    'parseData.R'
     'ocr.r'
     'paraFix.R'

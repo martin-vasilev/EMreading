@@ -79,6 +79,7 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         }
       } else{ # if there was no text in trial, just extract fixations
         raw_fix_temp<- parse_fix(file, map=0, coords=0, trial_db[j,], i, ResX, ResY, keepLastFix, hasText=FALSE)
+        raw_fix_temp$sub<- i
         raw_fix<- rbind(raw_fix, raw_fix_temp)
         # create picture of fixations:
 
