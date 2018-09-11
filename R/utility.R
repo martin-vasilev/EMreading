@@ -591,6 +591,12 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         regress[j]<- 0
       #  intrasent_regr[j]<- 0
       }
+      
+      if(j>1 & !is.na(word[j])){
+        if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
+          regress[j]<- 1
+        }
+      }
 
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;

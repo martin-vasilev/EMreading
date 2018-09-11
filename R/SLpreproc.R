@@ -103,7 +103,9 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
   cat("\n \n All Done!");
   
   # remove columns that are not useful for single line data:
-  raw_fix<- raw_fix[,-c(12,15)]
+  raw_fix$line<- NULL
+  raw_fix$char_line<- NULL
+  #raw_fix<- raw_fix[,-c(12,15)]
   
   return(raw_fix)
 
