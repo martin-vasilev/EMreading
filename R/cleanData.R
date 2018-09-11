@@ -6,7 +6,7 @@
 #' @param raw_fix Raw fixations that were pre-processed with the EMreading package
 #' 
  
-cleanData<- function(raw_fix){
+cleanData<- function(raw_fix, outlierCutoff= 800){
    
    nstart<- nrow(raw_fix)
     
@@ -23,11 +23,19 @@ cleanData<- function(raw_fix){
    raw_fix$prev_blink<- NULL
    raw_fix$after_blink<- NULL
    
-   cat(paste("Removed fixations: \n", "- outside of text or screen: ", 
-             round((nOutBnds/nstart)*100, 4), " % \n",
-             "- due to blinks: ", round((nblink/nstart)*100, 4), " % \n\n",
-             "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 4),
-             sep = ''))
+   if(outlierCutoff!= FALSE){
+     raw_fix<- subset(raw_fix, fix_dur<= outlierCutoff)
+     nOutlier<- nstart- nOutBnds - nblink- nrow(raw_fix)
+   }
+   
+   output<- paste("Removed fixations: \n", "- outside of text or screen: ", 
+                  round((nOutBnds/nstart)*100, 4), " % \n",
+                  "- due to blinks: ", round((nblink/nstart)*100, 4), " % \n",
+                  "- outliers: ", round((nOutlier/nstart)*100, 4), " % \n \n",
+                  "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 4),
+                  sep = '')
+   
+   cat(output)
    
    return(raw_fix)
 
