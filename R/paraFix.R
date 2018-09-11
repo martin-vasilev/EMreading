@@ -50,7 +50,8 @@
 #' @include utility.R
 
 paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
-                   align=TRUE, RSpar= c(1/4, 8, 2/3), plot=FALSE, keepLastFix=TRUE){
+                   align=TRUE, RSpar= c(1/4, 8, 2/3), plot=FALSE, tBlink= 50,
+                   keepLastFix=TRUE){
 
   # check file input:
   if(grepl('.txt', data_list)){
@@ -83,7 +84,8 @@ paraFix<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtri
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
-        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, keepLastFix)
+        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink,
+                                 keepLastFix)
 
         # Align fixations:
         if(align){

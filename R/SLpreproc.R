@@ -35,7 +35,7 @@
 #' @include utility.R
 
 SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
-                  plot=FALSE, keepLastFix=TRUE){
+                     plot=FALSE, keepLastFix=TRUE){
 
   # check file input:
   if(grepl('.txt', data_list)){
@@ -68,7 +68,8 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
-        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, keepLastFix)
+        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY,
+                                 keepLastFix)
 
         # Align fixations:
         raw_fix<- rbind(raw_fix, raw_fix_temp)

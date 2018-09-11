@@ -295,7 +295,8 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
 
 
 # Basic pre-processing and extraction of fixations from data file:
-parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, hasText=TRUE){
+parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
+                     keepLastFix, hasText=TRUE){
 
   get_FIX_stamp<- function(string){as.numeric(substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1))}
 
@@ -316,37 +317,78 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
     return(y)
   }
 
-  get_seq<- function(start, end, file){
-    # find start:
-    lines<- grep(start, file)
-    hits<- file[lines]
-    loc<- grep("SFIX", hits)
-    s1<- lines[loc] +1
-
-    # find end:
-    lines2<- grep(end, file)
-    hits2<- file[lines2]
-    loc2<- grep("EFIX", hits2)
-    #hits2<- hits2[-loc2]
-    s2<- lines2
-    s2<- s2[-loc2]
-
-    # extract fixation txt data:
-    text<- file[s1:s2]
-    out <-  as.data.frame(do.call(rbind, strsplit( text, '\t' )))
-    out$V2<- as.numeric(as.character(out$V2))
-    out$V3<- as.numeric(as.character(out$V3))
-    out$V4<- as.numeric(as.character(out$V4))
+  get_seq<- function(start, end, file, prev= F){
+    
+    if(!prev){
+      # find start:
+      lines<- grep(start, file)
+      hits<- file[lines]
+      loc<- grep("SFIX", hits)
+      s1<- lines[loc] +1
+      
+      # find end:
+      lines2<- grep(end, file)
+      hits2<- file[lines2]
+      loc2<- grep("EFIX", hits2)
+      #hits2<- hits2[-loc2]
+      s2<- lines2
+      s2<- s2[-loc2]
+      
+      # extract fixation txt data:
+      text<- file[s1:s2]
+      out <-  as.data.frame(do.call(rbind, strsplit( text, '\t' )))
+      out$V2<- as.numeric(as.character(out$V2))
+      out$V3<- as.numeric(as.character(out$V3))
+      out$V4<- as.numeric(as.character(out$V4))
+      
+    }else{
+      # find start:
+      s1<- grep(start, file)
+      if(length(s1)>1){
+        s1<- s1[1]
+      }
+      
+      # find end:
+      s2<- grep(end, file)
+      if(length(s2)>1){
+        s2<- s2[1]
+      }
+      
+      text<- file[s1:s2]
+      
+      whichSSACC<- which(grepl('SSACC', text))
+      whichESACC<- which(grepl('ESACC', text))
+      whichSFIX<- which(grepl('SFIX', text))
+      whichEFIX<- which(grepl('EFIX', text))
+      whichMSG<- which(grepl('MSG', text))
+      whichSBLINK<- which(grepl('SBLINK', text))
+      whichEBLINK<- which(grepl('EBLINK', text))
+      
+      allOut<- c(whichSSACC, whichESACC, whichSFIX, whichEFIX, whichMSG,
+                 whichSBLINK, whichEBLINK)
+      
+      if(length(allOut)>0){
+        text<- text[-allOut]
+      }
+      
+      out <-  as.data.frame(do.call(rbind, strsplit( text, '\t' )))
+      out$V2<- as.numeric(as.character(out$V2))
+      out$V3<- as.numeric(as.character(out$V3))
+      out$V4<- as.numeric(as.character(out$V4))
+      
+    }
+    
     return(out)
 
   }
 
-  trialFile<- file[trial_db$start:trial_db$end]
+  trialFile<- file[trial_db$ID:trial_db$end]
 
 
   # get position of fixation stamps:
   SFIX_stamps<- which(grepl('SFIX', file[trial_db$start:trial_db$end]))
   EFIX_stamps<- which(grepl('EFIX', file[trial_db$start:trial_db$end]))
+  
 
   if(length(SFIX_stamps)==0 | length(EFIX_stamps)==0){
     # means that there was no complete fixation on this trial (i.e,
@@ -364,6 +406,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
     SFIX_stamps<- SFIX_stamps[-length(SFIX_stamps)]
   } # fixation was not terminated before the end of trial
 
+  
   # get start and end time of fixations:
   s_time<- get_FIX_stamp(file[SFIX_stamps+ trial_db$start])  # start time of fixation
   e_time<- get_FIX_stamp(file[EFIX_stamps+ trial_db$start-2]) # end time of fixation
@@ -378,40 +421,62 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
   y<- get_y_pixel(file[EFIX_stamps+ trial_db$start-1])
 
   # new blink code:
-#  blink<- NULL
-#  for(i in 1:length(s_time)){
-#    GP<-get_seq(s_time[i], e_time[i], trialFile)
-#    eye_clozed<- which(GP$V4==0)
-#    if(length(eye_clozed)>0){
-#      blink[i]<- 1
-#    }else{
-#      blink[i]<- 0
-#    }
-#  }
+  blink<- NULL
+  prev_blink<- NULL
+  after_blink<- NULL
+  
+  for(k in 1:length(s_time)){
+    GP<- suppressWarnings(get_seq(s_time[k], e_time[k], trialFile))
+    eye_clozed<- which(GP$V4==0)
+    if(length(eye_clozed)>0){
+      blink[k]<- 1
+    }else{
+      blink[k]<- 0
+    }
+    
+    # blink before start of fix?
+    prev<- suppressWarnings(get_seq(s_time[k]-50, s_time[k], trialFile, prev=T))
+    prev_closed<- which(prev$V4==0)
+    if(length(prev_closed)>0){
+      prev_blink[k]<- 1
+    }else{
+      prev_blink[k]<- 0
+    }
+    
+    # blink after start of fix?
+    after<- suppressWarnings(get_seq(e_time[k], e_time[k]+50, trialFile, prev=T))
+    after_closed<- which(after$V4==0)
+    if(length(after_closed)>0){
+      after_blink[k]<- 1
+    }else{
+      after_blink[k]<- 0
+    }
+  
+  }
 
 
   # find blinks:
-  blink_stamp<- which(grepl('EBLINK', file[trial_db$start:trial_db$end]))
-  blink_time<- get_FIX_stamp(file[blink_stamp+ trial_db$start])-1
-  blink_out<- which(blink_time<s_time[1]| blink_time>e_time[length(e_time)])
+#  blink_stamp<- which(grepl('EBLINK', file[trial_db$start:trial_db$end]))
+#  blink_time<- get_FIX_stamp(file[blink_stamp+ trial_db$start])-1
+#  blink_out<- which(blink_time<s_time[1]| blink_time>e_time[length(e_time)])
 
-  if(length(blink_out>0)){ # blinks outside time window that is analysed
-    blink_time<- blink_time[-blink_out]  # remove them
-  }
+#  if(length(blink_out>0)){ # blinks outside time window that is analysed
+#    blink_time<- blink_time[-blink_out]  # remove them
+#  }
 
-  blink_pos<- loc_blinks(blink_time, s_time)
-  blink<- rep(0, length(s_time))
-  blink[blink_pos]<-1
+#  blink_pos<- loc_blinks(blink_time, s_time)
+#  blink<- rep(0, length(s_time))
+#  blink[blink_pos]<-1
 
   # merge into a dataframe:
-  fix<- data.frame(s_time, e_time, fixDur, x, y, blink)
+  fix<- data.frame(s_time, e_time, fixDur, x, y, blink, prev_blink, after_blink)
 
   #-----------------------------------------------#
   #    map fixations to stimuli on the screen:    #
   #-----------------------------------------------#
 
-  loc<- NULL; raw_fix<- NULL; temp<- NULL; sub<- NULL
-  s_time<- NULL; e_time<- NULL; xPos<- NULL; yPos<- NULL
+  loc<- NULL; raw_fix<- NULL; temp<- NULL; sub<- NULL; prev_blink<- NULL
+  SFIX<- NULL; EFIX<- NULL; xPos<- NULL; yPos<- NULL; after_blink<- NULL
   item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL
   sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL
   max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL
@@ -439,11 +504,13 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
     fix_dur[j]<- fix$fixDur[j]
 
     # info from asc file:
-    s_time[j]<- fix$s_time[j];
-    e_time[j]<- fix$e_time[j]
+    SFIX[j]<- fix$s_time[j];
+    EFIX[j]<- fix$e_time[j]
     xPos[j]<- fix$x[j];
     yPos[j]<- fix$y[j]
     blink[j]<- fix$blink[j]
+    prev_blink[j]<- fix$prev_blink[j]
+    after_blink[j]<- fix$after_blink[j]
 
 
       if(xPos[j]<1 | xPos[j]> ResX | yPos[j]< 1 | yPos[j]>ResY){ # fixation is out of bounds
@@ -535,8 +602,8 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, keepLastFix, ha
 #                       sent, max_sent, line, word, max_word, char_trial, intrasent_regr, intersent_regr, blink,
 #                       outOfBnds, outsideText)
 
-  raw_fix<- data.frame(sub,item, cond, seq, s_time, e_time,xPos, yPos, fix_num, fix_dur,
-                       sent, line, word, char_trial, blink,
+  raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
+                       sent, line, word, char_trial, blink, prev_blink, after_blink,
                        outOfBnds, outsideText)
 
     if(keepLastFix==FALSE){
