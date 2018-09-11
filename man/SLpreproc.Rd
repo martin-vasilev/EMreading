@@ -2,10 +2,10 @@
 % Please edit documentation in R/SLpreproc.R
 \name{SLpreproc}
 \alias{SLpreproc}
-\title{Pre-processing of Single-line reading data}
+\title{Pre-processing of single-line reading data}
 \usage{
 SLpreproc(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, plot = FALSE, keepLastFix = TRUE)
+  maxtrial = 120, tBlink = 50, plot = FALSE, keepLastFix = TRUE)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
@@ -23,6 +23,10 @@ C:/My Data/subject2.asc
 \item{ResY}{Y screen resolution in pixels}
 
 \item{maxtrial}{Maximum number of trials in the experiment}
+
+\item{tBlink}{Time in milliseconds for detecting blinks before or after fixation. 
+If there is a blink x milliseconds before or after the fixation, it will be marked
+as having a blink. The default is 50 ms.}
 
 \item{plot}{A logical indicating whether to plot the raw and re-aligned fixations
 as an image file. The default is TRUE. If set to FALSE, no images will be plotted.

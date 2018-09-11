@@ -84,7 +84,7 @@ get_coord<- function(string){ # extracts text coordinates from trial info
 
   out <-  do.call( rbind, strsplit( string, '\t' ) )
   out<- out[,2]
-  out <-  data.frame(do.call( rbind, strsplit( out, ' ' ) ) )
+  out <- suppressWarnings(data.frame(do.call(rbind, strsplit(out, ' ' ))))
 
   out<- subset(out, X2!="DELAY") # Remove DELAY 1ms lines (Eyetrack)
 
@@ -295,7 +295,7 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
 
 
 # Basic pre-processing and extraction of fixations from data file:
-parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
+parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
                      keepLastFix, hasText=TRUE){
 
   get_FIX_stamp<- function(string){as.numeric(substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1))}
@@ -435,7 +435,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
     }
     
     # blink before start of fix?
-    prev<- suppressWarnings(get_seq(s_time[k]-50, s_time[k], trialFile, prev=T))
+    prev<- suppressWarnings(get_seq(s_time[k]-tBlink, s_time[k], trialFile, prev=T))
     prev_closed<- which(prev$V4==0)
     if(length(prev_closed)>0){
       prev_blink[k]<- 1
@@ -444,13 +444,18 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
     }
     
     # blink after start of fix?
-    after<- suppressWarnings(get_seq(e_time[k], e_time[k]+50, trialFile, prev=T))
-    after_closed<- which(after$V4==0)
-    if(length(after_closed)>0){
-      after_blink[k]<- 1
-    }else{
-      after_blink[k]<- 0
+    if(k!= length(s_time)){ #if not last fix on trial
+      after<- suppressWarnings(get_seq(e_time[k], e_time[k]+tBlink, trialFile, prev=T))
+      after_closed<- which(after$V4==0)
+      if(length(after_closed)>0){
+        after_blink[k]<- 1
+      }else{
+        after_blink[k]<- 0
+      }
+    }else{ # na, no data after this fix
+      after_blink[k]<- NA
     }
+
   
   }
 
@@ -478,7 +483,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
   loc<- NULL; raw_fix<- NULL; temp<- NULL; sub<- NULL; prev_blink<- NULL
   SFIX<- NULL; EFIX<- NULL; xPos<- NULL; yPos<- NULL; after_blink<- NULL
   item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL
-  sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL
+  sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL
   max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL
   intrasent_regr<- NULL; blink<- NULL; outOfBnds<- NULL; outsideText<- NULL
 
@@ -542,6 +547,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
         line[j]<- coords$line[loc]
         word[j]<- coords$word[loc]
         char_trial[j]<- as.numeric(as.character(levels(coords$char[loc])[coords$char[loc]]))+1
+        char_line[j]<- coords$line_char[loc]
         # +1 bc Eyetrack counts from 0
       } else{
         sent[j]<- NA; line[j]<- NA; word[j]<- NA; char_trial[j]<- NA
@@ -586,7 +592,8 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
 
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;
-      char_trial[j]=NA; intrasent_regr[j]=NA; intersent_regr[j]=NA; outsideText[j]=NA
+      char_trial[j]=NA; intrasent_regr[j]=NA; intersent_regr[j]=NA; outsideText[j]=NA;
+      char_line[j]= NA;
     }
 
 
@@ -603,7 +610,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY,
 #                       outOfBnds, outsideText)
 
   raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
-                       sent, line, word, char_trial, blink, prev_blink, after_blink,
+                       sent, line, word, char_trial, char_line, blink, prev_blink, after_blink,
                        outOfBnds, outsideText)
 
     if(keepLastFix==FALSE){

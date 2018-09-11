@@ -20,6 +20,10 @@
 #' @param ResY Y screen resolution in pixels
 #'
 #' @param maxtrial Maximum number of trials in the experiment
+#' 
+#' @param tBlink Time in milliseconds for detecting blinks before or after fixation. 
+#' If there is a blink x milliseconds before or after the fixation, it will be marked
+#' as having a blink. The default is 50 ms.
 #'
 #' @param plot A logical indicating whether to plot the raw and re-aligned fixations
 #' as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
@@ -34,8 +38,8 @@
 #'
 #' @include utility.R
 
-SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
-                     plot=FALSE, keepLastFix=TRUE){
+SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120, 
+                     tBlink= 50, plot=FALSE, keepLastFix=TRUE){
 
   # check file input:
   if(grepl('.txt', data_list)){
@@ -68,7 +72,7 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
-        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY,
+        raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink,
                                  keepLastFix)
 
         # Align fixations:
@@ -97,6 +101,10 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
 
 
   cat("\n \n All Done!");
+  
+  # remove columns that are not useful for single line data:
+  raw_fix<- raw_fix[,-c(12,15)]
+  
   return(raw_fix)
 
 } # end of ParaFix
