@@ -13,7 +13,7 @@ if('devtools' %in% rownames(installed.packages())==FALSE){
   }else{
     library(devtools)
   }
-install_github('martin-vasilev/readingET')
+install_github('martin-vasilev/EMreading')
 ```
 
 ## Current functionality:
