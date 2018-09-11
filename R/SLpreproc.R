@@ -73,7 +73,7 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
 
         # Extract raw fixations from data and map them to the text:
         raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink,
-                                 keepLastFix)
+                                 keepLastFix, SL= TRUE)
 
         # Align fixations:
         raw_fix<- rbind(raw_fix, raw_fix_temp)

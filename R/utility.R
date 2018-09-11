@@ -296,7 +296,7 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
 
 # Basic pre-processing and extraction of fixations from data file:
 parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
-                     keepLastFix, hasText=TRUE){
+                     keepLastFix, hasText=TRUE, SL= FALSE){
 
   get_FIX_stamp<- function(string){as.numeric(substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1))}
 
@@ -484,7 +484,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   SFIX<- NULL; EFIX<- NULL; xPos<- NULL; yPos<- NULL; after_blink<- NULL
   item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL
   sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL
-  max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL
+  max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL; regress<- NULL
   intrasent_regr<- NULL; blink<- NULL; outOfBnds<- NULL; outsideText<- NULL
 
   if(hasText){
@@ -554,27 +554,27 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
       }
 
       # saccade stuff:
-      #if(j==1){
-      #  max_sent[j]<- sent[j]
-      #} else{
-      #  max_sent[j]<- max_sent[j-1]
+      if(j==1){
+        max_sent[j]<- sent[j]
+      } else{
+        max_sent[j]<- max_sent[j-1]
 
-      #  if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
-      #    max_sent[j]<- sent[j]
-      #  }
-      #}
+        if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+          max_sent[j]<- sent[j]
+        }
+      }
 
       # maximum word:
-      #if(j==1){
-      #  max_word[j]<- abs(word[j])
-      #  curr_sent[sent[j],2]<- abs(word[j])
-      #} else{
-      #  max_word[j]<- curr_sent[sent[j],2]
-      #  if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
-      #    max_word[j]<- abs(word[j])
-      #    curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
-      #  }
-      #}
+      if(j==1){
+        max_word[j]<- abs(word[j])
+        curr_sent[sent[j],2]<- abs(word[j])
+      } else{
+        max_word[j]<- curr_sent[sent[j],2]
+        if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
+          max_word[j]<- abs(word[j])
+          curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
+        }
+      }
 
       # Regression stuff:
       #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
@@ -584,16 +584,18 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
       #}
 
       # intra-sentence regressions:
-      #if(!is.na(word[j])& abs(word[j])<max_word[j]){
+      if(!is.na(word[j])& abs(word[j])<max_word[j]){
       #  intrasent_regr[j]<- 1
-      #}else{
+        regress[j]<- 1
+      }else{
+        regress[j]<- 0
       #  intrasent_regr[j]<- 0
-      #}
+      }
 
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;
       char_trial[j]=NA; intrasent_regr[j]=NA; intersent_regr[j]=NA; outsideText[j]=NA;
-      char_line[j]= NA;
+      char_line[j]= NA; regress[j]<- NA
     }
 
 
@@ -608,10 +610,16 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 #  raw_fix<- data.frame(sub,item, cond, seq, s_time, e_time,xPos, yPos, fix_num, fix_dur,
 #                       sent, max_sent, line, word, max_word, char_trial, intrasent_regr, intersent_regr, blink,
 #                       outOfBnds, outsideText)
+  if(SL){
+    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
+                         sent, line, word, char_trial, char_line, regress, blink,
+                         prev_blink, after_blink, outOfBnds, outsideText)
+  }else{
+    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
+                         sent, line, word, char_trial, char_line, blink, 
+                         prev_blink, after_blink, outOfBnds, outsideText)
+  }
 
-  raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
-                       sent, line, word, char_trial, char_line, blink, prev_blink, after_blink,
-                       outOfBnds, outsideText)
 
     if(keepLastFix==FALSE){
     # remove last fixation on trial (due to participants' making a decision to press the button)
