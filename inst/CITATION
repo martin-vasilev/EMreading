@@ -1,0 +1,10 @@
+citHeader("To cite EMreading in publications, please use:")
+
+citEntry(entry = "misc",
+  author = "Martin R. Vasilev",
+  title = "EMreading: Automatic pre-processing of eye-movement reading data",
+  year = "2018",
+  url = "https://github.com/martin-vasilev/EMreading",
+  textVersion = "Vasilev, M. R. (2018). EMreading: Automatic pre-processing of eye-movement reading data. R package version 0.0.1.2.
+  https://github.com/martin-vasilev/EMreading"
+)

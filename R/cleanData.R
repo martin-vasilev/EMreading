@@ -3,7 +3,11 @@
 #' 
 #' @author Martin R. Vasilev
 #' 
-#' @param raw_fix Raw fixations that were pre-processed with the EMreading package
+#' @param raw_fix Raw fixation data that were extracted with the EMreading package
+#' 
+#' @param outlierCutoff Specifies the exclusion of long fixations (outliers). If set to FALSE,
+#' no outliers will be exluded. If set to a number, fixations greater than that number will be
+#' excluded as outliers. Default is to exclude fixations longer than 800 ms as outliers.
 #' 
  
 cleanData<- function(raw_fix, outlierCutoff= 800){
