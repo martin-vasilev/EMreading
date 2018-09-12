@@ -554,7 +554,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         char_line[j]<- coords$line_char[loc]
         # +1 bc Eyetrack counts from 0
       } else{
-        sent[j]<- NA; line[j]<- NA; word[j]<- NA; char_trial[j]<- NA
+        sent[j]<- NA; line[j]<- NA; word[j]<- NA; char_trial[j]<- NA; char_line[j]<- NA
       }
 
       # saccade stuff:
