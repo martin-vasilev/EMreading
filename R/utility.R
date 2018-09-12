@@ -445,18 +445,22 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     
     # blink after start of fix?
     if(k!= length(s_time)){ #if not last fix on trial
-      after<- suppressWarnings(get_seq(e_time[k], e_time[k]+tBlink, trialFile, prev=T))
-      after_closed<- which(after$V4==0)
-      if(length(after_closed)>0){
-        after_blink[k]<- 1
-      }else{
-        after_blink[k]<- 0
+      if(length(grep(e_time[k]+tBlink, trialFile))>0){
+        after<- suppressWarnings(get_seq(e_time[k], e_time[k]+tBlink, trialFile, prev=T))
+        after_closed<- which(after$V4==0)
+        if(length(after_closed)>0){
+          after_blink[k]<- 1
+        }else{
+          after_blink[k]<- 0
+        }
+      } else{ # if not enough data..
+        after_blink[k]<- NA
       }
+      
     }else{ # na, no data after this fix
       after_blink[k]<- NA
     }
 
-  
   }
 
 
