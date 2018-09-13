@@ -528,10 +528,10 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   for(j in 1:nrow(fix)){
 
     if(hasText){
-      if(fix$y[j]>0 & fix$x[j]>0){ # to prevent negative numbers
+      if(round(fix$y[j])>0 & round(fix$x[j])>0){ # to prevent negative numbers
         loc<- map[fix$y[j], fix$x[j]] # locate fixation
       }else{
-        loc<- map[100000, 100000] # workaround to get same result as out of screen
+        loc<- NA # workaround to get same result as out of screen
       }
       
     }
