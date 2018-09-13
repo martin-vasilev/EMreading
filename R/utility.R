@@ -30,7 +30,7 @@ get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
       all_dirs[i]<- paste(dir, "/", all_files[i], sep = "")
     }
 
-    message(paste("Found", toString(length(all_files)), "asc files in the specified directory!"))
+    message(paste("Found", toString(length(all_files)), "asc files in the specified directory!", "\n"))
     return(all_dirs)
   }else{
     stop("Found no .asc files in the specified directory!")
@@ -528,7 +528,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   for(j in 1:nrow(fix)){
 
     if(hasText){
-      if(round(fix$y[j])>0 & round(fix$x[j])>0){ # to prevent negative numbers
+      if(round(fix$y[j])>0 & round(fix$x[j])>0 & round(fix$y[j])<= ResY & round(fix$x[j])< ResX){ # to prevent negative numbers
         loc<- map[fix$y[j], fix$x[j]] # locate fixation
       }else{
         loc<- NA # workaround to get same result as out of screen
