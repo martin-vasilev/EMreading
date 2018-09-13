@@ -2,7 +2,6 @@
 # Martin R. Vasilev, 2017
 
 
-
 ########################
 #  UTILITY FUNCTIONS   #
 ########################
@@ -31,7 +30,7 @@ get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
       all_dirs[i]<- paste(dir, "/", all_files[i], sep = "")
     }
 
-    paste("Found", toString(length(all_files)), "asc files in the specified directory!")
+    message(paste("Found", toString(length(all_files)), "asc files in the specified directory!"))
     return(all_dirs)
   }else{
     stop("Found no .asc files in the specified directory!")
@@ -281,6 +280,12 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
     # seq<- seq[-toBeRemoved]
     depend<- depend[-toBeRemoved]
     ID<- ID[-toBeRemoved]
+    
+    # workaround for missing trial end stamps:
+    if(length(end)< length(start)){
+      start<- start[-toBeRemoved]
+    }
+    
   } # end of aborted conditional
 
   trial_db<- data.frame(cond, item, depend, start, end, ID)
