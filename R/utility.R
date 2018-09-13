@@ -516,7 +516,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL
   max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL; regress<- NULL
   intrasent_regr<- NULL; blink<- NULL; outOfBnds<- NULL; outsideText<- NULL
-  wordID<- NULL; char_word<- NULL
+  wordID<- NULL; land_pos<- NULL; sacc_len<- NULL
 
   if(hasText){
     # max word for each sentence:
@@ -585,11 +585,18 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         char_trial[j]<- as.numeric(as.character(levels(coords$char[loc])[coords$char[loc]]))+1
         char_line[j]<- coords$line_char[loc]
         wordID[j]<- coords$wordID[loc]
-        char_word[j]<- coords$char_word[loc]
+        land_pos[j]<- coords$char_word[loc]
+        
+        if(j>1){
+          sacc_len[j]<- abs(char_trial[j]- char_trial[j-1])
+        }else{
+          sacc_len[j]<- NA
+        }
+        
         # +1 bc Eyetrack counts from 0
       } else{
         sent[j]<- NA; line[j]<- NA; word[j]<- NA; char_trial[j]<- NA; char_line[j]<- NA
-        wordID[j]<- NA; char_word[j]<- NA
+        wordID[j]<- NA; land_pos[j]<- NA; sacc_len[j]<- NA
       }
 
       # saccade stuff:
@@ -640,7 +647,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;
       char_trial[j]=NA; intrasent_regr[j]=NA; intersent_regr[j]=NA; outsideText[j]=NA;
-      char_line[j]= NA; regress[j]<- NA
+      char_line[j]= NA; regress[j]<- NA; wordID[j]<- NA; land_pos[j]<- NA; sacc_len<- NA
     }
 
 
@@ -657,12 +664,12 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 #                       outOfBnds, outsideText)
   if(SL){
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
-                         sent, line, word, char_trial, char_line, regress, wordID, char_word,
-                         blink, prev_blink, after_blink, outOfBnds, outsideText)
+                         sent, line, word, char_trial, char_line, regress, wordID, land_pos,
+                         sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }else{
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
-                         sent, line, word, char_trial, char_line, wordID, char_word,
-                         blink, prev_blink, after_blink, outOfBnds, outsideText)
+                         sent, line, word, char_trial, char_line, wordID, land_pos,
+                         sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }
 
 
