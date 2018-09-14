@@ -18,3 +18,19 @@ install_github('martin-vasilev/EMreading')
 
 ## Current functionality:
 
+### Pre-processing of single-line reading experiments recorded with Eyetrack
+
+To pre-process the data, simply use the `SLpreproc()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
+
+```
+# preprocess data
+data<- SLpreproc(data_list= "C:/Users/Martin Vasilev/My Data", ResX= 1920, ResY=1080, maxtrial= 120)
+```
+
+This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis.
+To perform a basic clean-up of the data, you can use:
+
+```
+dataN<- cleanData(data)
+```
+So far, this function removes blinks from the data, outlier fixation durations, as well as very short fixations (all can be modified by user input). The function also reports statistics of % fixation removed from each category for easy reporting.
