@@ -78,6 +78,54 @@ cleanData<- function(data= raw_fix, removeOutsideText= TRUE, removeBlinks= TRUE,
   cat("\n")
   
   
+    if(combineNearbySmallFix){
+      which_comb<- NULL
+      for(i in 1:nrow(raw_fix)){
+        if(i>1){
+          if(is.na(raw_fix$char_trial[i]) | is.na(raw_fix$char_trial[i-1]) | is.na(raw_fix$char_trial[i+1])){
+            next;
+          }
+          
+         if(raw_fix$fix_dur[i]< 80){
+           prev<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i-1])
+           after<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i+1])
+           if(prev== 1){
+             raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
+             which_comb<- c(which_comb, i)
+             cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                   ":\n     fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                   " ms)", " was merged with fix ", raw_fix$fix_num[i-1],
+                   " (", raw_fix$fix_dur[i-1], " ms)",
+                   ": new fix ", raw_fix$fix_num[i-1],
+                   " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i-1], 
+                   "ms)", sep=''))
+             cat("\n")
+            
+           }
+           if(after== 1){
+             raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i]
+             which_comb<- c(which_comb, i)
+             cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                       ":\n     fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                       " ms)", " was merged with fix ", raw_fix$fix_num[i+1],
+                       " (", raw_fix$fix_dur[i+1], " ms)",
+                       ": new fix ", raw_fix$fix_num[i+1],
+                       " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i+1], 
+                       "ms)", sep='')) 
+             cat("\n")
+           }
+           
+         }
+        }
+      }
+      
+      if(length(which_comb)>0){
+         raw_fix<- raw_fix[-which_comb,]
+      }
+      
+    }
+  
+  
   nstart<- nrow(raw_fix)
   
   # remove fixations outside of bounds and text:
