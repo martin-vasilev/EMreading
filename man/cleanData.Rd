@@ -4,10 +4,46 @@
 \alias{cleanData}
 \title{Clean up of pre-processed data}
 \usage{
-cleanData(raw_fix)
+cleanData(raw_fix = data, removeOutsideText = TRUE, removeBlinks = TRUE,
+  combineNearbySmallFix = TRUE, removeSmallFix = TRUE,
+  smallFixCutoff = 80, removeOutliers = TRUE, outlierMethod = "ms",
+  outlierCutoff = 800, silent = FALSE)
 }
 \arguments{
-\item{raw_fix}{Raw fixations that were pre-processed with the EMreading package}
+\item{raw_fix}{Dataframe containing the raw fixation data that were extracted with the
+EMreading package}
+
+\item{removeOutsideText}{A logical inicating whether to remove all fixations outside the text 
+and/or screen area. The default is TRUE.}
+
+\item{removeBlinks}{A logical indicating whether to exclude all blinks from the data. The 
+default (and recommended) setting is TRUE.}
+
+\item{combineNearbySmallFix}{A logical indicating whether to merge small fixations < 80 ms 
+that are within 1 character space of another fixation (the small fixation will be merged with
+ the nearby fixation). The default is TRUE.}
+
+\item{removeSmallFix}{A logical indicating whether to remove any remaining fixations smaller
+than a certain cut-off. The default is TRUE}
+
+\item{smallFixCutoff}{A numerical value indiciating the cut-off for removing small 
+fixations (the default is 80 ms). Any values smaller than this number will be removed.}
+
+\item{removeOutliers}{A logical indicating whether to remove outliers from the data (default
+is TRUE). This parameter also requires the specification of a method and cutoff for
+outlier exclusion (see below)}
+
+\item{outlierMethod}{A string indicating what type of outlier exclusion method to use.
+Allowed are 2 methods: "ms" for exclusion of fixations based on a number in milliseconds;
+or "std" for exlusion based on values that are a certain number of standard deviations above
+the subject's mean.}
+
+\item{outlierCutoff}{Numerical value that specifies the cut-off for removing outliers. If you 
+chose "ms" in "outlierMethod", please specify a number in ms (e.g., 800). if you chose "std",
+please enter a number in standard deviations above the mean (e.g., 3).}
+
+\item{silent}{A logical indicating whether to print output regarding merged fixations. 
+Set to FALSE if you don't want this output (default is TRUE).}
 }
 \description{
 Clean up of pre-processed data
