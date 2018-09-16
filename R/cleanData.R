@@ -69,7 +69,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   ### Print settings back to user:
   if(removeOutsideText){
-    s1<- 'remove all fixations outside the text and screen area'
+    s1<- 'remove all fixations outside the text or screen area'
   }else{
     s1<- ''
   }
@@ -98,7 +98,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
     s5<- ''
   }
   
-  cat(paste("I will", s1, s2, s3, s4, s5, sep='\n  - '))
+  cat(paste("I will:", s1, s2, s3, s4, s5, sep='\n  - '))
   cat("\n\n\n")
   
     if(combineNearbySmallFix){
@@ -191,7 +191,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   nSmallFix<- nstart- nOutBnds - nblink- nOutlier- nrow(raw_fix)
   
   
-  output<- paste("\nRemoved fixations: \n", "- outside of text or screen area: ", 
+  output<- paste("\n\n\nRemoved fixations: \n", "- outside of text or screen area: ", 
                  round((nOutBnds/nstart)*100, 4), " % \n",
                  "- due to blinks: ", round((nblink/nstart)*100, 4), " % \n",
                  "- outliers: ", round((nOutlier/nstart)*100, 4), " % \n",
@@ -202,7 +202,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   cat(output)
   
   
-  if(removeOutliers & nrow(o)>0 & length(unique(o$cond))>0){
+  if(removeOutliers & nrow(o)>0 & length(unique(o$cond))>1){
     test<- suppressWarnings(chisq.test(table(o$cond)))
     
     if(test$p.value<0.05){

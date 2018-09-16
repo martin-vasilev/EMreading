@@ -40,6 +40,8 @@
 
 SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120, 
                      tBlink= 50, plot=FALSE, keepLastFix=TRUE){
+  
+  options(scipen=999)
 
   # check file input:
   if(grepl('.txt', data_list)){

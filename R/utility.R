@@ -279,8 +279,8 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
   duplicated<- trials[duplicated(trials)]
 
   if(length(duplicated)>0){ # if there were aborted trials..
-    message(paste(" Diplicated trial", duplicated, "\n"))
-    message("Analysing only last attempt at the trial!")
+    message(paste(" Duplicated trial", duplicated, "\n"))
+    message("Analysing only last attempt at the trial(s)!")
 
     toBeRemoved<- NULL
 
