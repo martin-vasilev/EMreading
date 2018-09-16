@@ -90,29 +90,30 @@ cleanData<- function(data= raw_fix, removeOutsideText= TRUE, removeBlinks= TRUE,
            prev<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i-1])
            after<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i+1])
            if(prev== 1){
-             raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
              which_comb<- c(which_comb, i)
              cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
-                   ":\n     fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                   ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
                    " ms)", " was merged with fix ", raw_fix$fix_num[i-1],
                    " (", raw_fix$fix_dur[i-1], " ms)",
-                   ": new fix ", raw_fix$fix_num[i-1],
+                   " -> new fix ", raw_fix$fix_num[i-1],
                    " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i-1], 
                    "ms)", sep=''))
              cat("\n")
+             # merge only AFTER printing output!
+             raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
             
            }
            if(after== 1){
-             raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i]
              which_comb<- c(which_comb, i)
              cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
-                       ":\n     fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                       ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
                        " ms)", " was merged with fix ", raw_fix$fix_num[i+1],
                        " (", raw_fix$fix_dur[i+1], " ms)",
-                       ": new fix ", raw_fix$fix_num[i+1],
+                       " -> new fix ", raw_fix$fix_num[i+1],
                        " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i+1], 
                        "ms)", sep='')) 
              cat("\n")
+             raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i]
            }
            
          }
@@ -176,6 +177,11 @@ cleanData<- function(data= raw_fix, removeOutsideText= TRUE, removeBlinks= TRUE,
     }
   }
   
+  
+  # remove hasText if all trial= TRUE
+  if(length(which(raw_fix$hasText==1))== nrow(raw_fix)){
+    raw_fix$hasText<- NULL
+  }
   
   return(raw_fix)
   
