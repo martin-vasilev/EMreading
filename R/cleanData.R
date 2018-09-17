@@ -69,37 +69,34 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   ### Print settings back to user:
   if(removeOutsideText){
-    s1<- 'remove all fixations outside the text or screen area'
+    s1<- 'removed all fixations outside the text or screen area'
   }else{
     s1<- ''
   }
   
   if(removeBlinks){
-    s2<- "remove all blinks from the data"
+    s2<- "removed all blinks from the data"
   }
   
   if(removeOutliers){
-    s3<- paste("remove all fixation durations > ", outlierCutoff, " ",
+    s3<- paste("removed all fixation durations > ", outlierCutoff, " ",
                outlierMethod, " as outliers", sep= '')
   }else{
     s3<- ""
   }
   
   if(combineNearbySmallFix){
-    s4<- paste("combine any small fixations < ", smallFixCutoff, 
-               "ms within one character of another fixation", sep = '')
+    s4<- paste("combined any small fixations < ", smallFixCutoff, 
+               " ms within one character of another fixation", sep = '')
   }else{
     s4<- ''
   }
   
   if(removeSmallFix){
-    s5<- paste("remove any remaining fixations < ", smallFixCutoff, "ms", sep= '')
+    s5<- paste("removed any remaining fixations < ", smallFixCutoff, " ms", sep= '')
   }else{
     s5<- ''
   }
-  
-  cat(paste("I will:", s1, s2, s3, s4, s5, sep='\n  - '))
-  cat("\n\n\n")
   
     if(combineNearbySmallFix){
       which_comb<- NULL
@@ -191,11 +188,16 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   nSmallFix<- nstart- nOutBnds - nblink- nOutlier- nrow(raw_fix)
   
   
-  output<- paste("\n\n\nRemoved fixations: \n", "- outside of text or screen area: ", 
+  # summary of what was done:
+  cat("\n\n")
+  cat(paste("What I did:", s1, s2, s3, s4, s5, sep='\n  - '))
+  
+  
+  output<- paste("\n\nRemoved fixations (Report): \n", "  - outside of text or screen area: ", 
                  round((nOutBnds/nstart)*100, 4), " % \n",
-                 "- due to blinks: ", round((nblink/nstart)*100, 4), " % \n",
-                 "- outliers: ", round((nOutlier/nstart)*100, 4), " % \n",
-                 "- Small fixations: ", round((nSmallFix/nstart)*100, 4), " % \n \n",
+                 "  - due to blinks: ", round((nblink/nstart)*100, 4), " % \n",
+                 "  - outliers: ", round((nOutlier/nstart)*100, 4), " % \n",
+                 "  - Small fixations: ", round((nSmallFix/nstart)*100, 4), " % \n \n",
                  "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 4),
                  " % \n", sep = '')
   
@@ -206,7 +208,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
     test<- suppressWarnings(chisq.test(table(o$cond)))
     
     if(test$p.value<0.05){
-      warning("\n Chi-square test detects enequal number of outliers excluded per condition! \n")
+      cat("\n Chi-square test detects enequal number of outliers excluded per condition! \n")
       cat(paste("X^2(", test$parameter, ")", "= ", round(test$statistic, 4),
                 ", p= ", test$p.value, sep= ''))
       cat("\n")
