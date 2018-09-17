@@ -159,7 +159,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   # remove fixations outside of bounds and text:
   if(removeOutsideText){
-    raw_fix<- subset(raw_fix, outOfBnds==0 & outsideText==0)
+    raw_fix<- raw_fix[-which(raw_fix$outOfBnds==0 & raw_fix$outsideText==0 & raw_fix$hasText==1), ]
     raw_fix$outOfBnds<- NULL
     raw_fix$outsideText<- NULL
   }
