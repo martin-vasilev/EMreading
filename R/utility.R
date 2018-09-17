@@ -322,7 +322,7 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
 
 # Basic pre-processing and extraction of fixations from data file:
 parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
-                     keepLastFix, hasText=TRUE, SL= FALSE){
+                     hasText=TRUE, SL= FALSE){
 
   get_FIX_stamp<- function(string){as.numeric(substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1))}
 
@@ -672,11 +672,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }
 
-
-    if(keepLastFix==FALSE){
-    # remove last fixation on trial (due to participants' making a decision to press the button)
     raw_fix<- raw_fix[-nrow(raw_fix),]
-  }
 
   if(hasText==TRUE){
     raw_fix$hasText<-1
