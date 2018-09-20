@@ -8,3 +8,5 @@ data<- SLpreproc(data_list= "C:/Users/Martin Vasilev/Documents/Test/",
 save(data, file = "data.Rda")
 
 dataN<- cleanData(data)
+
+dataN<- cleanData(data, outlierMethod = "std", outlierCutoff = 3)

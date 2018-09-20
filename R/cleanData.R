@@ -81,6 +81,11 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   if(removeOutliers){
     s3<- paste("removed all fixation durations > ", outlierCutoff, " ",
                outlierMethod, " as outliers", sep= '')
+    if(outlierMethod=="std"){
+      s3<- paste("removed all fixation durations > ", outlierCutoff, " ",
+                 outlierMethod, " above the subject's mean as outliers", sep= '')
+    }
+    
   }else{
     s3<- ""
   }
@@ -178,9 +183,31 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   
   if(removeOutliers){
-    out<- which(raw_fix$fix_dur > outlierCutoff)
-    o<- raw_fix[out,]
-    raw_fix<- raw_fix[-out,]
+    if(outlierMethod== "ms"){
+      out<- which(raw_fix$fix_dur > outlierCutoff)
+      o<- raw_fix[out,]
+      raw_fix<- raw_fix[-out,] 
+    }
+    
+    if(outlierMethod== "std"){
+      nSubCutoff<- NULL
+      out<- NULL
+      outT<- NULL
+      
+      for(i in 1:length(unique(raw_fix$sub))){
+        
+        subM<- mean(raw_fix$fix_dur[raw_fix$sub==i]) # subject mean
+        subSTD<- sd(raw_fix$fix_dur[raw_fix$sub==i]) # subject std
+        cuttoff<- subM+ outlierCutoff*subSTD # cut-off (in STDs above mean)
+        nSubCutoff[i]<- length(which(raw_fix$sub==i & raw_fix$fix_dur> cuttoff))
+        
+        # remove outlier fixations for subject:
+        outT<- which(raw_fix$sub==i & raw_fix$fix_dur> cuttoff)
+        out<- c(out, outT)
+      }
+      o<- raw_fix[out,]
+      raw_fix<- raw_fix[-out,] 
+    }
   }
   nOutlier<- nstart- nOutBnds - nblink- nrow(raw_fix)
   
@@ -189,6 +216,18 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   }
   nSmallFix<- nstart- nOutBnds - nblink- nOutlier- nrow(raw_fix)
   
+  # if outlier removal was done by thhe std method:
+  # print excluded outliers per sub
+  if(outlierMethod== "std"){
+    cat("\n\n Percentage distribution of excluded outlier fixations per subject:\n\n")
+    nperc<- round((nSubCutoff/ sum(nSubCutoff))*100,2)
+    df<- data.frame(1:length(nperc), nperc)
+    colnames(df)<- c("Subject", "% total")
+    print(df, row.names = FALSE)
+    cat("      ----------\n")
+    cat("            100 %")
+  }
+  
   
   # summary of what was done:
   cat("\n\n")
@@ -196,11 +235,11 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   
   output<- paste("\n\nRemoved fixations (Report): \n", "  - outside of text or screen area: ", 
-                 round((nOutBnds/nstart)*100, 4), " % \n",
-                 "  - due to blinks: ", round((nblink/nstart)*100, 4), " % \n",
-                 "  - outliers: ", round((nOutlier/nstart)*100, 4), " % \n",
-                 "  - Small fixations: ", round((nSmallFix/nstart)*100, 4), " % \n \n",
-                 "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 4),
+                 round((nOutBnds/nstart)*100, 3), " % \n",
+                 "  - due to blinks: ", round((nblink/nstart)*100, 3), " % \n",
+                 "  - outliers: ", round((nOutlier/nstart)*100, 3), " % \n",
+                 "  - Small fixations: ", round((nSmallFix/nstart)*100, 3), " % \n \n",
+                 "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 3),
                  " % \n", sep = '')
   
   cat(output)
