@@ -104,8 +104,15 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   }
   
     if(combineNearbySmallFix){
+      
+      if(silent){cat("Merging small fixations in the data ...")}
+      
       which_comb<- NULL
       for(i in 1:nrow(raw_fix)){
+        
+  #      if(silent & is.element(i, unname(round(quantile(1:nrow(raw_fix))-1)[2:4]))){
+  #        cat(".")}
+        
         if(i>1){
           if(is.na(raw_fix$char_trial[i]) | is.na(raw_fix$char_trial[i-1]) | is.na(raw_fix$char_trial[i+1])){
             next;
