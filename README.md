@@ -25,12 +25,15 @@ To pre-process the data, simply use the `SLpreproc()` function of the package. Y
 ```
 # preprocess data
 data<- SLpreproc(data_list= "C:/Users/Martin Vasilev/My Data", ResX= 1920, ResY=1080, maxtrial= 120)
+
+# save raw data so that you don't have to re-do this later on:
+save(data, file = "data.Rda")
 ```
 
 This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis.
-To perform a basic clean-up of the data, you can use:
+To perform a complete clean-up of the data, you can use the `cleanData()` function:
 
 ```
 dataN<- cleanData(data)
 ```
-So far, this function removes blinks from the data, outlier fixation durations, as well as very short fixations (all can be modified by user input). The function also reports statistics of % fixation removed from each category for easy reporting.
+This performs a complete clean-up of the raw data that is standardly done in the field of eye-movements during reading. If you don't specify any parameters, it will do the default (conventionally done) clean-up: removal of fixations outside the screen or text area, blink removal, combining of short fixations (< 80ms) that occur within one letter of another fixation, removal of any remaining fixations < 80ms, removal of outlier fixations (> 800ms). All of these paramaters can be turned on or off, and the specific cut-off values can also be modified. Additionally, the script also supports removing outliers via the std method (i.e., removing all fixations that are x standard deviations above the subject's mean). The function also reports a summary containing the percentage of fixations removed from each category for easy reporting.
