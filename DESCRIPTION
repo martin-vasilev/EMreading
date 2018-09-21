@@ -12,6 +12,7 @@ Collate:
     'utility.R'
     'SLpreproc.R'
     'cleanData.R'
+    'mapText.R'
     'ocr.r'
     'paraFix.R'
-    'mapText.R'
+    'wordMeasures.R'

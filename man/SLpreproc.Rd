@@ -5,7 +5,7 @@
 \title{Pre-processing of single-line reading data}
 \usage{
 SLpreproc(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, tBlink = 50, plot = FALSE, keepLastFix = TRUE)
+  maxtrial = 120, tBlink = 50, plot = FALSE)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
