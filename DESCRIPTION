@@ -16,3 +16,4 @@ Collate:
     'ocr.r'
     'paraFix.R'
     'wordMeasures.R'
+    'mapText.R'
