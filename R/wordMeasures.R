@@ -1,9 +1,8 @@
 
 #' Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
-#' Please only use cleaned-up fixation data (after cleanData has been performed).
-#' 
 #' 
 #' @author Martin R. Vasilev
+#' 
 #' 
 #' @param data Dataframe containing the raw fixation data that were extracted with the
 #' EMreading package
