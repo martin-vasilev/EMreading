@@ -37,3 +37,11 @@ To perform a complete clean-up of the data, you can use the `cleanData()` functi
 dataN<- cleanData(data)
 ```
 This performs a complete clean-up of the raw data that is standardly done in the field of eye-movements during reading. If you don't specify any parameters, it will do the default (conventionally done) clean-up: removal of fixations outside the screen or text area, blink removal, combining of short fixations (< 80ms) that occur within one letter of another fixation, removal of any remaining fixations < 80ms, removal of outlier fixations (> 800ms). All of these paramaters can be turned on or off, and the specific cut-off values can also be modified. Additionally, the script also supports removing outliers via the std method (i.e., removing all fixations that are x standard deviations above the subject's mean). The function also reports a summary containing the percentage of fixations removed from each category for easy reporting.
+
+Next, if you are planning to do word-level analyses, you can calculate the standard fixation durations measures (FFD, SFD, GD, TVT) using the cleaned-up data. This is done with the `wordMeasures()` function. Simply provide the data frame containing the cleaned-up fixation data:
+
+```
+FD<- wordMeasures(dataN)
+```
+
+
