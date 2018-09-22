@@ -76,7 +76,10 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         # Extract raw fixations from data and map them to the text:
         raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink, SL= TRUE)
 
-        # Align fixations:
+        # Combine fixations:
+        if(is.null(raw_fix_temp)){
+          next;
+        }
         raw_fix<- rbind(raw_fix, raw_fix_temp)
 
         if(length(raw_fix_temp)>1 & plot==TRUE){ # if data was extracted from trial
@@ -85,6 +88,9 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         }
       } else{ # if there was no text in trial, just extract fixations
         raw_fix_temp<- parse_fix(file, map=0, coords=0, trial_db[j,], i, ResX, ResY, tBlink, hasText=FALSE, SL= TRUE)
+        if(is.null(raw_fix_temp)){
+          next;
+        }
         raw_fix_temp$sub<- i
         raw_fix<- rbind(raw_fix, raw_fix_temp)
         # create picture of fixations:
