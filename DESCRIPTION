@@ -12,7 +12,6 @@ Collate:
     'utility.R'
     'SLpreproc.R'
     'cleanData.R'
-    'mapText.R'
     'ocr.r'
     'paraFix.R'
     'wordMeasures.R'
