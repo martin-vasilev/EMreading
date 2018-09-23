@@ -14,4 +14,5 @@ Collate:
     'cleanData.R'
     'ocr.r'
     'paraFix.R'
+    'trialTime.R'
     'wordMeasures.R'

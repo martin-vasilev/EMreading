@@ -267,6 +267,11 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
   #trials<- trials[which(letter!="P" &  letter!="F")] # remove practice items and questions
   trials<- gsub(" ", "", trials)
   # sometimes there is an extra empty space that can mess up detection of duplicates
+  
+#  pract<- trials[grepl("P", trials)]
+#  if(length(pract)>1){
+#    trials<- trials[!is.element(trials, pract)]
+#  }
 
   ### get condition:
   I<- unlist(gregexpr(pattern ='I',trials)) # start of item info
@@ -276,6 +281,9 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
   D<- unlist(gregexpr(pattern ='D',trials)) # start of dependent info
   item<- as.numeric(substr(trials, I+1, D-1)) # extract condition number
   depend<- as.numeric(substr(trials, nchar(trials), nchar(trials)))
+  
+  # get letter:
+  E<- substr(trials, 1, 1)
 
   ### get sequence:
   #seq<- 1:length(trials)
@@ -306,6 +314,7 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
     # end<- end[-toBeRemoved]
     cond<- cond[-toBeRemoved]
     item<- item[-toBeRemoved]
+    E<- E[-toBeRemoved]
     # seq<- seq[-toBeRemoved]
     depend<- depend[-toBeRemoved]
     ID<- ID[-toBeRemoved]
@@ -316,11 +325,17 @@ trial_info<- function(file, maxtrial, data){ # extracts information for processi
     }
     
   } # end of aborted conditional
-
-  trial_db<- data.frame(cond, item, depend, start, end, ID)
+  
+  #if(length(end)!= length(start) & length(start)== length(cond)){
+  #  end<- end[-length(end)]
+  #}
+  
+  trial_db<- data.frame(cond, item, depend, E, start, end, ID)
   trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)
   trial_db$seq<- 1:nrow(trial_db)
-
+  
+  trial_db<- subset(trial_db, E=="E")
+  trial_db$E<- NULL
   ###
 
   return(trial_db)
