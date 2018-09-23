@@ -16,6 +16,15 @@
 #' that are within 1 character space of another fixation (the small fixation will be merged with
 #'  the nearby fixation). The default is TRUE.
 #'  
+#' @param combineMethod Method for combining small fixations. Accepted values are "char" for 
+#' combaining based on a distance in characters and "pix" for combining based on distance in
+#' pixels. The default is "char".
+#' 
+#' @param combineDist Distance for combining small fixations. Small fixations will be combined
+#' only if they occur within this distance of another fixation. Based on the input to 
+#' 'combineMethod' above, enter a numeric value either in number of characters or in number of
+#' pixels. The default is 1 (characters).
+#'  
 #' @param removeSmallFix A logical indicating whether to remove any remaining fixations smaller
 #' than a certain cut-off. The default is TRUE
 #' 
@@ -35,13 +44,14 @@
 #' chose "ms" in "outlierMethod", please specify a number in ms (e.g., 800). if you chose "std",
 #' please enter a number in standard deviations above the mean (e.g., 3).
 #' 
+#' 
 #' @param silent A logical indicating whether to print output regarding merged fixations. 
 #' Set to FALSE if you don't want this output (default is TRUE).
  
-cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE, 
-                     combineNearbySmallFix= TRUE, removeSmallFix= TRUE, smallFixCutoff= 80,
-                     removeOutliers= TRUE, outlierMethod= "ms", outlierCutoff= 800,
-                     silent= FALSE){
+cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
+                     combineNearbySmallFix= TRUE, combineMethod= "char", combineDist= 1,
+                     removeSmallFix= TRUE, smallFixCutoff= 80, removeOutliers= TRUE,
+                     outlierMethod= "ms", outlierCutoff= 800, silent= FALSE){
   
   # check user input:
   if(!is.logical(removeOutliers)){
@@ -55,17 +65,35 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   }
   
   if(toupper(outlierMethod)== "MS" & outlierCutoff> 1200 | toupper(outlierMethod)== "MS" & outlierCutoff< 600){
-    warning("This is unusual cutoff. Typical values are between 600-1200 ms")
+    warning("This is unusual cutoff. Typical values are between 600-1200 ms\n")
   }
   
   if(toupper(outlierMethod)== "STD" & outlierCutoff> 3 | toupper(outlierMethod)== "STD" & outlierCutoff< 2.5){
-    warning("This is unusual cut-off. Typical values are between 2.5-3 STD")
+    warning("This is unusual cut-off. Typical values are between 2.5-3 STD\n")
   }
   
   
   if(removeSmallFix & smallFixCutoff<50 | removeSmallFix & smallFixCutoff>100){
-    warning("Unusual cut-off for removing short fixations: typical values are between 50-100 ms")
+    warning("Unusual cut-off for removing short fixations: typical values are between 50-100 ms\n")
   }
+  
+  if(!is.element(combineMethod, c("char", "pix"))){
+    stop("Invalid input for 'combineMethod': allowed values are 'char' for combining based on
+         characters and 'pix' for pixel combning!")
+  }
+  
+  if(combineMethod== "pix" & combineDist>20){
+    warning("Unusually large pixel value for combining small fixations: typical values are 
+            between 10-18 pixels (equivalent to 1 letter)\n")
+  }
+  
+  if(combineMethod== "char" & combineDist>1){
+    warning("Please note that the accepted distance for combining small fixations is 1 character\n")
+  }
+  
+
+  
+  #-------------------------------------------------------------------------------------------#
   
   ### Print settings back to user:
   if(removeOutsideText){
@@ -91,8 +119,17 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   }
   
   if(combineNearbySmallFix){
+    if(combineMethod== "char"){
+      method= " character(s)"
+    }
+    
+    if(combineMethod== "pix"){
+      method=  " pixels"
+    }
+    
     s4<- paste("combined any small fixations < ", smallFixCutoff, 
-               " ms within one character of another fixation", sep = '')
+                 " ms within ", combineDist, method, 
+                 " of another fixation", sep = '')
   }else{
     s4<- ''
   }
@@ -107,21 +144,32 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
       
       if(silent){cat("Merging small fixations in the data ...")}
       
+      nbefore<-nrow(raw_fix)
       which_comb<- NULL
+      
       for(i in 1:nrow(raw_fix)){
         
   #      if(silent & is.element(i, unname(round(quantile(1:nrow(raw_fix))-1)[2:4]))){
   #        cat(".")}
         
-        if(i>1){
-          if(is.na(raw_fix$char_trial[i]) | is.na(raw_fix$char_trial[i-1]) | is.na(raw_fix$char_trial[i+1])){
-            next;
-          }
+        if(i>1 & i< nrow(raw_fix)){ # to prevent crashing on first/last row
           
-         if(raw_fix$fix_dur[i]< 80){
-           prev<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i-1])
-           after<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i+1])
-           if(prev== 1){
+          if(combineMethod== "char"){ # check for valid character value:
+            if(is.na(raw_fix$char_trial[i]) | is.na(raw_fix$char_trial[i-1]) | is.na(raw_fix$char_trial[i+1])){
+              next;
+            }
+          }
+
+         if(raw_fix$fix_dur[i]< smallFixCutoff){
+           if(combineMethod== "char"){
+             prev<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i-1])
+             after<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i+1])
+           } else{
+             prev<- abs(round(raw_fix$xPos[i])- round(raw_fix$xPos[i-1]))
+             after<- abs(round(raw_fix$xPos[i])- round(raw_fix$xPos[i+1]))
+           }
+   
+           if(prev<= combineDist){
              which_comb<- c(which_comb, i)
              
              if(!silent){
@@ -139,7 +187,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
              raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
             
            }
-           if(after== 1){
+           if(after<= combineDist){
              which_comb<- c(which_comb, i)
              
              if(!silent){
@@ -166,6 +214,11 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
       
     }
   
+  
+  cat("\n ---------------------------------------------------------------\n")
+  cat(paste("       Total merged fixations: ", length(which_comb), " (",
+            round(100*(1-(nrow(raw_fix)/nbefore)),5), " % of total)", sep= ''))
+  cat("\n ---------------------------------------------------------------\n")
   
   nstart<- nrow(raw_fix)
   
@@ -245,7 +298,8 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
                  round((nOutBnds/nstart)*100, 3), " % \n",
                  "  - due to blinks: ", round((nblink/nstart)*100, 3), " % \n",
                  "  - outliers: ", round((nOutlier/nstart)*100, 3), " % \n",
-                 "  - Small fixations: ", round((nSmallFix/nstart)*100, 3), " % \n \n",
+                 "  - Small fixations (not combined): ",
+                 round((nSmallFix/nstart)*100, 3), " % \n \n",
                  "Remaining fixations: ", round((nrow(raw_fix)/nstart)*100, 3),
                  " % \n", sep = '')
   

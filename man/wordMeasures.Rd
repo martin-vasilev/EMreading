@@ -2,8 +2,7 @@
 % Please edit documentation in R/wordMeasures.R
 \name{wordMeasures}
 \alias{wordMeasures}
-\title{Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
-Please only use cleaned-up fixation data (after cleanData has been performed).}
+\title{Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.}
 \usage{
 wordMeasures(data)
 }
@@ -13,7 +12,6 @@ EMreading package}
 }
 \description{
 Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
-Please only use cleaned-up fixation data (after cleanData has been performed).
 }
 \author{
 Martin R. Vasilev

@@ -5,9 +5,9 @@
 \title{Clean up of pre-processed data}
 \usage{
 cleanData(raw_fix = data, removeOutsideText = TRUE, removeBlinks = TRUE,
-  combineNearbySmallFix = TRUE, removeSmallFix = TRUE,
-  smallFixCutoff = 80, removeOutliers = TRUE, outlierMethod = "ms",
-  outlierCutoff = 800, silent = FALSE)
+  combineNearbySmallFix = TRUE, combineMethod = "char", combineDist = 1,
+  removeSmallFix = TRUE, smallFixCutoff = 80, removeOutliers = TRUE,
+  outlierMethod = "ms", outlierCutoff = 800, silent = FALSE)
 }
 \arguments{
 \item{raw_fix}{Dataframe containing the raw fixation data that were extracted with the
@@ -22,6 +22,15 @@ default (and recommended) setting is TRUE.}
 \item{combineNearbySmallFix}{A logical indicating whether to merge small fixations < 80 ms 
 that are within 1 character space of another fixation (the small fixation will be merged with
  the nearby fixation). The default is TRUE.}
+
+\item{combineMethod}{Method for combining small fixations. Accepted values are "char" for 
+combaining based on a distance in characters and "pix" for combining based on distance in
+pixels. The default is "char".}
+
+\item{combineDist}{Distance for combining small fixations. Small fixations will be combined
+only if they occur within this distance of another fixation. Based on the input to 
+'combineMethod' above, enter a numeric value either in number of characters or in number of
+pixels. The default is 1 (characters).}
 
 \item{removeSmallFix}{A logical indicating whether to remove any remaining fixations smaller
 than a certain cut-off. The default is TRUE}

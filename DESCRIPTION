@@ -1,6 +1,6 @@
 Package: EMreading
 Title: Automatic pre-processing of reading fixation data
-Version: 0.0.1.2000
+Version: 0.0.1.3000
 Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends: R (>= 3.2.5)
