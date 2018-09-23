@@ -108,7 +108,8 @@ get_coord<- function(string){ # extracts text coordinates from trial info
 
   out<- fix_spaces(out)
   out<- out[,-c(1,2,3,5)] # remove useless columns
-
+  
+  
   # map sentences:
   map_sent<- function(out){
     sent_bnd<-  which(out$X6=="."| out$X6=="?");
@@ -200,7 +201,14 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   # change column names:
   colnames(out)<- c("char", "letter", "x1", "y1", "x2", "y2", "space", "sent",
                     "line", "word")
-
+  
+  if(sum(out$space)-1==nrow(out)){
+    out$line_char<- NA
+    out$wordID<- NA; out$char_word<- NA;
+    return(out)
+  }
+  
+  
   # map characters per line (for Eye Doctor):
   out$line_char<- NA
   unq_line<- unique(out$line)

@@ -70,7 +70,7 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
       text<- get_text(file[trial_db$ID[j]:trial_db$start[j]]) # get text details (Eyetrack)
 
       if(text[1]!=0){ # if trial contained text
-        coords<- get_coord(text) # extract text coordinates
+        try(coords<- get_coord(text)) # extract text coordinates
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
