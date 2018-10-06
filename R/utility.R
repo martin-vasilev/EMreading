@@ -202,11 +202,11 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   colnames(out)<- c("char", "letter", "x1", "y1", "x2", "y2", "space", "sent",
                     "line", "word")
   
-  if(sum(out$space)-1==nrow(out)){
-    out$line_char<- NA
-    out$wordID<- NA; out$char_word<- NA;
-    return(out)
-  }
+#  if(sum(out$space)-1==nrow(out)){
+#    out$line_char<- NA
+#    out$wordID<- NA; out$char_word<- NA;
+#    return(out)
+#  }
   
   
   # map characters per line (for Eye Doctor):
