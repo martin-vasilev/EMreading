@@ -14,9 +14,10 @@ wordMeasures<- function(data){
   }
   
   sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; o<- NULL; p<- NULL
-  nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL;
+  nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL
   dataN<- NULL; dataT<- NULL; q<- NULL; r<- NULL; sent<- NULL
   FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL;
+  nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL
   
   cat("Processing data for subject... ");
   
@@ -26,17 +27,17 @@ wordMeasures<- function(data){
     nitems<- sort(nitems)
     cat(paste(i, " ", sep=""));
     
-    for(j in 1: length(nitems)){ # for each item of subect i
+    for(j in 1: length(nitems)){ # for each item of subject i
       
       n<- subset(data, sub==i & item==nitems[j]) # subset data for subect i & item j
       o<- sort(unique(n$sent))
       
-      for(k in 1:length(o)){
+      for(k in 1:length(o)){ # for each sentence...
         q<- subset(n, sent==o[k])
         r<- sort(unique(q$word))
         
         for(l in 1:length(r)){ # for each word in sentence k
-          word[l]<- r[l]  
+          word[l]<- r[l]
           sub[l]<- n$sub[1]
           item[l]<- n$item[1]
           seq[l]<- n$seq[1]
@@ -52,9 +53,13 @@ wordMeasures<- function(data){
             SFD[l]<- NA
             GD[l]<- NA
             TVT[l]<- NA
+            nfix1[l]<- 0
+            nfix2[l]<- 0
+            nfixAll[l]<- 0
           } else{
             # first-pass fixations:
             p1<- subset(p, regress==0)
+            p2<- subset(p, regress==1)
             
             if(nrow(p1)==0){
               FFD[l]<- NA
@@ -81,20 +86,23 @@ wordMeasures<- function(data){
             #p2<- subset(p, intrasent_regr==1 | intersent_regr==1)
             TVT[l]<- sum(p$fix_dur)
             
+            nfix1[l]<- nrow(p1)
+            nfix2[l]<- nrow(p2)
+            nfixAll[l]<- nrow(p1)+ nrow(p2)
+            
+            # Add word ID:
+            wordID[l]<- as.character(p$wordID[1])
           }
           
           
-          ## code fixations
-          # nfix1[l]<- nrow(p1)
-          # nfix2[l]<- nrow(p2)
-          # nfixAll[l]<- nrow(p1)+ nrow(p2)
-          
         } # end of l
         
-        dataT<- data.frame(sub, item, word, seq, sent, cond, FFD, SFD, GD, TVT)
+        dataT<- data.frame(sub, item, seq, word, wordID, sent, cond, FFD, SFD, GD, TVT,
+                           nfix1, nfix2, nfixAll)
         sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
-        p1<- NULL; p2<- NULL; q<- NULL; r<- NULL;
+        p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
         FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL
+        nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL
         
         dataN<- rbind(dataN, dataT)
         
