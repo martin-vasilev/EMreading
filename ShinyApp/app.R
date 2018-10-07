@@ -34,7 +34,8 @@ ui <- fluidPage(
                 multiple = FALSE,
                 accept = c("text/csv",
                            "text/comma-separated-values,text/plain",
-                           ".csv"))
+                           ".csv")),
+      textInput("filename", "Output file name", "raw_fix.csv")
     ),
     
     # Main panel for displaying outputs ----
@@ -58,7 +59,7 @@ ui <- fluidPage(
       conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                        tags$div("Processing data...",id="loadmessage")),
       # Output: Verbatim text for data summary ----
-      verbatimTextOutput("summary"),
+      tableOutput('table'),
       downloadButton("downloadData", "Download Data")
       
       # Output: HTML table with requested number of observations ----
@@ -75,7 +76,7 @@ server <- function(input, output) {
   options(shiny.maxRequestSize=100*1024^2)
   
  
-  output$summary <- renderPrint({
+  datasetInput <- reactive({
     dataFile= NULL
     file1 = input$file1
     if (is.null(file1)) {
@@ -148,15 +149,20 @@ server <- function(input, output) {
       } # end of item loop
       
     }
+    return(raw_fix)
 
+  })
+  
+  output$table <- renderTable({
+    head(datasetInput())
   })
   
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste(raw_fix, ".csv", sep = "")
+      input$filename
     },
     content = function(file) {
-      write.csv(raw_fix, file)
+      write.csv(datasetInput(), file)
     }
   )
   
