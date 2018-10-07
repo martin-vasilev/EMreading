@@ -438,6 +438,11 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   SFIX_stamps<- which(grepl('SFIX', file[trial_db$start:trial_db$end]))
   EFIX_stamps<- which(grepl('EFIX', file[trial_db$start:trial_db$end]))
   
+  # # get position of fixation stamps:
+  # SSACC_stamps<- which(grepl('SSACC', file[trial_db$start:trial_db$end]))
+  # ESACC_stamps<- which(grepl('ESACC', file[trial_db$start:trial_db$end]))
+  
+  #which(ESACC_stamps>= )
 
   if(length(SFIX_stamps)==0 | length(EFIX_stamps)==0){
     # means that there was no complete fixation on this trial (i.e,
@@ -450,18 +455,38 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   if(EFIX_stamps[1]<SFIX_stamps[1]){ # removes fixation that triggered gaze box
     EFIX_stamps<- EFIX_stamps[-1]
   }
+  
+  # if(ESACC_stamps[1]<SSACC_stamps[1]){ #same for sacc
+  #   ESACC_stamps<- ESACC_stamps[-1]
+  # }
 
   if(EFIX_stamps[length(EFIX_stamps)]< SFIX_stamps[length(SFIX_stamps)]){
     SFIX_stamps<- SFIX_stamps[-length(SFIX_stamps)]
   } # fixation was not terminated before the end of trial
-
+  
+  # if(ESACC_stamps[length(ESACC_stamps)]< SSACC_stamps[length(SSACC_stamps)]){
+  #   SSACC_stamps<- SSACC_stamps[-length(SSACC_stamps)]
+  # } # sacc was not terminated before the end of trial
+  
+  parse_sacc<- function(string){a<- unlist(strsplit(string, "\t")); return(as.numeric(a[3]))}
+  
+  esacc_flag<- file[SFIX_stamps+ trial_db$start-2]
+  saccDur<- NULL
+  for(k in 1:length(esacc_flag)){
+    saccDur[k]<- parse_sacc(esacc_flag[k])
+  }
   
   # get start and end time of fixations:
   s_time<- get_FIX_stamp(file[SFIX_stamps+ trial_db$start])  # start time of fixation
   e_time<- get_FIX_stamp(file[EFIX_stamps+ trial_db$start-2]) # end time of fixation
+  
+  # # get start and end time of saccade:
+  # s_time_sacc<- get_FIX_stamp(file[SSACC_stamps+ trial_db$start])  # start time of sacc
+  # e_time_sacc<- get_FIX_stamp(file[ESACC_stamps+ trial_db$start-1]) # end time of sacc
 
   # calculate fixation durations:
   fixDur<- e_time- s_time
+  # saccDur<- e_time_sacc- s_time_sacc
 
   # get x pixel position:
   x<- get_x_pixel(file[EFIX_stamps+ trial_db$start-1])
@@ -527,7 +552,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 #  blink[blink_pos]<-1
 
   # merge into a dataframe:
-  fix<- data.frame(s_time, e_time, fixDur, x, y, blink, prev_blink, after_blink)
+  fix<- data.frame(s_time, e_time, fixDur, saccDur, x, y, blink, prev_blink, after_blink)
 
   #-----------------------------------------------#
   #    map fixations to stimuli on the screen:    #
@@ -535,7 +560,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
   loc<- NULL; raw_fix<- NULL; temp<- NULL; sub<- NULL; prev_blink<- NULL
   SFIX<- NULL; EFIX<- NULL; xPos<- NULL; yPos<- NULL; after_blink<- NULL
-  item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL
+  item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL; sacc_dur= NULL
   sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL
   max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL; regress<- NULL
   intrasent_regr<- NULL; blink<- NULL; outOfBnds<- NULL; outsideText<- NULL
@@ -566,6 +591,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     seq[j]<- trial_db$seq
     fix_num[j]<- j
     fix_dur[j]<- fix$fixDur[j]
+    sacc_dur[j]<- fix$saccDur[j]
 
     # info from asc file:
     SFIX[j]<- fix$s_time[j];
@@ -686,11 +712,11 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 #                       sent, max_sent, line, word, max_word, char_trial, intrasent_regr, intersent_regr, blink,
 #                       outOfBnds, outsideText)
   if(SL){
-    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
+    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
                          sent, line, word, char_trial, char_line, regress, wordID, land_pos,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }else{
-    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur,
+    raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
                          sent, line, word, char_trial, char_line, wordID, land_pos,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }
