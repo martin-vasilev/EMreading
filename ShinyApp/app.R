@@ -6,6 +6,7 @@ ui <- fluidPage(
   
   # App title ----
   titlePanel("Pre-processing of single line reading"),
+  h4('Currently works only with data recorded with Eyetrack'),
   
   # Sidebar layout with a input and output definitions ----
   sidebarLayout(
@@ -58,12 +59,12 @@ ui <- fluidPage(
                            ")),
       conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                        tags$div("Processing data...",id="loadmessage")),
+      h4('Extracted data output:'),
       # Output: Verbatim text for data summary ----
       tableOutput('table'),
-      downloadButton("downloadData", "Download Data")
-      
-      # Output: HTML table with requested number of observations ----
-      #textOutput("summary")
+      conditionalPanel("output.fileUploaded",
+                       downloadButton("downloadData", "Download Data"))
+      #downloadButton("downloadData", "Download Data")
       
     )
   )
@@ -165,6 +166,17 @@ server <- function(input, output) {
       write.csv(datasetInput(), file)
     }
   )
+  
+  getData <- reactive({
+    if(is.null(input$file1))
+    {return(NULL)}
+    else {return(1)}
+  })
+  
+  output$fileUploaded <- reactive({
+    return(!is.null(getData()))
+  })
+  outputOptions(output, 'fileUploaded', suspendWhenHidden=FALSE)
   
 }
 
