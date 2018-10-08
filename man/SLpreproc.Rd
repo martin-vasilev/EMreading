@@ -5,7 +5,8 @@
 \title{Pre-processing of single-line reading data}
 \usage{
 SLpreproc(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, tBlink = 50, plot = FALSE)
+  maxtrial = 120, tBlink = 50, textStim = NULL, ppl = NULL,
+  xOffset = NULL, plot = FALSE)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
@@ -27,6 +28,23 @@ C:/My Data/subject2.asc
 \item{tBlink}{Time in milliseconds for detecting blinks before or after fixation. 
 If there is a blink x milliseconds before or after the fixation, it will be marked
 as having a blink. The default is 50 ms.}
+
+\item{textStim}{An optional parameter for cases when the text stimuli are not printed
+to the .asc files. If this is the case, please provide a directory to a txt file 
+containing the stimuli sentences used in the experiment. Each sentences should be
+placed on a new line and the stimuli should be ordered in the way that they were presented
+in the experiment (i.e., sentence 1 should be on line 1 and so on). You will also need
+to provide information about the width of letters and the offset of the text on the 
+x-axis (see below). The default is NULL for cases when the text stimuli are printed 
+to the .asc files.}
+
+\item{ppl}{Pixels per letter in the experiment (i.e., the width of each letter on the 
+screen). Please note that this function currently works only with fixed-width (i.e., 
+monospaced) fonts. Not needed if the text stimuli were printed to the data.}
+
+\item{xOffset}{Offset of the text in pixels on the x-axis of the screen. This should be
+the pixel location where the first letter of the sentence starts. Not needed if the text
+stimuli were printed to the data.}
 
 \item{plot}{A logical indicating whether to plot the raw and re-aligned fixations
 as an image file. The default is TRUE. If set to FALSE, no images will be plotted.

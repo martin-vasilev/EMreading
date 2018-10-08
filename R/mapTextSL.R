@@ -65,11 +65,4 @@ mapTextSL<- function(sent, ppl= 11, xOffset= 50, ResY= 1080){
       }
     }
     return(coords)
-  
-#  message("\n\nPlease always check the stimuli dimensions to make sure they are correct!\n")
-#  message("The stimuli mapping was developed with English stimuli, although it should 
-#          in theory also work with other (spaced) alphabetical languages.\n")
-#  message("\nIf you notice any errors or inconsistencies, please let the developer know.\n")
-#  
-  
 }

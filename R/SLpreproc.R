@@ -29,6 +29,23 @@
 #' as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
 #' Note that plotting images will generally take longer time to pre-process the data.
 #' The images are saved in the current working directory in the folder "img".
+#' 
+#' @param textStim An optional parameter for cases when the text stimuli are not printed
+#' to the .asc files. If this is the case, please provide a directory to a txt file 
+#' containing the stimuli sentences used in the experiment. Each sentences should be
+#' placed on a new line and the stimuli should be ordered in the way that they were presented
+#' in the experiment (i.e., sentence 1 should be on line 1 and so on). You will also need
+#' to provide information about the width of letters and the offset of the text on the 
+#' x-axis (see below). The default is NULL for cases when the text stimuli are printed 
+#' to the .asc files.
+#' 
+#' @param ppl Pixels per letter in the experiment (i.e., the width of each letter on the 
+#' screen). Please note that this function currently works only with fixed-width (i.e., 
+#' monospaced) fonts. Not needed if the text stimuli were printed to the data.
+#' 
+#' @param xOffset Offset of the text in pixels on the x-axis of the screen. This should be
+#' the pixel location where the first letter of the sentence starts. Not needed if the text
+#' stimuli were printed to the data.
 #'
 #' @return A data frame containing the data
 #'
@@ -37,9 +54,10 @@
 #' plot=FALSE)
 #'
 #' @include utility.R
+#' @include mapTextSL.R
 
 SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120, 
-                     tBlink= 50, plot=FALSE){
+                     tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
   
   options(scipen=999)
 
@@ -55,6 +73,15 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
   }
 
   raw_fix<- NULL; RFalign<- NULL
+  
+  if(hasArg(textStim)){
+     message("\n\nPlease always check the stimuli dimensions to make sure they are correct!\n")
+     message("The stimuli mapping was developed with English stimuli, although it should
+             in theory also work with other (spaced) alphabetical languages.\n")
+     message("\nIf you notice any errors or inconsistencies, please let the developer know.\n")
+
+     textFile<- readLines(textStim)
+  }
 
   for (i in 1:length(data)){ # for each subject..
 
@@ -69,8 +96,14 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
 
       text<- get_text(file[trial_db$ID[j]:trial_db$start[j]]) # get text details (Eyetrack)
 
-      if(text[1]!=0){ # if trial contained text
-        try(coords<- get_coord(text)) # extract text coordinates
+      if(text[1]!=0 | hasArg(textStim)){ # if trial contained text
+        if(hasArg(textStim)){ # stims not printed to data
+          try(coords<- mapTextSL(textFile[trial_db$item[j]], ppl, xOffset, ResY))
+        }else{ # stims were printed to data
+          try(coords<- get_coord(text)) # extract text coordinates
+        }
+        
+        
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
