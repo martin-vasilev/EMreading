@@ -54,7 +54,6 @@
 #' plot=FALSE)
 #'
 #' @include utility.R
-#' @include mapTextSL.R
 
 SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120, 
                      tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
@@ -102,7 +101,6 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         }else{ # stims were printed to data
           try(coords<- get_coord(text)) # extract text coordinates
         }
-        
         
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
