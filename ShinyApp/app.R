@@ -5,7 +5,7 @@ library(shinyalert)
 ui <- fluidPage(
   
   # App title ----
-  titlePanel("Pre-processing of single line reading"),
+  titlePanel("Pre-processing of single line reading data"),
   h4('Currently works only with data recorded with Eyetrack'),
   
   # Sidebar layout with a input and output definitions ----
@@ -32,7 +32,7 @@ ui <- fluidPage(
       
       # asc file input:
       fileInput("file1", "Choose .asc file",
-                multiple = FALSE,
+                multiple = T,
                 accept = c("text/csv",
                            "text/comma-separated-values,text/plain",
                            ".csv")),
@@ -78,8 +78,12 @@ server <- function(input, output) {
   
  
   datasetInput <- reactive({
+    
+    raw_fix<- NULL
+    plot=TRUE
     dataFile= NULL
     file1 = input$file1
+    
     if (is.null(file1)) {
       return(cat("Please upload data file"))
     }else{
@@ -91,6 +95,7 @@ server <- function(input, output) {
       #head(dataFile)
       trial_db<- trial_info(dataFile, input$maxtrial)
       #head(trial_db)
+      
       for(j in 1:nrow(trial_db)){ # for each item
         if(j!= nrow(trial_db)){
           time= 1000*15
@@ -127,10 +132,7 @@ server <- function(input, output) {
           }
           raw_fix<- rbind(raw_fix, raw_fix_temp)
           
-          if(length(raw_fix_temp)>1 & plot==TRUE){ # if data was extracted from trial
-            # create picture of fixations:
-            plot_fix(coords, raw_fix_temp, i, j, ResX, ResY)
-          }
+
         } else{ # if there was no text in trial, just extract fixations
           try(raw_fix_temp<- parse_fix(dataFile, map=0, coords=0, trial_db[j,], 1, input$ResX,
                                        input$ResY, input$tBlink, hasText=FALSE, SL= TRUE))

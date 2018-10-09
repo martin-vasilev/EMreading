@@ -5,6 +5,8 @@ account: mvasilev
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 498176
-bundleId: 1627750
+bundleId: 1632495
 url: https://mvasilev.shinyapps.io/shinyapp/
-when: 1538907969.21819
+when: 1539109278.83319
+asMultiple: FALSE
+asStatic: FALSE
