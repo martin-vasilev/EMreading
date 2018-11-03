@@ -1,13 +1,3 @@
----
-title: "Explanaition of pre-processing data output"
-author: "Martin R. Vasilev"
-date: "November 3, 2018"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 Meaning of the data output columns:
 
