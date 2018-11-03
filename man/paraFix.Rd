@@ -5,8 +5,8 @@
 \title{Main function for pre-processing fixations and vertical re-alignment}
 \usage{
 paraFix(data_list = "preproc/files.txt", ResX = 1920, ResY = 1080,
-  maxtrial = 120, align = TRUE, RSpar = c(1/4, 8, 2/3), plot = FALSE,
-  tBlink = 50, keepLastFix = TRUE)
+  maxtrial = 120, align = TRUE, RSpar = c(1/4, 8, 2/3),
+  plot = FALSE, tBlink = 50, keepLastFix = TRUE)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
