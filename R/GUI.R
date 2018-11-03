@@ -5,6 +5,7 @@
 
 GUI <- function() {
   require(shiny)
+  require(shinyalert)
   shinyApp(
     ui = fluidPage(
       
