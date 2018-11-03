@@ -20,6 +20,8 @@ install_github('martin-vasilev/EMreading')
 
 ### Pre-processing of single-line reading experiments recorded with Eyetrack
 
+**NEW!** You can now also pre-process your data online without using any commands! Visit: https://mvasilev.shinyapps.io/shinyapp/ 
+
 To pre-process the data, simply use the `SLpreproc()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
 
 ```
