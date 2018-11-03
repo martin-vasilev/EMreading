@@ -55,10 +55,17 @@
 #'
 #' @include utility.R
 
-SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120, 
+SLpreproc<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120, 
                      tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
   
   options(scipen=999)
+  
+  # check if user provided data dir:
+  if(!hasArg(data_list)){
+    data_list= file.choose() # make them chose a file
+    message("To process multiple files, please specify a directory in 'data_list'")
+  }
+  
 
   # check file input:
   if(grepl('.txt', data_list)){
@@ -81,11 +88,15 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
 
      textFile<- readLines(textStim)
   }
+  
 
   for (i in 1:length(data)){ # for each subject..
 
     cat(sprintf("Processing subject %i", i)); cat("\n")
     cat(sprintf("Loading data %s ...", data[i]));
+    filename= data[i] #strsplit(data[i], "\\")
+    #filename= filename[length(filename)]
+    
     file<- readLines(data[i]) # load file
     cat(" Done"); cat("\n")
     trial_db<- trial_info(file, maxtrial) # extract info about trials to be processed
@@ -111,6 +122,8 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         if(is.null(raw_fix_temp)){
           next;
         }
+
+        raw_fix_temp$dataFile= filename
         raw_fix<- rbind(raw_fix, raw_fix_temp)
 
         if(length(raw_fix_temp)>1 & plot==TRUE){ # if data was extracted from trial
@@ -122,6 +135,7 @@ SLpreproc<- function(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxt
         if(is.null(raw_fix_temp)){
           next;
         }
+        raw_fix_temp$dataFile= filename
         raw_fix_temp$sub<- i
         raw_fix<- rbind(raw_fix, raw_fix_temp)
         # create picture of fixations:

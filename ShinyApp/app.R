@@ -31,7 +31,7 @@ ui <- fluidPage(
       verbatimTextOutput("value4"),
       
       # asc file input:
-      fileInput("file1", "Choose .asc file",
+      fileInput("file1", "Choose .asc files",
                 multiple = T,
                 accept = c("text/csv",
                            "text/comma-separated-values,text/plain",
