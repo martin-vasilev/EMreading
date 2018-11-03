@@ -89,67 +89,79 @@ server <- function(input, output) {
     }else{
 
 
-      dataFile= readLines(file1$datapath)
+      #AlldataFiles = readLines(file1$datapath)
       
       source("https://raw.githubusercontent.com/martin-vasilev/EMreading/master/R/utility.R")
-      #head(dataFile)
-      trial_db<- trial_info(dataFile, input$maxtrial)
-      #head(trial_db)
       
-      for(j in 1:nrow(trial_db)){ # for each item
-        if(j!= nrow(trial_db)){
-          time= 1000*15
-        }else{
-          time= 500
-        }
-        shinyalert(
-          title = paste("Trial", j),
-          text = "",
-          closeOnEsc = TRUE,
-          closeOnClickOutside = FALSE,
-          html = FALSE,
-          type = "info",
-          showConfirmButton = FALSE,
-          showCancelButton = FALSE,
-          timer = time,
-          imageUrl = "",
-          animation = TRUE
-        )
-
-        text<- get_text(dataFile[trial_db$ID[j]:trial_db$start[j]]) # get text details (Eyetrack)
+      for(i in 1:nrow(file1)){
+        dataFile<- readLines(input$file1[[i, 'datapath']])
         
-        if(text[1]!=0){ # if trial contained text
-          try(coords<- get_coord(text)) # extract text coordinates
-          map<- coord_map(coords, x=input$ResX, y= input$ResY) # map them to pixels on the screen
-          
-          # Extract raw fixations from data and map them to the text:
-          try(raw_fix_temp<- parse_fix(dataFile, map, coords, trial_db[j,], 1,
-                                       input$ResX, input$ResY, input$tBlink, SL= TRUE))
-          
-          # Combine fixations:
-          if(is.null(raw_fix_temp)){
-            next;
-          }
-          raw_fix<- rbind(raw_fix, raw_fix_temp)
-          
-
-        } else{ # if there was no text in trial, just extract fixations
-          try(raw_fix_temp<- parse_fix(dataFile, map=0, coords=0, trial_db[j,], 1, input$ResX,
-                                       input$ResY, input$tBlink, hasText=FALSE, SL= TRUE))
-          if(is.null(raw_fix_temp)){
-            next;
-          }
-          #raw_fix_temp$sub<- i
-          raw_fix<- rbind(raw_fix, raw_fix_temp)
-          # create picture of fixations:
-          
-          #if(length(raw_fix_temp)>1 & plot==TRUE){ # if data was extracted from trial
-          #  plot_fix(coords, raw_fix_temp, i, j, ResX, ResY, hasText = FALSE)
-          #}
-        }
         
-        #cat(toString(j)); cat(" ")
-      } # end of item loop
+        #head(dataFile)
+        trial_db<- trial_info(dataFile, input$maxtrial)
+        #head(trial_db)
+        
+        for(j in 1:nrow(trial_db)){ # for each item
+          if(j!= nrow(trial_db)){
+            time= 1000*2
+          }else{
+            time= 1000*2
+          }
+          shinyalert(
+            title = paste("Subject", i, "Trial", j),
+            text = "",
+            closeOnEsc = TRUE,
+            closeOnClickOutside = FALSE,
+            html = FALSE,
+            type = "info",
+            showConfirmButton = FALSE,
+            showCancelButton = FALSE,
+            timer = time,
+            imageUrl = "",
+            animation = F
+          )
+          
+          text<- get_text(dataFile[trial_db$ID[j]:trial_db$start[j]]) # get text details (Eyetrack)
+          
+          if(text[1]!=0){ # if trial contained text
+            try(coords<- get_coord(text)) # extract text coordinates
+            map<- coord_map(coords, x=input$ResX, y= input$ResY) # map them to pixels on the screen
+            
+            # Extract raw fixations from data and map them to the text:
+            try(raw_fix_temp<- parse_fix(dataFile, map, coords, trial_db[j,], i,
+                                         input$ResX, input$ResY, input$tBlink, SL= TRUE))
+            
+            # Combine fixations:
+            if(is.null(raw_fix_temp)){
+              next;
+            }
+            #raw_fix_temp$sub<- i
+            inFile <- input$file1[i]
+            raw_fix_temp$dataFile= stringi::stri_extract_first(str = inFile$name, regex = ".*(?=\\.)")
+            
+            raw_fix<- rbind(raw_fix, raw_fix_temp)
+            
+            
+          } else{ # if there was no text in trial, just extract fixations
+            try(raw_fix_temp<- parse_fix(dataFile, map=0, coords=0, trial_db[j,], i, input$ResX,
+                                         input$ResY, input$tBlink, hasText=FALSE, SL= TRUE))
+            if(is.null(raw_fix_temp)){
+              next;
+            }
+            #raw_fix_temp$sub<- i
+            raw_fix_temp$dataFile= input$file1[[i, 'name']]
+            raw_fix<- rbind(raw_fix, raw_fix_temp)
+            # create picture of fixations:
+            
+            #if(length(raw_fix_temp)>1 & plot==TRUE){ # if data was extracted from trial
+            #  plot_fix(coords, raw_fix_temp, i, j, ResX, ResY, hasText = FALSE)
+            #}
+          }
+          
+          #cat(toString(j)); cat(" ")
+        } # end of item loop
+      }
+      
       
     }
     return(raw_fix)
