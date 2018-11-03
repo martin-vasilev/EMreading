@@ -95,7 +95,8 @@ server <- function(input, output) {
       
       for(i in 1:nrow(file1)){
         dataFile<- readLines(input$file1[[i, 'datapath']])
-        
+        inFile <- input$file1
+        filename= stringi::stri_extract_first(str = inFile$name[i], regex = ".*(?=\\.)")
         
         #head(dataFile)
         trial_db<- trial_info(dataFile, input$maxtrial)
@@ -108,7 +109,7 @@ server <- function(input, output) {
             time= 1000*2
           }
           shinyalert(
-            title = paste("Subject", i, "Trial", j),
+            title = paste("Subject", i, "Trial", j, "Filename: ", filename),
             text = "",
             closeOnEsc = TRUE,
             closeOnClickOutside = FALSE,
@@ -136,9 +137,8 @@ server <- function(input, output) {
               next;
             }
             #raw_fix_temp$sub<- i
-            inFile <- input$file1[i]
-            raw_fix_temp$dataFile= stringi::stri_extract_first(str = inFile$name, regex = ".*(?=\\.)")
-            
+            raw_fix_temp$dataFile= filename
+
             raw_fix<- rbind(raw_fix, raw_fix_temp)
             
             
@@ -149,7 +149,7 @@ server <- function(input, output) {
               next;
             }
             #raw_fix_temp$sub<- i
-            raw_fix_temp$dataFile= input$file1[[i, 'name']]
+            raw_fix_temp$dataFile= filename
             raw_fix<- rbind(raw_fix, raw_fix_temp)
             # create picture of fixations:
             
