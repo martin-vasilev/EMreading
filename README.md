@@ -33,7 +33,8 @@ data<- SLpreproc(data_list= "C:/Users/Martin Vasilev/My Data", ResX= 1920, ResY=
 save(data, file = "data.Rda")
 ```
 
-This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis.
+This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis. For a description of the output variables, see [here](https://github.com/martin-vasilev/EMreading/blob/master/Output_readme.md) .
+
 To perform a complete clean-up of the data, you can use the `cleanData()` function:
 
 ```
