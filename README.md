@@ -23,17 +23,17 @@ install_github('martin-vasilev/EMreading')
 **NEW!** You can now also pre-process your data online without using any commands! Visit: https://mvasilev.shinyapps.io/shinyapp/ 
 If you prefer to run the graphical interface locally (this is faster since you don't upload any files), you can run the `GUI()` function from the package.
 
-To pre-process the data, simply use the `SLpreproc()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
+To pre-process the data, simply use the `SingleLinw()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
 
 ```
 # preprocess data
-data<- SLpreproc(data_list= "C:/Users/Martin Vasilev/My Data", ResX= 1920, ResY=1080, maxtrial= 120)
+data<- SingleLine(data_list= "C:/Users/Martin Vasilev/My Data", ResX= 1920, ResY=1080, maxtrial= 120)
 
 # save raw data so that you don't have to re-do this later on:
 save(data, file = "data.Rda")
 ```
 
-This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis. For a description of the output variables, see [here](https://github.com/martin-vasilev/EMreading/blob/master/Output_readme.md) .
+This will give you a data frame containing all fixations in addition to most variables that you will need for later analysis. For a full description of all output variables, see [here](https://github.com/martin-vasilev/EMreading/blob/master/Output_readme.md) .
 
 To perform a complete clean-up of the data, you can use the `cleanData()` function:
 
