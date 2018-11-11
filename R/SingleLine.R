@@ -50,12 +50,12 @@
 #' @return A data frame containing the data
 #'
 #' @example
-#' myData<- SLpreproc(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
+#' myData<- SingleLine(data_list= "preproc/files.txt", ResX= 1920, ResY=1080, maxtrial= 120,
 #' plot=FALSE)
 #'
 #' @include utility.R
 
-SLpreproc<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120, 
+SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120, 
                      tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
   
   options(scipen=999)
