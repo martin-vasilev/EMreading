@@ -23,7 +23,7 @@ install_github('martin-vasilev/EMreading')
 **NEW!** You can now also pre-process your data online without using any commands! Visit: https://mvasilev.shinyapps.io/shinyapp/ 
 If you prefer to run the graphical interface locally (this is faster since you don't upload any files), you can run the `GUI()` function from the package.
 
-To pre-process the data, simply use the `SingleLinw()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
+To pre-process the data, simply use the `SingleLine()` function of the package. You will need to provide some basic information, such as directory containing the data files and some details about the experiment: e.g.,
 
 ```
 # preprocess data
