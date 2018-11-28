@@ -329,88 +329,197 @@ coord_map<- function(coords, x=ResX, y= ResY){
 
 
 # Create a data frame with information about trials, to be used for pre-processing
-trial_info<- function(file, maxtrial, data){ # extracts information for processing trials
-  ### get trial names:
-  ID<- which(grepl('TRIALID', file));
-  trial_text<- file[ID]
-  trials<- substr(trial_text, unlist(gregexpr(pattern =' ',trial_text[1]))[2]+1, nchar(trial_text))
-  #trials<- trials[which(letter!="P" &  letter!="F")] # remove practice items and questions
-  trials<- gsub(" ", "", trials)
-  # sometimes there is an extra empty space that can mess up detection of duplicates
+# trial_info<- function(file, maxtrial, data){ # extracts information for processing trials
+#   ### get trial names:
+#   ID<- which(grepl('TRIALID', file));
+#   
+#   ### get start & end times
+#   start<- which(grepl('DISPLAY ON', file))
+#   end <- which(grepl('DISPLAY OFF', file))
+#   
+#   trial_text<- file[ID]
+#   trials<- substr(trial_text, unlist(gregexpr(pattern =' ',trial_text[1]))[2]+1, nchar(trial_text))
+#   #trials<- trials[which(letter!="P" &  letter!="F")] # remove practice items and questions
+#   trials<- gsub(" ", "", trials)
+#   # sometimes there is an extra empty space that can mess up detection of duplicates
+#   
+#   # check for duplicate trials (e.g., failed gaze box)
+#   dupl<- unique(trials[duplicated(trials)])
+#   
+#   if(length(dupl)>0){
+#     out<- NULL
+#     for(d in 1:length(dupl)){
+#       a<- which(trials== dupl[d])
+#       out<- c(out, a[1:length(a)-1])
+#     }
+#     
+#     trials<- trials[-out]
+#     ID<- ID[-out]
+#     
+#     message(paste(" Duplicated trial", dupl, "\n"))
+#     message("Analysing only last attempt at the trial(s)!")
+#   }
+#   if(length(start!= length(trials)) | length(end)!= length(trials)){
+#     keep<- end-start>200
+#     start<- start[keep]
+#     end<- end[keep]
+#   }
+# 
+# 
+#   
+# #  pract<- trials[grepl("P", trials)]
+# #  if(length(pract)>1){
+# #    trials<- trials[!is.element(trials, pract)]
+# #  }
+# 
+#   ### get condition:
+#   I<- unlist(gregexpr(pattern ='I',trials)) # start of item info
+#   cond<- as.numeric(substr(trials, 2, I-1)) # extract condition number
+# 
+#   ### get item:
+#   D<- unlist(gregexpr(pattern ='D',trials)) # start of dependent info
+#   item<- as.numeric(substr(trials, I+1, D-1)) # extract condition number
+#   depend<- as.numeric(substr(trials, nchar(trials), nchar(trials)))
+#   
+#   # get letter:
+#   E<- substr(trials, 1, 1)
+# 
+#   ### get sequence:
+#   #seq<- 1:length(trials)
+# 
+#   # duplicated<- trials[duplicated(trials)]
+# 
+#   # if(length(duplicated)>0){ # if there were aborted trials..
+#   #   message(paste(" Duplicated trial", duplicated, "\n"))
+#   #   message("Analysing only last attempt at the trial(s)!")
+#   # 
+#   #   toBeRemoved<- NULL
+#   # 
+#   #   for(i in 1:length(duplicated)){
+#   #     dup_rem<- which(trials==duplicated[i])
+#   # 
+#   #     for(j in 1:length(dup_rem)){
+#   #       if(j!=length(dup_rem)){
+#   #         toBeRemoved[length(toBeRemoved)+1]= dup_rem[j]
+#   #       }
+#   #     } # end of j
+#   #   } # end of i
+#   # 
+#   #   #start<- start[-toBeRemoved]
+#   #   # end<- end[-toBeRemoved]
+#   #   cond<- cond[-toBeRemoved]
+#   #   item<- item[-toBeRemoved]
+#   #   E<- E[-toBeRemoved]
+#   #   # seq<- seq[-toBeRemoved]
+#   #   depend<- depend[-toBeRemoved]
+#   #   ID<- ID[-toBeRemoved]
+#   #   
+#   #   # workaround for missing trial end stamps:
+#   #   if(length(end)< length(start)){
+#   #     start<- start[-toBeRemoved]
+#   #   }
+#   #   
+#   # } # end of aborted conditional
+#   # 
+#   #if(length(end)!= length(start) & length(start)== length(cond)){
+#   #  end<- end[-length(end)]
+#   #}
+#   
+#   trial_db<- data.frame(cond, item, depend, E, start, end, ID)
+#   trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)
+#   trial_db$seq<- 1:nrow(trial_db)
+#   
+#   trial_db<- subset(trial_db, E=="E")
+#   trial_db$E<- NULL
+#   ###
+# 
+#   return(trial_db)
+# }
+
+trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "SYNCTIME"){
+  get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
   
-#  pract<- trials[grepl("P", trials)]
-#  if(length(pract)>1){
-#    trials<- trials[!is.element(trials, pract)]
-#  }
-
-  ### get condition:
-  I<- unlist(gregexpr(pattern ='I',trials)) # start of item info
-  cond<- as.numeric(substr(trials, 2, I-1)) # extract condition number
-
-  ### get item:
-  D<- unlist(gregexpr(pattern ='D',trials)) # start of dependent info
-  item<- as.numeric(substr(trials, I+1, D-1)) # extract condition number
-  depend<- as.numeric(substr(trials, nchar(trials), nchar(trials)))
-  
-  # get letter:
-  E<- substr(trials, 1, 1)
-
-  ### get sequence:
-  #seq<- 1:length(trials)
-
-  ### get start & end times
-  start<- which(grepl('DISPLAY ON', file))
-  end <- which(grepl('DISPLAY OFF', file))
-
-  duplicated<- trials[duplicated(trials)]
-
-  if(length(duplicated)>0){ # if there were aborted trials..
-    message(paste(" Duplicated trial", duplicated, "\n"))
-    message("Analysing only last attempt at the trial(s)!")
-
-    toBeRemoved<- NULL
-
-    for(i in 1:length(duplicated)){
-      dup_rem<- which(trials==duplicated[i])
-
-      for(j in 1:length(dup_rem)){
-        if(j!=length(dup_rem)){
-          toBeRemoved[length(toBeRemoved)+1]= dup_rem[j]
-        }
-      } # end of j
-    } # end of i
-
-    #start<- start[-toBeRemoved]
-    # end<- end[-toBeRemoved]
-    cond<- cond[-toBeRemoved]
-    item<- item[-toBeRemoved]
-    E<- E[-toBeRemoved]
-    # seq<- seq[-toBeRemoved]
-    depend<- depend[-toBeRemoved]
-    ID<- ID[-toBeRemoved]
+  parse_itemID<- function(trials){
+    I<- unlist(gregexpr(pattern ='I',trials)) # start of item info
+    cond<- as.numeric(substr(trials, 2, I-1)) # extract condition number
     
-    # workaround for missing trial end stamps:
-    if(length(end)< length(start)){
-      start<- start[-toBeRemoved]
+    ### get item:
+    D<- unlist(gregexpr(pattern ='D',trials)) # start of dependent info
+    item<- as.numeric(substr(trials, I+1, D-1)) # extract condition number
+    depend<- as.numeric(substr(trials, nchar(trials), nchar(trials)))
+    
+    # get letter:
+    E<- substr(trials, 1, 1)
+    
+    return(c(E, cond, item, depend))
+    
+  }
+  
+  # get the trial ID stamps
+  trial_time<- which(grepl(trial_flag, file))
+  trial_text<- file[trial_time]
+  trials<- substr(trial_text, unlist(gregexpr(pattern =' ',trial_text[1]))[2]+1, nchar(trial_text))
+  trials<- gsub(" ", "", trials)
+  
+  start_time<- which(grepl(trial_start_flag, file))
+  # end of last file is end of file
+  end_time<- c(trial_time[2:length(trial_time)], length(file))-1
+  
+  ### parse trials (takes care of duplicates, aborted trials, etc.):
+  if(length(start_time)!= length(trial_time)){ # mismatch problems..
+    all<- NULL
+    for(k in 1:length(trial_time)){
+      t<- which(trial_time[k]<start_time & end_time[k]>start_time)
+      if(length(t)>0){
+        all<- c(all, k)
+      }else{
+        #print(k)
+      }
+      #
+    }
+    trial_time= trial_time[all]
+    end_time= end_time[all]
+    trials= trials[all]
+  } 
+  
+  trial_db<- NULL
+  
+  for(i in 1:length(trials)){
+    v= parse_itemID(trials[i])
+    temp<- data.frame(cond= v[2], item= v[3], depend= v[4], E= v[1], start= start_time[i],
+                      end= end_time[i], ID= trial_time[i], 
+                      stamp= trials[i], keep= 1)
+    temp$stamp<- as.character(temp$stamp)
+    temp$item<- as.numeric(as.character(temp$item))
+    temp$cond<- as.numeric(as.character(temp$cond))
+    temp$depend<- as.numeric(as.character(temp$depend))
+    temp$E<- as.character(temp$E)
+    
+    dupl<- which(trial_db$stamp== temp$stamp)
+    if(length(dupl)>0){
+      trial_db$keep[dupl]=0
+      message(paste(" Duplicated trial", temp$stamp, "! ",
+                    "Analysing only last attempt at the trial!", "\n", sep= ""))
     }
     
-  } # end of aborted conditional
+    trial_db<- rbind(trial_db, temp)
+  }
   
-  #if(length(end)!= length(start) & length(start)== length(cond)){
-  #  end<- end[-length(end)]
-  #}
-  
-  trial_db<- data.frame(cond, item, depend, E, start, end, ID)
-  trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)
+  trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)#, keep==1)
+  trial_db<- subset(trial_db, E=="E")
   trial_db$seq<- 1:nrow(trial_db)
   
-  trial_db<- subset(trial_db, E=="E")
   trial_db$E<- NULL
-  ###
-
+  trial_db$stamp<- NULL
+  trial_db$depend<- NULL
+  
+  trial_db<- subset(trial_db, keep==1)
+  trial_db$keep<- NULL
+  
+  
   return(trial_db)
+  
 }
-
 
 
 # Basic pre-processing and extraction of fixations from data file:
@@ -428,13 +537,29 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
     return(x)
   }
+  
+  # in case of weird formatting (e.g., Cohen's script...)
+  get_x_pixel_ALT<- function(string){
+    a<- data.frame(do.call( rbind, strsplit( string, ' ' ) ) )
+    x<- a[a!=""][6]
+    
+    return(x)
+  }
 
   get_y_pixel<- function(string){
     a<- data.frame(do.call( rbind, strsplit( string, '\t' ) ) )
     y<- as.numeric(as.character(unlist(a$X5)))
-
+    
     return(y)
   }
+  
+  # in case of weird formatting (e.g., Cohen's script...)
+  get_y_pixel_ALT<- function(string){
+    a<- data.frame(do.call( rbind, strsplit( string, ' ' ) ) )
+    y<- a[a!=""][7]
+    return(y)
+  }
+
 
   get_seq<- function(start, end, file, prev= F){
     
@@ -560,9 +685,21 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
   # get x pixel position:
   x<- get_x_pixel(file[EFIX_stamps+ trial_db$start-1])
+  if(length(x)!= length(fixDur)){
+    x<- NULL
+    for (m in 1:length(fixDur)){
+     x<- c(x, as.numeric(get_x_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
+    }
+  }
 
   # get y pixel position:
   y<- get_y_pixel(file[EFIX_stamps+ trial_db$start-1])
+  if(length(y)!= length(fixDur)){
+    y<- NULL
+    for (m in 1:length(fixDur)){
+      y<- c(y, as.numeric(get_y_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
+    }
+  }
 
   # new blink code:
   blink<- NULL
@@ -623,6 +760,8 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
   # merge into a dataframe:
   fix<- data.frame(s_time, e_time, fixDur, saccDur, x, y, blink, prev_blink, after_blink)
+  # fix$x<- as.numeric(as.character(fix$x))
+  # fix$y<- as.numeric(as.character(fix$y))
 
   #-----------------------------------------------#
   #    map fixations to stimuli on the screen:    #
@@ -1078,74 +1217,11 @@ reAlign<- function(rawfix, coords, map, ResX, ResY, Ythresh,
 
   }
 
-
-  # Check if fixation is still on the same line (SL):
-  SL<- function(i, rawfix, coords, curr_line, xstart, xend, RSthresh= 0.8, SaccThresh=16){
-
-    if(i==1){ # first fixation will be on the first line (assuming gaze box)
-      return(1)
-    }
-
-    # Fixation is already assigned to the current line?
-    isAssigned<- rawfix$outsideText[i]==0 & rawfix$line[i]== curr_line
-
-    # Is current fixation a likely return sweep?
-    likelyRS<- rawfix$pRS[i]>= RSthresh
-
-    #how much skipped info if fixation is no longer on the same line?
-    ppl<- coords$x2[1]- coords$x1[1] # pixels per letter
-    pixLeft<- xend[curr_line, 2] - rawfix$xPos[i] # pixels left until end of line
-    letLeft<- pixLeft/ppl # letters left until end of line
-    totalLetters<-  (xend[curr_line, 2]- xstart[curr_line, 2])/ ppl # num of letters on line
-    textLeft<-  totalLetters- (totalLetters- letLeft) # num letters from current xPos until end of line
-    propLeft<- textLeft/totalLetters # prop of text left on screen
-
-    #### How long was the previous saccade?
-    saccLen<- abs(rawfix$xPos[i] - rawfix$xPos[i-1])/ppl
-
-
-
-
-    ###### Point system:
-    #   - Fixation is already assigned to the current line: 2 points
-    #   - Fixation is not likely a return sweep: 1 point
-    #   - Discourage skipping text on the line: 1 points max (function of remaining text)
-    #   - The preceding saccade is short (<16 letters): 2 points max (weighted)
-    #   = max 6 points
-
-    maxPoints<- 2+1+1+2
-    currPoints<- 0
-
-    if(isAssigned){ # already assigned to same line
-      currPoints<- currPoints + 2/maxPoints
-    }
-
-    if(!likelyRS){ # not likely a RS
-      currPoints<- currPoints + 1/maxPoints
-    }
-
-    # weight points by amount of text left on the line (max 1)
-    currPoints<- currPoints+ (1-propLeft)/maxPoints
-
-    # weight by saccade length:
-    if(saccLen>SaccThresh){
-      currPoints<- currPoints+0 # i.e., no additional points
-    } else{
-      # weight points by distance traveled from previous fixation
-      currPoints<- currPoints+ (2*(1-(saccLen/SaccThresh)))/maxPoints
-    }
-
-    currPoints<- round(currPoints,2)
-
-    return(abs(currPoints))
-
-  }
-
   # Re-map fixation info after re-aligning it:
-  reMap<- function(rawfix, i, map, coords, newX=NULL, newY=NULL){
+  reMap<- function(rawfix, i, map, coords, newY=NULL){
     rawfix$reAligned[i]<- 1
     rawfix$prevLine[i]<- rawfix$line[i]
-    rawfix$prevX[i]<- rawfix$xPos[i]
+    #rawfix$prevX[i]<- rawfix$xPos[i]
     rawfix$prevY[i]<- rawfix$yPos[i]
 
     if(hasArg(newX)){ # if new x to be replaced..
@@ -1210,24 +1286,10 @@ reAlign<- function(rawfix, coords, map, ResX, ResY, Ythresh,
 
   rawfix$pRS<- NULL
   rawfix$pILS<- NA
-  #rawfix$pSL<- NULL # prob fixation is still on the same line
   rawfix$reAligned<- '0'
-  rawfix$prevX<- NA
   rawfix$prevY<- NA
   rawfix$prevLine<- NA
 
-  # check first fixation:
- # curr_line<- 1 # start at line 1 (assuming gaze box)
-
-#  if(rawfix$line[1]!=1){
-#    if(rawfix$yPos[1]< ystart[1,2]){ # first fix is above first one
-#      rawfix<- reMap(rawfix, 1, map, coords, newY= ystart[1,2]+1)
-#    }
-
-#    if(rawfix$yPos[1]> yend[1,2]){ # first fix is below first line
-#      rawfix<- reMap(rawfix, 1, map, coords, newY= yend[1,2]-1)
-#    }
-#  }
 
   ## Calculate probability of return sweep for each fixation:
   for(i in 1:nrow(rawfix)){
@@ -1302,52 +1364,9 @@ for(i in 0:length(RsweepFix)+1){
       rawfix$reAligned[linePass$fix_num[j]]<- "No" # mark as not re-aligned
     }
 
-
   } # end of re-align loop
 
-
 } # end of line pass loop
-
-
-
-
-
-#  for(i in 1:nrow(rawfix)){
-#    rawfix$pSL[i]<- SL(i, rawfix, coords, curr_line, xstart, xend)
-#    rawfix$prevX[i]<- rawfix$xPos[i]
-#    rawfix$prevY[i]<- rawfix$yPos[i]
-#
-#
-#    if(rawfix$pSL[i]> rawfix$pRS[i]){ # greater prob. of same line fixation than RS prob.
-#      # check if fixation is located on current line:
-#      onLine<- rawfix$yPos[i]> ystart[curr_line,2] & rawfix$yPos[i]< yend[curr_line,2]
-#      if(!onLine){
-#        if(rawfix$yPos[i]< ystart[curr_line,2]){ # fixation is above line
-#          rawfix<- reMap(rawfix, i, map, coords, newY= ystart[curr_line,2]+1)
-#          #rawfix$yPos[i]<- ystart[curr_line,2]+1 # bring fixation down
-#        }else{ # fixation is below line
-#          rawfix<- reMap(rawfix, i, map, coords, newY= yend[curr_line,2]-1)
-#          #rawfix$yPos[i]<- yend[curr_line,2]-1 # bring fixation up
-#        }
-#      }
-#
-#    } else{ # there is evidence that a RS was made
-#      #if(!is.na(rawfix$line[i])){
-#      #  curr_line<- rawfix$line[i]
-#      #} else{
-#        curr_line<- findInterval(rawfix$yPos[i], ystart[,2]+letterHeight/2)
-#      #}
-#
-#    }
-#
-#   # Was fixation re-aligned?
-#   if(rawfix$prevX[i]== rawfix$xPos[i] & rawfix$prevY[i]== rawfix$yPos[i]){
-#     rawfix$reAligned[i]<- "No"
-#   }else{
-#     rawfix$reAligned[i]<- "Yes"
-#   }
-#
-#  }
 
 
   return(rawfix)
