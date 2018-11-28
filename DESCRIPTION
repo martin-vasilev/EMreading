@@ -12,7 +12,6 @@ Collate:
     'utility.R'
     'Drift.R'
     'GUI.R'
-    'MultiLine.R'
     'SingleLine.R'
     'cleanData.R'
     'ocr.r'
