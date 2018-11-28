@@ -66,19 +66,29 @@ Drift<- function(data_list){
       text<- text[-whichRepeat]
     }
     
+    # Remove failed drift checks:
+    whichFail<- grep("DRIFTCORRECT_FAILED", text)
+    nFailed<- length(text[whichFail])
+    if(nFailed>0){
+      text<- text[-whichFail]
+    }
+    
     # parse message text:
     out <-  do.call( rbind, strsplit( text, '\t' ) )
     out<- out[, 2]
     out <-  do.call( rbind, strsplit(out, ' ' ) )
     
+    # remove empty columns that can mess up parsing sometimes:
+    out<- out[, colSums(out != "") != 0]
+    
     time_stamp<- as.numeric(out[,1])
     eye<- out[, 4]
-    offset<- as.numeric(out[,9])
+    offset<- as.numeric(out[,8])
     pos<- as.numeric(unlist(strsplit(out[,6], ',')))
     x_pos<- pos[c(TRUE, FALSE)]
     y_pos<- pos[c(FALSE, TRUE)]
     
-    pix_offset<- as.numeric(unlist(strsplit(out[,12], ',')))
+    pix_offset<- as.numeric(unlist(strsplit(out[,10], ',')))
     x_offset<- pix_offset[c(TRUE, FALSE)]
     y_offset<- pix_offset[c(FALSE, TRUE)]
     sub= rep(i, length(time_stamp))
