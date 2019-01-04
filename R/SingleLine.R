@@ -61,7 +61,7 @@ SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
   options(scipen=999)
   
   # check if user provided data dir:
-  if(!hasArg(data_list)){
+  if(length(data_list)==0){
     data_list= file.choose() # make them chose a file
     message("To process multiple files, please specify a directory in 'data_list'")
   }

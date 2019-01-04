@@ -498,7 +498,7 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
     dupl<- which(trial_db$stamp== temp$stamp)
     if(length(dupl)>0){
       trial_db$keep[dupl]=0
-      message(paste(" Duplicated trial", temp$stamp, "! ",
+      message(paste(" Duplicated trial ", temp$stamp, "! ",
                     "Analysing only last attempt at the trial!", "\n", sep= ""))
     }
     
