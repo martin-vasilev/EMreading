@@ -6,6 +6,11 @@
 #  UTILITY FUNCTIONS   #
 ########################
 
+# Short functions:
+get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
+
+
+
 # get a list of .asc files from a user-provided directory
 get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
 
@@ -436,7 +441,7 @@ coord_map<- function(coords, x=ResX, y= ResY){
 #   return(trial_db)
 # }
 
-trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "SYNCTIME"){
+trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "SYNCTIME", selectEXP= TRUE){
   get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
   
   parse_itemID<- function(trials){
@@ -505,13 +510,20 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
     trial_db<- rbind(trial_db, temp)
   }
   
-  trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)#, keep==1)
-  trial_db<- subset(trial_db, E=="E")
+  if(!selectEXP){ # keep only questions
+    trial_db<- subset(trial_db, depend> 0 & item< maxtrial+1)#, keep==1
+    trial_db<- subset(trial_db, E=="F")
+  }else{ # keep only experimental items
+    trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)#, keep==1)
+    trial_db<- subset(trial_db, E=="E")
+    trial_db$depend<- NULL
+  }
+  
+  
   trial_db$seq<- 1:nrow(trial_db)
   
   trial_db$E<- NULL
   trial_db$stamp<- NULL
-  trial_db$depend<- NULL
   
   trial_db<- subset(trial_db, keep==1)
   trial_db$keep<- NULL
@@ -1125,16 +1137,15 @@ plot_fix<- function(coords, raw_fix_temp, i, j, ResX, ResY, hasText=TRUE, plotSe
 }
 
 
-reAlign<- function(rawfix, coords, map, ResX, ResY, Ythresh,
-                   Xthresh, threshSimilar){
+reAlign<- function(rawfix, coords, map, ResX, ResY, RSpar){
 
   #------------------------------------------
   #                Functions:
   #------------------------------------------
 
   # Check for a return sweep (RS):
-  RS<- function(i, rawfix, coords, reqYthresh=TRUE, reqXthresh=TRUE, Ythresh= Ythresh,
-                Xthresh= Xthresh, threshSimilar= threshSimilar){
+  RS<- function(i, rawfix, coords, reqYthresh=TRUE, reqXthresh=TRUE, Ythresh= RSpar[1],
+                Xthresh= RSpar[2], threshSimilar= RSpar[3]){
 
     if(i==1){ # first fixation can't be a return sweep
       return(0)
