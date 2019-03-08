@@ -310,7 +310,7 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
     test<- suppressWarnings(chisq.test(table(o$cond)))
     
     if(test$p.value<0.05){
-      cat("\n Chi-square test detects enequal number of outliers excluded per condition! \n")
+      cat("\n WARNING!!! Chi-square test detects enequal number of outliers excluded per condition! \n")
       cat(paste("X^2(", test$parameter, ")", "= ", round(test$statistic, 4),
                 ", p= ", test$p.value, sep= ''))
       cat("\n")

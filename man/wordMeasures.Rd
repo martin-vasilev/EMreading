@@ -4,11 +4,14 @@
 \alias{wordMeasures}
 \title{Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.}
 \usage{
-wordMeasures(data)
+wordMeasures(data, multipleItems = FALSE)
 }
 \arguments{
 \item{data}{Dataframe containing the raw fixation data that were extracted with the
 EMreading package}
+
+\item{multipleItems}{a logical indicating whether subject saw a given item more than once (FALSE by default). 
+If it is set to TRUE, it will calculate a given item multiple times based on how many conditions it appears in.}
 }
 \description{
 Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
