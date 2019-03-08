@@ -93,14 +93,14 @@ Drift<- function(data_list){
     y_offset<- pix_offset[c(FALSE, TRUE)]
     sub= rep(i, length(time_stamp))
     
-    df_temp<- data.frame(sub, time_stamp, eye, offset, x_pos, y_pos, x_offset, y_offset)
-    df_temp$filename= filename
+    df_temp<- try(data.frame(sub, time_stamp, eye, offset, x_pos, y_pos, x_offset, y_offset))
+    try(assign('df_temp$filename', filename))
     
-    df<- rbind(df, df_temp)
+    df<- try(rbind(df, df_temp))
     
-    cat(sprintf("Subject %i offset: mean: %.3f, SD: %.3f, range: %.3f - %.3f (%i aborted, %i repeated)",
+    try(cat(sprintf("Subject %i offset: mean: %.3f, SD: %.3f, range: %.3f - %.3f (%i aborted, %i repeated)",
                i, mean(df_temp$offset), sd(df_temp$offset), range(df_temp$offset)[1],
-               range(df_temp$offset)[2], nAborted, nRepeated))
+               range(df_temp$offset)[2], nAborted, nRepeated)))
     cat("\n")
   }
   
