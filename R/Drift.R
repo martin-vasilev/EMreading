@@ -41,7 +41,7 @@ Drift<- function(data_list){
   }
   
   message("Note that since Eyelink 1000 only drift check is performed,
-        meaning that no correction to the calibration is made.")
+        meaning that no correction to the calibration is made.\n")
   
   df<- NULL
   for (i in 1:length(data)){ # for each subject:

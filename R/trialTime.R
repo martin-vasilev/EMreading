@@ -18,7 +18,7 @@
 #' @include utility.R
 #' 
 
-trialTime<- function(data_list, maxtrial){
+trialTime<- function(data_list, maxtrial=999){
   
   t<- NULL
   
@@ -42,7 +42,7 @@ trialTime<- function(data_list, maxtrial){
     trial_db<- trial_info(file, maxtrial) # extract trial info 
     trial_db$duration_ms<- trial_db$end- trial_db$start
     trial_db$sub<- i
-    trial_db<- trial_db[, c(9, 1, 2, 3, 4, 5, 6, 7, 8)]
+    trial_db<- trial_db[, c(8, 1, 2, 6, 3, 4, 5, 7)]
     
     t<- rbind(t, trial_db)
   }
