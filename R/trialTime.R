@@ -50,7 +50,7 @@ trialTime<- function(data_list, maxtrial=999){
       trial_db$start_time[j] <- get_num(startStr)
       
       # end:
-      endStr<- file[trial_db$end[j]]
+      endStr<- file[trial_db$end[j]-1]
       endStr= unlist(strsplit(endStr, " "))[1]
       trial_db$end_time[j]<- get_num(endStr)
     }
