@@ -40,9 +40,24 @@ trialTime<- function(data_list, maxtrial=999){
     
     file<- readLines(data[i]) # load file
     trial_db<- trial_info(file, maxtrial) # extract trial info 
-    trial_db$duration_ms<- trial_db$end- trial_db$start
+    trial_db$start_time<- NA
+    trial_db$end_time<- NA
+    
+    for(j in 1:nrow(trial_db)){
+      # start:
+      startStr<- file[trial_db$start[j]]
+      startStr= unlist(strsplit(startStr, " "))[1]
+      trial_db$start_time[j] <- get_num(startStr)
+      
+      # end:
+      endStr<- file[trial_db$end[j]]
+      endStr= unlist(strsplit(endStr, " "))[1]
+      trial_db$end_time[j]<- get_num(endStr)
+    }
+    
+    trial_db$duration_ms<- trial_db$end_time- trial_db$start_time
     trial_db$sub<- i
-    trial_db<- trial_db[, c(8, 1, 2, 6, 3, 4, 5, 7)]
+    trial_db<- trial_db[, c("sub", "cond", "item", "seq", "start_time", "end_time", "duration_ms")]
     
     t<- rbind(t, trial_db)
   }
