@@ -6,7 +6,7 @@
 \usage{
 Question(data_list = NULL, maxtrial = 9999,
   Correct_Answ_Flag = "QUESTION_ANSWER",
-  Answ_Button_Flag = "ENDBUTTON")
+  Answ_Button_Flag = "ENDBUTTON", summary = TRUE)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
@@ -26,6 +26,8 @@ C:/My Data/subject2.asc
 
 \item{Answ_Button_Flag}{Name of the message flag in the data which indicates the answer button press 
 (default= "ENDBUTTON"; Umass convention)}
+
+\item{summary}{a logical indicating whether to print average accuracy per subject (default= TRUE)}
 }
 \description{
 This function reads in data from question trials and calculates accuracy, response time, etc.

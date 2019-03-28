@@ -23,10 +23,12 @@
 #' @param Answ_Button_Flag Name of the message flag in the data which indicates the answer button press 
 #' (default= "ENDBUTTON"; Umass convention)
 #' 
+#' @param summary a logical indicating whether to print average accuracy per subject (default= TRUE)
+#' 
 #' @include utility.R
 
 Question<- function(data_list= NULL, maxtrial= 9999, Correct_Answ_Flag= "QUESTION_ANSWER",
-                    Answ_Button_Flag= "ENDBUTTON"){
+                    Answ_Button_Flag= "ENDBUTTON", summary= TRUE){
   
   # check if user provided data dir:
   if(length(data_list)==0){
@@ -46,6 +48,10 @@ Question<- function(data_list= NULL, maxtrial= 9999, Correct_Answ_Flag= "QUESTIO
   }
   
   Quest<- NULL
+  
+  if(summary){
+    Sub_acc= NULL
+  }
   
   for (i in 1:length(data)){ # for each subject..
     
@@ -151,9 +157,24 @@ Question<- function(data_list= NULL, maxtrial= 9999, Correct_Answ_Flag= "QUESTIO
       
     }# end of j (item)
     
+    
+    if(summary){
+      subQ<- subset(Quest, sub==i)
+      Sub_acc[i]<- round(mean(subQ$accuracy)*100,2)
+    }
+    
     cat("\n")
   
   } # end of i (subject)
+  
+  if(summary){
+    db<- data.frame(sub= seq(1, length(data), 1), meanAcc= Sub_acc)
+    
+    cat("\n"); cat("Average accuracy per subject:\n\n")
+    print(db)
+    cat("\n")
+  }
+  
   
   return(Quest)
   
