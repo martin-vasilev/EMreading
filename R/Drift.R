@@ -96,6 +96,15 @@ Drift<- function(data_list){
     df_temp<- try(data.frame(sub, time_stamp, eye, offset, x_pos, y_pos, x_offset, y_offset))
     try(assign('df_temp$filename', filename))
     
+    CatchLargeError<- which(abs(df_temp$offset)>5000)
+    if(length(CatchLargeError)>0){
+      ErrorExcluded<- df_temp$offset[CatchLargeError]
+      warning(sprintf("Excessively large offset error detected for subject %g: %f!!! Excluded from analysis!\n\n", i, round(ErrorExcluded,1)))
+      # remove from data frame to prevent messing up stats:
+      df_temp<- df_temp[-CatchLargeError,]
+    }
+    
+    
     df<- try(rbind(df, df_temp))
     
     try(cat(sprintf("Subject %i offset: mean: %.3f, SD: %.3f, range: %.3f - %.3f (%i aborted, %i repeated)",
