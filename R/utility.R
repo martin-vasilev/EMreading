@@ -12,12 +12,12 @@ get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)),
 
 
 # get a list of .asc files from a user-provided directory
-get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
+get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test", file_ext= ".asc"){
 
   # get a list of all file in dir:
   all_files<- list.files(dir)
   # remove non-asc files (if present)
-  all_files<- all_files[grepl(".asc", all_files)]
+  all_files<- all_files[grepl(file_ext, all_files)]
   # remove txt files (of present):
   all_files<- all_files[!grepl(".txt", all_files)]
 
@@ -35,10 +35,10 @@ get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test"){
       all_dirs[i]<- paste(dir, "/", all_files[i], sep = "")
     }
 
-    message(paste("Found", toString(length(all_files)), "asc files in the specified directory!", "\n"))
+    message(paste("Found", toString(length(all_files)), file_ext, "files in the specified directory!", "\n"))
     return(all_dirs)
   }else{
-    stop("Found no .asc files in the specified directory!")
+    stop(paste("Found no", file_ext, "files in the specified directory!"))
   }
 } # end of get_files()
 
@@ -942,7 +942,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }
 
-    raw_fix<- raw_fix[-nrow(raw_fix),]
+    #raw_fix<- raw_fix[-nrow(raw_fix),]
 
   if(hasText==TRUE){
     raw_fix$hasText<-1
