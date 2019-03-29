@@ -9,6 +9,8 @@
 # Short functions:
 get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
 
+isInside2D<- function(value, x1, x2){ value>= x1 & value <= x2}
+
 
 
 # get a list of .asc files from a user-provided directory
