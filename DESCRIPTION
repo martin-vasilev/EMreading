@@ -3,14 +3,12 @@ Title: Automatic pre-processing of reading fixation data
 Version: 0.0.2.0000
 Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
-Depends: 
-    R (>= 3.2.5)
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 6.1.1
+Depends:
+    R (>= 3.1)
+Imports:
+    shiny,
+    shinyalert
 Collate: 
-    'utility.R'
     'Calibr.R'
     'Drift.R'
     'EyeDoctor_PadLines.R'
@@ -21,6 +19,10 @@ Collate:
     'cleanData.R'
     'ocr.r'
     'paraFix.R'
+    'utility.R'
     'trialTime.R'
     'wordMeasures.R'
-Imports: shiny, shinyalert
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
