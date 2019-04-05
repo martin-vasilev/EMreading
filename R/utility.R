@@ -12,7 +12,6 @@ get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)),
 isInside2D<- function(value, x1, x2){ value>= x1 & value <= x2}
 
 
-
 # get a list of .asc files from a user-provided directory
 get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test", file_ext= ".asc"){
 
@@ -444,8 +443,11 @@ coord_map<- function(coords, x=ResX, y= ResY){
 # }
 
 trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "SYNCTIME", selectEXP= TRUE){
+  
+  ##
   get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
   
+  ##
   parse_itemID<- function(trials){
     I<- unlist(gregexpr(pattern ='I',trials)) # start of item info
     cond<- as.numeric(substr(trials, 2, I-1)) # extract condition number

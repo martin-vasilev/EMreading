@@ -12,6 +12,7 @@ Collate:
     'utility.R'
     'Calibr.R'
     'Drift.R'
+    'EyeDoctor_PadLines.R'
     'GUI.R'
     'MultiLine.R'
     'Question.R'
