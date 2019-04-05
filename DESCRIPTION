@@ -1,24 +1,34 @@
 Package: EMreading
-Title: Automatic pre-processing of reading fixation data
-Version: 0.0.2.0000
-Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.1)
-Imports: shiny, shinyalert
-Collate: 
-  'Calibr.R'
-  'Drift.R' 
-  'EyeDoctor_PadLines.R' 
-  'GUI.R' 'MultiLine.R' 
-  'Question.R' 
-  'SingleLine.R' 
-  'cleanData.R'
-  'ocr.r'
-  'paraFix.R'
-  'utility.R'
-  'trialTime.R'
-  'wordMeasures.R'
-License: What license is it under?
-Encoding: UTF-8
+Version: 0.0.3.0000
+Title: Automatic pre-processing of eye-movement reading data
+Description: A collection of R functions for data pre-processing of eye-movement reading data.
+Authors@R: c(
+    person("Vasilev", "Martin", , "martin.r.vasilev@gmail.com", c("aut", "cre"))
+    )
+Depends:
+    R (>= 3.4)
+Imports: 
+    shiny,
+    shinyalert
+License: GPL-2 | file LICENSE
+URL: https://github.com/martin-vasilev/EMreading
+BugReports: https://github.com/martin-vasilev/EMreading/issues
 LazyData: true
+Collate: 
+    'Calibr.R'
+    'Drift.R'
+    'EyeDoctor_PadLines.R'
+    'GUI.R'
+    'MultiLine.R'
+    'Question.R'
+    'SingleLine.R'
+    'cleanData.R'
+    'ocr.r'
+    'paraFix.R'
+    'utility.R'
+    'trialTime.R'
+    'wordMeasures.R'
+VignetteBuilder: knitr
 RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
+Encoding: UTF-8
