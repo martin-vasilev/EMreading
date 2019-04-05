@@ -5,20 +5,7 @@ Authors@R: person("Martin", "Vasilev", email = "martin.r.vasilev@gmail.com", rol
 Description: What the package does (one paragraph).
 Depends: R (>= 3.1)
 Imports: shiny, shinyalert
-Collate: 
-    'Calibr.R'
-    'Drift.R'
-    'EyeDoctor_PadLines.R'
-    'GUI.R'
-    'MultiLine.R'
-    'Question.R'
-    'SingleLine.R'
-    'cleanData.R'
-    'ocr.r'
-    'paraFix.R'
-    'utility.R'
-    'trialTime.R'
-    'wordMeasures.R'
+Collate: 'Calibr.R', 'Drift.R', 'EyeDoctor_PadLines.R', 'GUI.R', 'MultiLine.R', 'Question.R', 'SingleLine.R', 'cleanData.R', 'ocr.r', 'paraFix.R', 'utility.R', 'trialTime.R', 'wordMeasures.R'
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
