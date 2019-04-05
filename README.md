@@ -16,6 +16,18 @@ if('devtools' %in% rownames(installed.packages())==FALSE){
 install_github('martin-vasilev/EMreading')
 ```
 
+If the above doesn't work, try this:
+
+```R
+if('remotes' %in% rownames(installed.packages())==FALSE){
+    install.packages('remotes')
+    library(remotes)
+}else{
+    library(remotes)
+}
+install_url(url="https://github.com/martin-vasilev/EMreading/archive/master.zip", INSTALL_opt= "--no-multiarch")
+
+```
 ## Current functionality:
 
 ### Pre-processing of single-line reading experiments recorded with Eyetrack
