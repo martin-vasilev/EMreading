@@ -18,7 +18,7 @@
 #' @include utility.R
 #' 
 
-trialTime<- function(data_list, maxtrial=999){
+trialTime<- function(data_list, maxtrial=999, startFlag= "SYNCTIME", endFlag= "DISPLAY OFF"){
   
   t<- NULL
   
@@ -44,15 +44,26 @@ trialTime<- function(data_list, maxtrial=999){
     trial_db$end_time<- NA
     
     for(j in 1:nrow(trial_db)){
+      
+      trialFile<- file[trial_db$ID[j]:trial_db$end[j]]
+      
       # start:
-      startStr<- file[trial_db$start[j]]
-      startStr= unlist(strsplit(startStr, " "))[1]
-      trial_db$start_time[j] <- get_num(startStr)
+      startStr<- trialFile[which(grepl(startFlag, trialFile))]
+      start<- get_num(startStr)
+      trial_db$start_time[j]<- start
+      
+      # startStr<- file[trial_db$start[j]]
+      # startStr= unlist(strsplit(startStr, " "))[1]
+      # trial_db$start_time[j] <- get_num(startStr)
       
       # end:
-      endStr<- file[trial_db$end[j]-1]
-      endStr= unlist(strsplit(endStr, " "))[1]
-      trial_db$end_time[j]<- get_num(endStr)
+      endStr<- trialFile[which(grepl(endFlag, trialFile))]
+      end<- get_num(endStr)
+      trial_db$end_time[j]<- end
+      
+      # endStr<- file[trial_db$end[j]-1]
+      # endStr= unlist(strsplit(endStr, " "))[1]
+      # trial_db$end_time[j]<- get_num(endStr)
     }
     
     trial_db$duration_ms<- trial_db$end_time- trial_db$start_time
