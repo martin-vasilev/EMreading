@@ -15,7 +15,13 @@
 #' 
 #' @param maxtrial Maximum number of trials in the experiment
 #' 
+#' @param startFlag The flag in the data that indicates the start of trial (default: SYNCTIME in Eyetrack/Eyelink)
+#' 
+#' @param endFlag The flag in the data that indicates the end of the trial (default: DISPLAY OFF in Eyetrack)
+#' 
 #' @include utility.R
+#' 
+#' @example t<- trialTime("D:/Data/MyData/", maxtrial= 100)
 #' 
 
 trialTime<- function(data_list, maxtrial=999, startFlag= "SYNCTIME", endFlag= "DISPLAY OFF"){
