@@ -4,7 +4,7 @@
 #'
 #' @author Martin R. Vasilev
 #'
-#' @param data_dir Input of data files to be processed, as a directory that contains both the ASC
+#' @param data_dir Input of data files to be processed, as a directory that contains BOTH the ASC
 #' and the DA1 files for all subjects
 #' 
 #' @param ResX X screen resolution in pixels
@@ -16,29 +16,10 @@
 #' @param tBlink Time in milliseconds for detecting blinks before or after fixation. 
 #' If there is a blink x milliseconds before or after the fixation, it will be marked
 #' as having a blink. The default is 50 ms.
-#'
-#' @param plot A logical indicating whether to plot the raw and re-aligned fixations
-#' as an image file. The default is TRUE. If set to FALSE, no images will be plotted.
-#' Note that plotting images will generally take longer time to pre-process the data.
-#' The images are saved in the current working directory in the folder "img".
 #' 
-#' @param textStim An optional parameter for cases when the text stimuli are not printed
-#' to the .asc files. If this is the case, please provide a directory to a txt file 
-#' containing the stimuli sentences used in the experiment. Each sentences should be
-#' placed on a new line and the stimuli should be ordered in the way that they were presented
-#' in the experiment (i.e., sentence 1 should be on line 1 and so on). You will also need
-#' to provide information about the width of letters and the offset of the text on the 
-#' x-axis (see below). The default is NULL for cases when the text stimuli are printed 
-#' to the .asc files.
+#' @padding Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0. 
+#' If padding is greater than 0, then all letter positions will be decremented by the specified number.
 #' 
-#' @param ppl Pixels per letter in the experiment (i.e., the width of each letter on the 
-#' screen). Please note that this function currently works only with fixed-width (i.e., 
-#' monospaced) fonts. Not needed if the text stimuli were printed to the data.
-#' 
-#' @param xOffset Offset of the text in pixels on the x-axis of the screen. This should be
-#' the pixel location where the first letter of the sentence starts. Not needed if the text
-#' stimuli were printed to the data.
-#'
 #' @return A data frame containing the data
 #'
 #' @example
@@ -46,8 +27,8 @@
 #' @include utility.R
 #' 
 
-preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120, 
-                          tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
+preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
+                          tBlink= 50, padding= 0){
   
   options(scipen=999)
   
@@ -159,7 +140,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
         message(sprintf("Warning! Detected different number of fixations from da1 file for subject %g, item %g !!! \n", i, j))
         
         if(!warnMismatch){
-          message("Please avoid deleting or merging fixations in EyeDoctor!\n\n")
+          message("Please don't delete or merge fixations in EyeDoctor!\n\n")
           warnMismatch= 1
         }
       }
@@ -179,24 +160,28 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
         
         temp_fix<- raw_fix_temp[a,]
         
-        # NOTE: stuff that appears as -1 in da1 will appear as 0 here
+        # NOTE: stuff that appears as -1 in da1 (outside of text) will appear as 0 here
         
         # recode some variables using new (& possibly changed) fixation location:
         temp_fix$fix_num<- da1$fix_num[l] # fix number is taken from da1 sequence
         temp_fix$line<- da1$line[l] # line is taken from da1!
         
-        # char from EyeDoctor is relative to line start!
-        temp_fix$char_line <- da1$char[l]
+        # char from EyeDoctor is relative to line start! (we also remove padding, if present)
+        temp_fix$char_line <- da1$char[l]- padding
         
         loc<- which(coords$line == temp_fix$line & coords$line_char== temp_fix$char_line)
         
         if(length(loc)>0){
+          
           # update fixation with info from coords:
           temp_fix$sent<- coords$sent[loc] # sentence number
           temp_fix$word<- coords$word[loc] # word number
           temp_fix$char_trial<- as.numeric(as.character(coords$char[loc]))+1 # +1 bc EyeDoctor counts from 0
           temp_fix$wordID<- coords$wordID[loc] # word identity
           temp_fix$land_pos<- coords$char_word[loc] # landing position char
+          temp_fix$outsideText<- 0
+          
+          #if(da1$char)
           
         }else{
           # update as NAs:
@@ -205,6 +190,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
           temp_fix$char_trial<- NA # +1 bc EyeDoctor counts from 0
           temp_fix$wordID<- NA # word identity
           temp_fix$land_pos<- NA # landing position char
+          temp_fix$outsideText<- 1
           
           # redo char & line from above:
           temp_fix$char_line<- NA # stays NA unless changed below:
@@ -212,42 +198,44 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
           
           #########
           # line
-          
           nlines<- unique(coords$line)
-          
+           
           for(m in 1:length(nlines)){ # find on which "line" it occured (if any)
-            y<- subset(coords, line== nlines[m])
-            minY<- min(y$y1)
-            maxY<- max(y$y2)
-            
+             y<- subset(coords, line== nlines[m])
+             minY<- min(y$y1)
+             maxY<- max(y$y2)
+             
             if(isInside2D(temp_fix$yPos, minY, maxY)){
-              temp_fix$line<- nlines[m] # fixation is on line m (but outside text area)
-            }
-          }
+               temp_fix$line<- nlines[m] # fixation is on line m (but outside text area)
+             }
+           }# end of m
           
+          
+          
+          # 
           #########
           # x pos (char_line)
-          if(!is.na(temp_fix$line)){ # no point in continuing if fix is not on a "line"
-            
-            if(isInside2D(temp_fix$xPos, 1, ResX)){ # make sure fix is inside screen area..
-              x<- subset(coords, line== temp_fix$line)
-              minX<- min(x$x1)
-              maxX<- max(x$x2)
-              ppl<- mean(x$x2- x$x1) # take mean pixel per letter (in case of proportional font..)
-              maxChar<- max(x$line_char)
-              
-              if(temp_fix$xPos< minX){ # fix is before left text margin
-                temp_fix$char_line<- 1- ceiling((minX- temp_fix$xPos)/ppl)
-                # make char negative (to indicate it's before line start)
-              }
-              
-              if(temp_fix$xPos> maxX){ # fix is to the right of the right text margin
-                temp_fix$char_line<- maxChar + ceiling((temp_fix$xPos - maxX)/ppl)
-              }
-              
-            } # end of "if inside screen"
-            
-          } # end of "if on a line"
+          # if(!is.na(temp_fix$line)){ # no point in continuing if fix is not on a "line"
+          #   
+          #   if(isInside2D(temp_fix$xPos, 1, ResX)){ # make sure fix is inside screen area..
+          #     x<- subset(coords, line== temp_fix$line)
+          #     minX<- min(x$x1)
+          #     maxX<- max(x$x2)
+          #     ppl<- mean(x$x2- x$x1) # take mean pixel per letter (in case of proportional font..)
+          #     maxChar<- max(x$line_char)
+          #     
+          #     if(temp_fix$xPos< minX){ # fix is before left text margin
+          #       temp_fix$char_line<- 1- ceiling((minX- temp_fix$xPos)/ppl)
+          #       # make char negative (to indicate it's before line start)
+          #     }
+          #     
+          #     if(temp_fix$xPos> maxX){ # fix is to the right of the right text margin
+          #       temp_fix$char_line<- maxChar + ceiling((temp_fix$xPos - maxX)/ppl)
+          #     }
+          #     
+          #   } # end of "if inside screen"
+          #   
+          # } # end of "if on a line"
         
           
         } # end of "if not on text area"
@@ -261,13 +249,100 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
           temp_fix$max_char_line<- NA
         }
         
+        if(!is.na(temp_fix$char_line)){ # outside text if fix falls in the right margin padded area
+          if(temp_fix$char_line> temp_fix$max_char_line){
+            temp_fix$outsideText<- 1
+          } 
+        }
         
         # merge data from curr iteration:
         raw_fix_new<- rbind(raw_fix_new, temp_fix)
         
-        
       } # end of l loop (da1)
       
+      
+      ## remap other variables (saccade length, regress prob.) & add new ones:
+      
+      # max word for each sentence:
+      curr_sent<- matrix(0, max(coords$sent),2)
+      curr_sent[,1]<- c(1:max(coords$sent))
+      
+      # reset prev values of variables:
+      raw_fix_new$sacc_len<- NA
+      raw_fix_new$regress<- NA
+      
+      raw_fix_new$Rtn_sweep<- NA
+      raw_fix_new$Rtn_sweep_type<- NA
+      
+      currentLine= 1
+      maxLine= 1
+      
+      for(m in 1:nrow(raw_fix_new)){
+        
+        # saccade length stuff:
+        if(m>1){ # there is no sacc len on first fix, so we start at m>1
+          if(!is.na(raw_fix_new$char_line[m-1]) & !is.na(raw_fix_new$char_line[m])){
+            raw_fix_new$sacc_len[m]<- abs(raw_fix_new$char_line[m]- raw_fix_new$char_line[m-1])
+          }
+          
+        }
+        
+       # regression stuff
+        if(!is.na(raw_fix_new$sent[m])){
+          
+          if(m==1){
+            curr_sent[raw_fix_new$sent[m], 2]<- raw_fix_new$word[m] # first fixated word is current max word
+            raw_fix_new$regress[m]<- 0 # first fix can never be regression
+          }else{
+            
+            if(raw_fix_new$word[m]> curr_sent[raw_fix_new$sent[m], 2]){
+              curr_sent[raw_fix_new$sent[m], 2]<- raw_fix_new$word[m] #update new max word 
+            }
+            
+            if(raw_fix_new$word[m]< curr_sent[raw_fix_new$sent[m], 2]){
+              raw_fix_new$regress[m]<- 1 # regression
+            }else{
+              raw_fix_new$regress[m]<- 0 # no regression
+            }
+            
+          }
+          
+        } # end of regression stuff
+        
+        
+        
+        # Add return sweep stuff..
+        if(!is.na(raw_fix_new$line[m])){
+          currentLine<- raw_fix_new$line[m]
+        }
+        
+        
+        if(currentLine> maxLine){
+          maxLine<- currentLine # update max line
+          raw_fix_new$Rtn_sweep[m]<- 1 # return sweep
+          
+          # what type of return sweep is it?
+          if(m<nrow(raw_fix_new)){
+            
+            if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
+              raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
+            }else{
+              raw_fix_new$Rtn_sweep_type[m]<- "accurate"
+            }
+            
+          }else{
+            raw_fix_new$Rtn_sweep_type[m]<- NA
+          }
+          
+        }else{
+          raw_fix_new$Rtn_sweep[m]<- 0
+        }
+        
+        
+      }
+      
+      
+      # merge trial-level data:
       raw_fix<- rbind(raw_fix, raw_fix_new)
       
       cat(toString(j)); cat(" ")
@@ -277,5 +352,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
   } # end of subject
   
   cat("\n \n All Done!");
+  
+  return(raw_fix)
 }
 
