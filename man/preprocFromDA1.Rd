@@ -20,12 +20,17 @@ and the DA1 files for all subjects}
 \item{tBlink}{Time in milliseconds for detecting blinks before or after fixation.
 If there is a blink x milliseconds before or after the fixation, it will be marked
 as having a blink. The default is 50 ms.}
+
+\item{padding}{Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0.
+If padding is greater than 0, then all letter positions will be decremented by the specified number.}
 }
 \value{
 A data frame containing the data
 }
 \description{
 This function reads in data from .asc files and DA1 files (from EyeDoctor) and merges them together.
+It makes it possible to re-adjust the raw data for the vertical position of fixations using EyeDoctor's
+DA1 data after manual processing.
 }
 \author{
 Martin R. Vasilev
