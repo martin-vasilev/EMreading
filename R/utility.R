@@ -14,7 +14,10 @@ isInside2D<- function(value, x1, x2){ value>= x1 & value <= x2}
 
 # get a list of .asc files from a user-provided directory
 get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test", file_ext= ".asc"){
-
+   
+  if(dir== ""){
+      dir= getwd()
+  }
   # get a list of all file in dir:
   all_files<- list.files(dir)
   # remove non-asc files (if present)
