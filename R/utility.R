@@ -471,6 +471,12 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
   trials<- gsub(" ", "", trials)
   
   start_time<- which(grepl(trial_start_flag, file))
+  
+  # if there is no trial start flag, use trial ID flag:
+  if(length(start_time)==0){
+    start_time= trial_time
+  }
+  
   # end of last file is end of file
   end_time<- c(trial_time[2:length(trial_time)], length(file))-1
   
@@ -514,13 +520,23 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
     trial_db<- rbind(trial_db, temp)
   }
   
+  # if all item numbers are NAs, use trial stamp instead:
+  howManyNAs<- length(which(is.na(trial_db$item)))
+  if(howManyNAs== nrow(trial_db)){
+    trial_db$item<- trial_db$stamp
+  }
+  
+  
   if(!selectEXP){ # keep only questions
     trial_db<- subset(trial_db, depend> 0 & item< maxtrial+1)#, keep==1
     trial_db<- subset(trial_db, E=="F")
   }else{ # keep only experimental items
-    trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)#, keep==1)
-    trial_db<- subset(trial_db, E=="E")
-    trial_db$depend<- NULL
+    if(howManyNAs!= nrow(trial_db)){ # continue only if we use Eyetrack convention
+      trial_db<- subset(trial_db, depend==0 & item< maxtrial+1)#, keep==1)
+      trial_db<- subset(trial_db, E=="E")
+      trial_db$depend<- NULL
+    }
+
   }
   
   
@@ -607,6 +623,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
       if(length(s1)>1){
         s1<- s1[1]
       }
+      
       
       # find end:
       s2<- grep(end, file)
@@ -722,6 +739,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   prev_blink<- NULL
   after_blink<- NULL
   
+  
   for(k in 1:length(s_time)){
     GP<- suppressWarnings(get_seq(s_time[k], e_time[k], trialFile))
     eye_clozed<- which(GP$V4==0)
@@ -731,14 +749,6 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
       blink[k]<- 0
     }
     
-    # blink before start of fix?
-    prev<- suppressWarnings(get_seq(s_time[k]-tBlink, s_time[k], trialFile, prev=T))
-    prev_closed<- which(prev$V4==0)
-    if(length(prev_closed)>0){
-      prev_blink[k]<- 1
-    }else{
-      prev_blink[k]<- 0
-    }
     
     # blink after start of fix?
     if(k!= length(s_time)){ #if not last fix on trial
@@ -757,8 +767,26 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     }else{ # na, no data after this fix
       after_blink[k]<- NA
     }
+    
+    
+    # blink before start of fix?
+    if(k>1){
+      #Start_trial<- which(grepl(s_time[k]-tBlink, trialFile)) # check if this time exists in trial:
+      prev<- suppressWarnings(get_seq(s_time[k]-tBlink, s_time[k], trialFile, prev=T))
+      
+      prev_closed<- which(prev$V4==0)
+      if(length(prev_closed)>0){
+        prev_blink[k]<- 1
+      }else{
+        prev_blink[k]<- 0
+      }
+    }else{
+      prev_blink[k]<- NA
+    }
+  
 
-  }
+
+  } # end of k
 
 
   # find blinks:
