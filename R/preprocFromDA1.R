@@ -357,6 +357,10 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   
   cat("\n \n All Done!");
   
+  if(sum(raw_fix$hasText)==nrow(raw(fix))){ # if all trials have text, remove column
+    raw_fix$hasText<- NULL
+  }
+  
   return(raw_fix)
 }
 
