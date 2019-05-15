@@ -1,6 +1,8 @@
 #' Pre-processing of data using DA1 files
 #'
 #' This function reads in data from .asc files and DA1 files (from EyeDoctor) and merges them together.
+#' It makes it possible to re-adjust the raw data for the vertical position of fixations using EyeDoctor's
+#' DA1 data after manual processing.
 #'
 #' @author Martin R. Vasilev
 #'
@@ -17,7 +19,7 @@
 #' If there is a blink x milliseconds before or after the fixation, it will be marked
 #' as having a blink. The default is 50 ms.
 #' 
-#' @padding Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0. 
+#' @param padding Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0. 
 #' If padding is greater than 0, then all letter positions will be decremented by the specified number.
 #' 
 #' @return A data frame containing the data
@@ -29,6 +31,8 @@
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
                           tBlink= 50, padding= 0){
+  
+  message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
   options(scipen=999)
   

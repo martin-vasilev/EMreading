@@ -561,7 +561,17 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
 parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
                      hasText=TRUE, SL= FALSE){
 
-  get_FIX_stamp<- function(string){as.numeric(substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1))}
+  get_FIX_stamp<- function(string){
+    
+    num_stamp<- NULL
+    for(i in 1:length(string)){
+      char_stamp<-substr(string[i], 1, unlist(gregexpr(pattern ='\t', string[i]))[1]-1) 
+      num_stamp[i]<- as.numeric(char_stamp)
+    }
+    # char_stamp<-substr(string, 1, unlist(gregexpr(pattern ='\t', string))[1]-1) 
+    # num_stamp <- as.numeric(char_stamp)
+    return(num_stamp)
+  }
 
   loc_blinks<- function(blink_time, s_time){findInterval(blink_time, s_time)+1 }
   # +1 because it affects the next fixation
