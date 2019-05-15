@@ -104,6 +104,8 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   if(removeBlinks){
     s2<- "removed all blinks from the data"
+  }else{
+    s2<- ''
   }
   
   if(removeOutliers){
@@ -306,19 +308,20 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   cat(output)
   
   
-  if(removeOutliers & nrow(o)>0 & length(unique(o$cond))>1){
-    test<- suppressWarnings(chisq.test(table(o$cond)))
-    
-    if(test$p.value<0.05){
-      cat("\n WARNING!!! Chi-square test detects enequal number of outliers excluded per condition! \n")
-      cat(paste("X^2(", test$parameter, ")", "= ", round(test$statistic, 4),
-                ", p= ", test$p.value, sep= ''))
-      cat("\n")
+  if(removeOutliers){
+    if(nrow(o)>0 & length(unique(o$cond))>1){
+      test<- suppressWarnings(chisq.test(table(o$cond)))
       
-      cat(table(o$cond))
+      if(test$p.value<0.05){
+        cat("\n WARNING!!! Chi-square test detects enequal number of outliers excluded per condition! \n")
+        cat(paste("X^2(", test$parameter, ")", "= ", round(test$statistic, 4),
+                  ", p= ", test$p.value, sep= ''))
+        cat("\n")
+        
+        cat(table(o$cond))
+      }
     }
   }
-  
   
   # remove hasText if all trial= TRUE
   if(length(which(raw_fix$hasText==1))== nrow(raw_fix)){
