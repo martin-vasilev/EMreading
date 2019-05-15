@@ -44,6 +44,8 @@
 #' chose "ms" in "outlierMethod", please specify a number in ms (e.g., 800). if you chose "std",
 #' please enter a number in standard deviations above the mean (e.g., 3).
 #' 
+#' @param keepRS A logical indicating whether to keep return sweep fixations from merging (FALSE by default)
+#' 
 #' 
 #' @param silent A logical indicating whether to print output regarding merged fixations. 
 #' Set to FALSE if you don't want this output (default is TRUE).
@@ -51,7 +53,7 @@
 cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
                      combineNearbySmallFix= TRUE, combineMethod= "char", combineDist= 1,
                      removeSmallFix= TRUE, smallFixCutoff= 80, removeOutliers= TRUE,
-                     outlierMethod= "ms", outlierCutoff= 800, silent= FALSE){
+                     outlierMethod= "ms", outlierCutoff= 800, keepRS= FALSE, silent= FALSE){
   
   # check user input:
   if(!is.logical(removeOutliers)){
@@ -187,6 +189,12 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
 
              # merge only AFTER printing output!
              raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
+             
+             if(keepRS){
+               if(raw_fix$Rtn_sweep[i]==1){
+                 raw_fix$Rtn_sweep[i-1]<- 1
+               }
+             }
             
            }
            if(after<= combineDist){
@@ -204,6 +212,12 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
              }
 
              raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i]
+             
+             if(keepRS){
+               if(raw_fix$Rtn_sweep[i]==1){
+                 raw_fix$Rtn_sweep[i+1]<- 1
+               }
+             }
            }
            
          }

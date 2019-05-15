@@ -8,35 +8,35 @@ cleanData(raw_fix = data, removeOutsideText = TRUE,
   removeBlinks = TRUE, combineNearbySmallFix = TRUE,
   combineMethod = "char", combineDist = 1, removeSmallFix = TRUE,
   smallFixCutoff = 80, removeOutliers = TRUE, outlierMethod = "ms",
-  outlierCutoff = 800, silent = FALSE)
+  outlierCutoff = 800, keepRS = FALSE, silent = FALSE)
 }
 \arguments{
 \item{raw_fix}{Dataframe containing the raw fixation data that were extracted with the
 EMreading package}
 
-\item{removeOutsideText}{A logical inicating whether to remove all fixations outside the text 
+\item{removeOutsideText}{A logical inicating whether to remove all fixations outside the text
 and/or screen area. The default is TRUE.}
 
-\item{removeBlinks}{A logical indicating whether to exclude all blinks from the data. The 
+\item{removeBlinks}{A logical indicating whether to exclude all blinks from the data. The
 default (and recommended) setting is TRUE.}
 
-\item{combineNearbySmallFix}{A logical indicating whether to merge small fixations < 80 ms 
+\item{combineNearbySmallFix}{A logical indicating whether to merge small fixations < 80 ms
 that are within 1 character space of another fixation (the small fixation will be merged with
- the nearby fixation). The default is TRUE.}
+the nearby fixation). The default is TRUE.}
 
-\item{combineMethod}{Method for combining small fixations. Accepted values are "char" for 
+\item{combineMethod}{Method for combining small fixations. Accepted values are "char" for
 combaining based on a distance in characters and "pix" for combining based on distance in
 pixels. The default is "char".}
 
 \item{combineDist}{Distance for combining small fixations. Small fixations will be combined
-only if they occur within this distance of another fixation. Based on the input to 
+only if they occur within this distance of another fixation. Based on the input to
 'combineMethod' above, enter a numeric value either in number of characters or in number of
 pixels. The default is 1 (characters).}
 
 \item{removeSmallFix}{A logical indicating whether to remove any remaining fixations smaller
 than a certain cut-off. The default is TRUE}
 
-\item{smallFixCutoff}{A numerical value indiciating the cut-off for removing small 
+\item{smallFixCutoff}{A numerical value indiciating the cut-off for removing small
 fixations (the default is 80 ms). Any values smaller than this number will be removed.}
 
 \item{removeOutliers}{A logical indicating whether to remove outliers from the data (default
@@ -48,11 +48,13 @@ Allowed are 2 methods: "ms" for exclusion of fixations based on a number in mill
 or "std" for exlusion based on values that are a certain number of standard deviations above
 the subject's mean.}
 
-\item{outlierCutoff}{Numerical value that specifies the cut-off for removing outliers. If you 
+\item{outlierCutoff}{Numerical value that specifies the cut-off for removing outliers. If you
 chose "ms" in "outlierMethod", please specify a number in ms (e.g., 800). if you chose "std",
 please enter a number in standard deviations above the mean (e.g., 3).}
 
-\item{silent}{A logical indicating whether to print output regarding merged fixations. 
+\item{keepRS}{A logical indicating whether to keep return sweep fixations from merging (FALSE by default)}
+
+\item{silent}{A logical indicating whether to print output regarding merged fixations.
 Set to FALSE if you don't want this output (default is TRUE).}
 }
 \description{
