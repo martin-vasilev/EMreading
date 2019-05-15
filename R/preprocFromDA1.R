@@ -123,7 +123,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       try(map<- coord_map(coords, x=ResX, y= ResY)) # map them to pixels on the screen
       
       # Extract raw fixations from data and map them to the text:
-      try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink, SL= T))
+      try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[whichDB,], i, ResX, ResY, tBlink, SL= T))
       
       # Find when the time when the trial starts:
       # NB!: For some weird reason, EyeDoctor starts counting trial time from the
