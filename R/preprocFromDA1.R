@@ -214,6 +214,16 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
              }
            }# end of m
           
+          if(!is.na(da1$line[l])){ # continue only if line value isn't missing..
+            if(da1$line[l]!= temp_fix$line){ # if there is line mismatch...
+              temp_fix$line<- da1$line[l] # use EyeDoctor line
+            }
+          }
+          
+          
+          # the m-loop above does not take into account whether the fix line was manually adjusted in EyeDoctor.
+          # To fix this, we check if the EyeDoctor line corresponds to the line assigned above. If it doesn't, 
+          # we default to Eyedoctor coding (since we assume that's what the user wants).
           
           
           # 
