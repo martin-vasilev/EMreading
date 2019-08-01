@@ -17,7 +17,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
   }
   
   sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; o<- NULL; p<- NULL
-  nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL
+  nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL; word_line<- NULL
   dataN<- NULL; dataT<- NULL; q<- NULL; r<- NULL; sent<- NULL
   FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
   nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
@@ -178,6 +178,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
             
             # add line:
             line[l]<- p$line[1]
+            word_line[l]<- p$word_line[1]
             
             if(nrow(p)==0){
               FFD[l]<- NA
@@ -255,17 +256,17 @@ wordMeasures<- function(data, multipleItems=FALSE){
           
           if(is.na(word[1])){
             sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
-            p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
+            p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
             FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
             nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL
             
             next
           }
           
-          dataT<- data.frame(sub, item, cond, seq, word, wordID, sent, line, FFD, SFD, GD, TVT,
+          dataT<- data.frame(sub, item, cond, seq, word, word_line, wordID, sent, line, FFD, SFD, GD, TVT,
                              nfix1, nfix2, nfixAll, regress, RS, RS_type)
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
-          p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
+          p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
           FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
           nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
           
