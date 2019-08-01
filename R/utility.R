@@ -206,10 +206,34 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   }
 
   out<- map_words(out)
+  
+  # map word per line:
+  
+  out$word_line<- NA
+  curr_line<- out$line[1]
+  curr_word<- out$word[1]
+  
+  for(i in 1:nrow(out)){
+    
+    if(out$line[i]> curr_line){
+      curr_line<- curr_line+1
+      curr_word<- 1
+    }
+    
+    if(!is.na(out$space[i])){
+      if(out$space[i]==1){
+        curr_word<- curr_word+1
+      }
+      
+    }
+    
+    out$word_line[i]<- curr_word
+  }
+  
 
   # change column names:
   colnames(out)<- c("char", "letter", "x1", "y1", "x2", "y2", "space", "sent",
-                    "line", "word")
+                    "line", "word", "word_line")
   
 #  if(sum(out$space)-1==nrow(out)){
 #    out$line_char<- NA
@@ -827,7 +851,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   loc<- NULL; raw_fix<- NULL; temp<- NULL; sub<- NULL; prev_blink<- NULL
   SFIX<- NULL; EFIX<- NULL; xPos<- NULL; yPos<- NULL; after_blink<- NULL
   item<- NULL; cond<- NULL; seq<- NULL; fix_num<- NULL; fix_dur<- NULL; sacc_dur= NULL
-  sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL
+  sent<- NULL; line<- NULL; word<- NULL; char_trial<- NULL; char_line<- NULL; word_line<- NULL
   max_sent<- NULL; max_word<- NULL; intersent_regr<- NULL; regress<- NULL
   intrasent_regr<- NULL; blink<- NULL; outOfBnds<- NULL; outsideText<- NULL
   wordID<- NULL; land_pos<- NULL; sacc_len<- NULL
@@ -897,6 +921,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         sent[j]<- coords$sent[loc]
         line[j]<- coords$line[loc]
         word[j]<- coords$word[loc]
+        word_line[j]<- coords$word_line[loc]
         char_trial[j]<- as.numeric(as.character(levels(coords$char[loc])[coords$char[loc]]))+1
         char_line[j]<- coords$line_char[loc]
         wordID[j]<- coords$wordID[loc]
@@ -910,7 +935,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         
         # +1 bc Eyetrack counts from 0
       } else{
-        sent[j]<- NA; line[j]<- NA; word[j]<- NA; char_trial[j]<- NA; char_line[j]<- NA
+        sent[j]<- NA; line[j]<- NA; word[j]<- NA; word_line[j]<- NA; char_trial[j]<- NA; char_line[j]<- NA
         wordID[j]<- NA; land_pos[j]<- NA; sacc_len[j]<- NA
       }
 
@@ -979,11 +1004,11 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 #                       outOfBnds, outsideText)
   if(SL){
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
-                         sent, line, word, char_trial, char_line, regress, wordID, land_pos,
+                         sent, line, word, word_line, char_trial, char_line, regress, wordID, land_pos,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }else{
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
-                         sent, line, word, char_trial, char_line, wordID, land_pos,
+                         sent, line, word, word, char_trial, char_line, wordID, land_pos,
                          sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
   }
 
@@ -1428,3 +1453,7 @@ for(i in 0:length(RsweepFix)+1){
   return(rawfix)
 
 }
+
+
+
+isRS<- function(d, l, v, h, l_thresh= 0.33, h_thresh= 0.33){d>= l*l_thresh & v>= h*h_thresh}
