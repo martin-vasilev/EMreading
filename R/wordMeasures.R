@@ -19,7 +19,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
   sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; o<- NULL; p<- NULL
   nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL
   dataN<- NULL; dataT<- NULL; q<- NULL; r<- NULL; sent<- NULL
-  FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL;
+  FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
   nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
   
   cat("Processing data for subject... ");
@@ -55,6 +55,9 @@ wordMeasures<- function(data, multipleItems=FALSE){
               
               ### Refixation conditional:
               p<- subset(q, word==r[l])
+              
+              # add additional metrics:
+              
               
               if(nrow(p)==0){
                 FFD[l]<- NA
@@ -125,7 +128,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
                                nfix1, nfix2, nfixAll, regress)
             sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
             p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
-            FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL
+            FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
             nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
             
             dataN<- rbind(dataN, dataT)
@@ -156,6 +159,11 @@ wordMeasures<- function(data, multipleItems=FALSE){
           q<- subset(n, sent==o[k])
           r<- sort(unique(q$word))
           
+          # pre-alocate return sweeps as NAs (in case of single line):
+          RS<- rep(NA, length(r))
+          RS_type<- rep(NA, length(r))
+          
+          
           for(l in 1:length(r)){ # for each word in sentence k
             word[l]<- r[l]
             sub[l]<- n$sub[1]
@@ -168,6 +176,9 @@ wordMeasures<- function(data, multipleItems=FALSE){
             ### Refixation conditional:
             p<- subset(q, word==r[l])
             
+            # add line:
+            line[l]<- p$line[1]
+            
             if(nrow(p)==0){
               FFD[l]<- NA
               SFD[l]<- NA
@@ -177,6 +188,24 @@ wordMeasures<- function(data, multipleItems=FALSE){
               nfix2[l]<- 0
               nfixAll[l]<- 0
             } else{
+              
+              # return-sweep stuff:
+              if (!is.null(p$Rtn_sweep[1])){
+                if(sum(p$Rtn_sweep)>0){
+                  RS[l]<- 1
+                  
+                  # Return-sweep type:
+                  type<- p$Rtn_sweep_type[which(!is.na(p$Rtn_sweep_type))]
+                  if(length(type)>0){
+                    RS_type[l]<- type
+                  }
+                  
+                }else{
+                  RS[l]<- 0
+                }
+              }
+              
+              
               # first-pass fixations:
               p1<- subset(p, regress==0)
               p2<- subset(p, regress==1)
@@ -227,17 +256,17 @@ wordMeasures<- function(data, multipleItems=FALSE){
           if(is.na(word[1])){
             sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
             p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
-            FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL
+            FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
             nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL
             
             next
           }
           
-          dataT<- data.frame(sub, item, cond, seq, word, wordID, sent, FFD, SFD, GD, TVT,
-                             nfix1, nfix2, nfixAll, regress)
+          dataT<- data.frame(sub, item, cond, seq, word, wordID, sent, line, FFD, SFD, GD, TVT,
+                             nfix1, nfix2, nfixAll, regress, RS, RS_type)
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
           p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL
-          FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL
+          FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
           nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
           
           dataN<- rbind(dataN, dataT)
