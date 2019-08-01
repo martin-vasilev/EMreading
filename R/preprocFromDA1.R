@@ -180,6 +180,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           # update fixation with info from coords:
           temp_fix$sent<- coords$sent[loc] # sentence number
           temp_fix$word<- coords$word[loc] # word number
+          temp_fix$word_line<- coords$word_line[loc] # word number on line
           temp_fix$char_trial<- as.numeric(as.character(coords$char[loc]))+1 # +1 bc EyeDoctor counts from 0
           temp_fix$wordID<- coords$wordID[loc] # word identity
           temp_fix$land_pos<- coords$char_word[loc] # landing position char
@@ -191,6 +192,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           # update as NAs:
           temp_fix$sent<- NA # sentence number
           temp_fix$word<- NA # word number
+          temp_fix$word_line<- NA # word number
           temp_fix$char_trial<- NA # +1 bc EyeDoctor counts from 0
           temp_fix$wordID<- NA # word identity
           temp_fix$land_pos<- NA # landing position char
