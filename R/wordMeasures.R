@@ -9,8 +9,11 @@
 #' 
 #' @param multipleItems a logical indicating whether subject saw a given item more than once (FALSE by default). 
 #' If it is set to TRUE, it will calculate a given item multiple times based on how many conditions it appears in.
+#' 
+#' @includeTimeStamps a logical indicating whether to include the start of fixation (SFIX) and end of fixation 
+#' (EFIX) from the raw data. If set to TRUE, it will add these measures (default is FALSE)
 
-wordMeasures<- function(data, multipleItems=FALSE){
+wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   
   if(is.na(data$word[1])){
     stop("Only data with fixations mapped to the text stimuli can be processed!")
@@ -163,6 +166,14 @@ wordMeasures<- function(data, multipleItems=FALSE){
           RS<- rep(NA, length(r))
           RS_type<- rep(NA, length(r))
           
+          if(includeTimeStamps){
+            SFIX<- rep(NA, length(r))
+            EFIX_FFD<- rep(NA, length(r))
+            EFIX_SFD<- rep(NA, length(r))
+            EFIX_GD<- rep(NA, length(r))
+            EFIX_TVT<- rep(NA, length(r))
+          }
+          
           
           for(l in 1:length(r)){ # for each word in sentence k
             word[l]<- r[l]
@@ -176,7 +187,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
             ### Refixation conditional:
             p<- subset(q, word==r[l])
             
-            # add line:
+            # add line, etc.:
             line[l]<- p$line[1]
             word_line[l]<- p$word_line[1]
             
@@ -188,6 +199,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
               nfix1[l]<- 0
               nfix2[l]<- 0
               nfixAll[l]<- 0
+              
             } else{
               
               # return-sweep stuff:
@@ -211,10 +223,11 @@ wordMeasures<- function(data, multipleItems=FALSE){
               p1<- subset(p, regress==0)
               p2<- subset(p, regress==1)
               
-              if(nrow(p1)==0){
+              if(nrow(p1)==0){ # no first-pass fixations
                 FFD[l]<- NA
                 SFD[l]<- NA
                 GD[l]<- NA
+                
               }
               
               if(nrow(p1)==1){
@@ -229,6 +242,7 @@ wordMeasures<- function(data, multipleItems=FALSE){
                 SFD[l]<-NA
                 GD[l]<- sum(p1$fix_dur)
                 #  TVT[l]<- sum(p1$fix_dur)
+                
               }
               
               
@@ -242,6 +256,28 @@ wordMeasures<- function(data, multipleItems=FALSE){
               
               # Add word ID:
               wordID[l]<- as.character(p$wordID[1])
+              
+              # add time stamps
+              if(includeTimeStamps){
+                SFIX[l]<- p$SFIX[1]
+                
+                EFIX_TVT[l]<- p$EFIX[nrow(p)]
+                
+                if(nrow(p1)>0){
+                  EFIX_FFD[l]<- p1$EFIX[1]
+                  EFIX_GD[l]<- p1$EFIX[nrow(p1)]
+                  
+                  if(nrow(p1)==1){
+                    EFIX_SFD[l]<- p1$EFIX
+                  }
+                  
+                  if(nrow(p1)>1){
+                    EFIX_GD[l]<- p1$EFIX[nrow(p1)]
+                  }
+                }
+                
+              }
+                
             }
             
             # probability of making a regression to word
@@ -265,6 +301,15 @@ wordMeasures<- function(data, multipleItems=FALSE){
           
           dataT<- data.frame(sub, item, cond, seq, word, word_line, wordID, sent, line, FFD, SFD, GD, TVT,
                              nfix1, nfix2, nfixAll, regress, RS, RS_type)
+          
+          if(includeTimeStamps){
+            dataT$SFIX<- SFIX
+            dataT$EFIX_FFD<- EFIX_FFD
+            dataT$EFIX_SFD<- EFIX_SFD
+            dataT$EFIX_GD<- EFIX_GD
+            dataT$EFIX_TVT<- EFIX_TVT
+          }
+          
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
           p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
           FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
