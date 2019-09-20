@@ -58,7 +58,7 @@ get_text<- function(file){ ## extracts the loaded text material                 
 
   } else{ # extract text containing stimuli info
     text<- file[start:end] # subset file
-    a= which(gregexpr(pattern ='BUTTON', text)==1)
+    a= which(gregexpr(pattern ='BUTTON', text)==1 | gregexpr(pattern ='INPUT', text)==1)
 
     if(length(a)>0){
       text<- text[-a]
