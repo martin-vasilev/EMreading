@@ -167,6 +167,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           }else{
             warning(sprintf("Critical error: da1 fixation not found in asc data: subject %g, item %g, fix %g, fix_dur %g, char %g, line %g",
                             i, j, l, da1$end[l]- da1$start[l], da1$char[l]-1, da1$line[l]-1))
+            next
           }
         }
         
