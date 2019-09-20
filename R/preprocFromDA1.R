@@ -22,6 +22,9 @@
 #' @param padding Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0. 
 #' If padding is greater than 0, then all letter positions will be decremented by the specified number.
 #' 
+#' @param CrashOnMissingFix A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file. 
+#' This can occur if you let EyeDoctor merge fixations. 
+#' 
 #' @return A data frame containing the data
 #'
 #' @example
@@ -30,7 +33,7 @@
 #' 
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                          tBlink= 50, padding= 0){
+                          tBlink= 50, padding= 0, CrashOnMissingFix= FALSE){
   
   message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
@@ -158,8 +161,13 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         a<- which(raw_fix_temp$time_since_start== da1$start[l])
         
         if(length(a)==0){
-          stop(sprintf("Critical error: da1 fixation not found in asc data: subject %g, item %g, fix %g, fix_dur %g, char %g, line %g",
-                       i, j, l, da1$end[l]- da1$start[l], da1$char[l]-1, da1$line[l]-1))
+          if(CrashOnMissingFix){
+            stop(sprintf("Critical error: da1 fixation not found in asc data: subject %g, item %g, fix %g, fix_dur %g, char %g, line %g",
+                         i, j, l, da1$end[l]- da1$start[l], da1$char[l]-1, da1$line[l]-1)) 
+          }else{
+            warning(sprintf("Critical error: da1 fixation not found in asc data: subject %g, item %g, fix %g, fix_dur %g, char %g, line %g",
+                            i, j, l, da1$end[l]- da1$start[l], da1$char[l]-1, da1$line[l]-1))
+          }
         }
         
         temp_fix<- raw_fix_temp[a,]

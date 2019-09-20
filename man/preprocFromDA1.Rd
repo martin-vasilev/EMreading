@@ -5,7 +5,8 @@
 \title{Pre-processing of data using DA1 files}
 \usage{
 preprocFromDA1(data_dir = NULL, ResX = 1920, ResY = 1080,
-  maxtrial = 999, tBlink = 50, padding = 0)
+  maxtrial = 999, tBlink = 50, padding = 0,
+  CrashOnMissingFix = FALSE)
 }
 \arguments{
 \item{data_dir}{Input of data files to be processed, as a directory that contains BOTH the ASC
@@ -23,6 +24,9 @@ as having a blink. The default is 50 ms.}
 
 \item{padding}{Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0.
 If padding is greater than 0, then all letter positions will be decremented by the specified number.}
+
+\item{CrashOnMissingFix}{A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file.
+This can occur if you let EyeDoctor merge fixations.}
 }
 \value{
 A data frame containing the data
