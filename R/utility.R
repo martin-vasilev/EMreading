@@ -778,7 +778,17 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   
   
   for(k in 1:length(s_time)){
+    
+    # don't check if either stamp is missing
+    if(is.na(s_time[k]) | is.na(e_time[k])){
+      blink[k]<- NA
+      after_blink[k]<- NA
+      prev_blink[k]<- NA
+      next
+    }
+    
     GP<- suppressWarnings(get_seq(s_time[k], e_time[k], trialFile))
+      
     eye_clozed<- which(GP$V4==0)
     if(length(eye_clozed)>0){
       blink[k]<- 1
