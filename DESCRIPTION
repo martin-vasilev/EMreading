@@ -9,7 +9,22 @@ License: GPL-2 | file LICENSE
 URL: https://github.com/martin-vasilev/EMreading
 BugReports: https://github.com/martin-vasilev/EMreading/issues
 LazyData: true
-Collate: 'Calibr.R' 'Drift.R' 'EyeDoctor_PadLines.R' 'GUI.R' 'MultiLine.R' 'Question.R' 'SingleLine.R' 'cleanData.R' 'ocr.r' 'paraFix.R' 'preprocFromDA1.R' 'utility.R' 'trialTime.R' 'wordMeasures.R'
+Collate: 
+    'utility.R'
+    'Calibr.R'
+    'Drift.R'
+    'ExtractMessages.R'
+    'EyeDoctor_PadLines.R'
+    'GUI.R'
+    'MultiLine.R'
+    'Question.R'
+    'SingleLine.R'
+    'cleanData.R'
+    'ocr.r'
+    'paraFix.R'
+    'preprocFromDA1.R'
+    'trialTime.R'
+    'wordMeasures.R'
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
