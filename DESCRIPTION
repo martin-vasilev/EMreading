@@ -11,6 +11,7 @@ BugReports: https://github.com/martin-vasilev/EMreading/issues
 LazyData: true
 Collate: 
     'utility.R'
+    'Boundary.R'
     'Calibr.R'
     'Drift.R'
     'ExtractMessages.R'
