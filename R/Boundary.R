@@ -78,7 +78,7 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       
       # Try to find boundary location:
       Bnd_txt<- trialFile[which(grepl(boundary_loc, trialFile))]
-      loc<- substr(Bnd_txt, unlist(gregexpr(' ', Bnd_txt))[1]+nchar(boundary_loc)+1, nchar(Bnd_txt))
+      loc<- substr(Bnd_txt[1], unlist(gregexpr(' ', Bnd_txt[1]))[1]+nchar(boundary_loc)+1, nchar(Bnd_txt[1]))
       loc<- as.numeric(loc) 
       temp$Bnd_loc<- loc
       
