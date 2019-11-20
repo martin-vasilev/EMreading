@@ -55,7 +55,7 @@
 #'
 #' @include utility.R
 
-SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120, 
+SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
                      tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
   
   options(scipen=999)
@@ -155,7 +155,7 @@ SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
   cat("\n \n All Done!");
   
   # remove columns that are not useful for single line data:
-  raw_fix$line<- NULL
+  #raw_fix$line<- NULL
   raw_fix$char_line<- NULL
   #raw_fix<- raw_fix[,-c(12,15)]
   
