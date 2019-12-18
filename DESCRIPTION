@@ -21,6 +21,7 @@ Collate:
     'Question.R'
     'SingleLine.R'
     'cleanData.R'
+    'num_fix.R'
     'ocr.r'
     'paraFix.R'
     'preprocFromDA1.R'
