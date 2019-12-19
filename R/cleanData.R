@@ -155,6 +155,8 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
         
   #      if(silent & is.element(i, unname(round(quantile(1:nrow(raw_fix))-1)[2:4]))){
   #        cat(".")}
+        prev_line_same<- F
+        next_line_same<- F
         
         if(i>1 & i< nrow(raw_fix)){ # to prevent crashing on first/last row
           
@@ -165,59 +167,109 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
           }
 
          if(raw_fix$fix_dur[i]< smallFixCutoff){
+           
+           # check of fixations are on the same line:
+           if(!is.na(raw_fix$line[i])){
+             if(!is.na(raw_fix$line[i-1])){
+               
+               if(raw_fix$line[i]== raw_fix$line[i-1]){
+                 prev_line_same= T
+               }
+             }
+           }
+           
+           if(!is.na(raw_fix$line[i])){
+             if(!is.na(raw_fix$line[i+1])){
+               
+               if(raw_fix$line[i]== raw_fix$line[i+1]){
+                 next_line_same= T
+               }
+             }
+           }
+           
+           
            if(combineMethod== "char"){
              prev<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i-1])
              after<- abs(raw_fix$char_trial[i]- raw_fix$char_trial[i+1])
+             
            } else{
              prev<- abs(round(raw_fix$xPos[i])- round(raw_fix$xPos[i-1]))
              after<- abs(round(raw_fix$xPos[i])- round(raw_fix$xPos[i+1]))
            }
    
+           
+           # merge previous:
            if(prev<= combineDist){
              which_comb<- c(which_comb, i)
              
-             if(!silent){
-               cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
-                         ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
-                         " ms)", " was merged with fix ", raw_fix$fix_num[i-1],
-                         " (", raw_fix$fix_dur[i-1], " ms)",
-                         " -> new fix ", raw_fix$fix_num[i-1],
-                         " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i-1], 
-                         "ms)", sep=''))
-               cat("\n")
+             if(prev_line_same){ # merge only if one the same line!
+               if(!silent){
+                 cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                           ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                           " ms)", " was merged with fix ", raw_fix$fix_num[i-1],
+                           " (", raw_fix$fix_dur[i-1], " ms)",
+                           " -> new fix ", raw_fix$fix_num[i-1],
+                           " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i-1], 
+                           "ms)", sep=''))
+                 cat("\n")
+               }
+               
+               # merge only AFTER printing output!
+               raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
+               
+               if(keepRS){
+                 if(raw_fix$Rtn_sweep[i]==1){
+                   raw_fix$Rtn_sweep[i-1]<- 1
+                 }
+               }
+             }else{
+               if(!silent){
+                 cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                           ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                           " ms)", " was NOT MERGED with fix ", raw_fix$fix_num[i-1],
+                           " (", raw_fix$fix_dur[i-1], " ms): Different lines!", sep=''))
+                 cat("\n")
+               }
+
              }
 
-             # merge only AFTER printing output!
-             raw_fix$fix_dur[i-1]<- raw_fix$fix_dur[i-1] + raw_fix$fix_dur[i]
-             
-             if(keepRS){
-               if(raw_fix$Rtn_sweep[i]==1){
-                 raw_fix$Rtn_sweep[i-1]<- 1
-               }
-             }
             
            }
            if(after<= combineDist){
              which_comb<- c(which_comb, i)
              
-             if(!silent){
-               cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
-                         ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
-                         " ms)", " was merged with fix ", raw_fix$fix_num[i+1],
-                         " (", raw_fix$fix_dur[i+1], " ms)",
-                         " -> new fix ", raw_fix$fix_num[i+1],
-                         " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i+1], 
-                         "ms)", sep='')) 
-               cat("\n")
-             }
-
-             raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i]
-             
-             if(keepRS){
-               if(raw_fix$Rtn_sweep[i]==1){
-                 raw_fix$Rtn_sweep[i+1]<- 1
+             if(next_line_same){
+               if(!silent){
+                 cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                           ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                           " ms)", " was merged with fix ", raw_fix$fix_num[i+1],
+                           " (", raw_fix$fix_dur[i+1], " ms)",
+                           " -> new fix ", raw_fix$fix_num[i+1],
+                           " (",  raw_fix$fix_dur[i]+ raw_fix$fix_dur[i+1], 
+                           "ms)", sep='')) 
+                 cat("\n")
+               }
+               
+               raw_fix$fix_dur[i+1]<- raw_fix$fix_dur[i+1] + raw_fix$fix_dur[i] 
+               
+               if(keepRS){
+                 if(raw_fix$Rtn_sweep[i]==1){
+                   raw_fix$Rtn_sweep[i+1]<- 1
+                 }
+               }
+               
+             }else{
+               if(!silent){
+                 cat(paste("\nsub ", raw_fix$sub[i], ", trial ", raw_fix$item[i],
+                           ":  fix ", raw_fix$fix_num[i], " (", raw_fix$fix_dur[i],
+                           " ms)", " was NOT MERGED with fix ", raw_fix$fix_num[i+1],
+                           " (", raw_fix$fix_dur[i+1], " ms): Different lines!", sep='')) 
+                 cat("\n")
                }
              }
+             
+             
+             
            }
            
          }
@@ -346,4 +398,6 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
   
   
 }
+
+
    
