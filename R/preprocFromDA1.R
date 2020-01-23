@@ -22,6 +22,9 @@
 #' @param padding Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0. 
 #' If padding is greater than 0, then all letter positions will be decremented by the specified number.
 #' 
+#' @param addNonFixatedWords A logical indicating whether to add non-fixated words to the dataset (default= TRUE).
+#' Useful for skipping analyses, etc.
+#' 
 #' @param CrashOnMissingFix A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file. 
 #' This can occur if you let EyeDoctor merge fixations. 
 #' 
@@ -33,7 +36,7 @@
 #' 
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                          tBlink= 50, padding= 0, CrashOnMissingFix= FALSE){
+                          tBlink= 50, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE){
   
   message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
@@ -395,6 +398,43 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         
       }
       
+      
+      # Add non-fixated words in each sentence:
+      if(addNonFixatedWords){
+        for(s in 1:max(coords$sent)){
+          t<- subset(raw_fix_new,  sent== s) # fixations that happened on this sentence
+          sent_w<- subset(coords, sent== s) # all words in current sentence
+          unique_read<- unique(t$word) # all word in curr sentence that were fixated
+          unique_sent<- unique(sent_w$word) # all words in sentence that were presented
+          not_fixated<- setdiff(unique_sent, unique_read)
+          
+          sent_1<- subset(sent_w, char_word==1)
+          
+          if(length(not_fixated)>0){ # add info about words
+            temp<- raw_fix_new[1,]
+            temp[1,]<- NA
+            
+            temp <- as.data.frame(lapply(temp, rep, length(not_fixated)))
+            temp$sub<- t$sub[1]
+            temp$item<- t$item[1]
+            temp$cond<- t$cond[1]
+            temp$seq<- t$seq[1]
+            temp$sent<- s
+            temp$word<- not_fixated
+            temp$line<- sent_1$line[not_fixated]
+            temp$word_line<- sent_1$word_line[not_fixated]
+            temp$wordID<- sent_1$wordID[not_fixated]
+            
+            # merge fixated and non-fixated data frames:
+            raw_fix_new<- rbind(raw_fix_new, temp)
+            
+          }
+          
+        } # end of s loop
+        
+      } # end of  if addNonFixatedWords
+      
+
       
       # merge trial-level data:
       raw_fix<- rbind(raw_fix, raw_fix_new)
