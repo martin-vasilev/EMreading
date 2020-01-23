@@ -332,6 +332,14 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   if(max(dataN$sent)==1){
     dataN$sent<- NULL # remove sent number if there is only one sentence...
   }
+  
+  #### 
+  # Add skipping measures:
+  # First-pass skipping is when nfix1==0
+  dataN$skip_1st<- ifelse(dataN$nfix1==0, 1, 0)
+  dataN$skip_total<- ifelse(dataN$nfixAll==0, 1, 0)
+  
+  
 
   return(dataN)
 }
