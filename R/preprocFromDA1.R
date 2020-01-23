@@ -304,6 +304,8 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       currentLine= 1
       maxLine= 1
       
+      same_line= NA
+      
       for(m in 1:nrow(raw_fix_new)){
         
         # saccade length stuff:
@@ -351,10 +353,35 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           # what type of return sweep is it?
           if(m<nrow(raw_fix_new)){
             
-            if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
-              raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
+            # check if fixations are on the same line:
+            if(!is.na(raw_fix_new$line[m+1])){
+              if(!is.na(raw_fix_new$line[m])){
+                if(raw_fix_new$line[m+1]== raw_fix_new$line[m]){
+                  same_line= TRUE
+                }else{
+                  same_line= FALSE
+                }
+              }else{
+                same_line= TRUE
+              }
             }else{
-              raw_fix_new$Rtn_sweep_type[m]<- "accurate"
+              same_line= TRUE
+            }
+            
+            if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
+              if(same_line){
+                raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
+              }else{
+                raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              }
+              
+            }else{
+              if(same_line){
+                raw_fix_new$Rtn_sweep_type[m]<- "accurate"
+              }else{
+                raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              }
+              
             }
             
           }else{
