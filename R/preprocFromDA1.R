@@ -372,18 +372,18 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
             }
             
             if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
-              if(same_line){
+              #if(same_line){
                 raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
-              }else{
-                raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
-              }
+              #}else{
+              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              #}
               
             }else{
-              if(same_line){
+              #if(same_line){
                 raw_fix_new$Rtn_sweep_type[m]<- "accurate"
-              }else{
-                raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
-              }
+              #}else{
+              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              #}
               
             }
             
