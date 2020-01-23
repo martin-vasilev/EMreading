@@ -204,18 +204,22 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
               
               # return-sweep stuff:
               if (!is.null(p$Rtn_sweep[1])){
-                if(sum(p$Rtn_sweep)>0){
-                  RS[l]<- 1
-                  
-                  # Return-sweep type:
-                  type<- p$Rtn_sweep_type[which(!is.na(p$Rtn_sweep_type))]
-                  if(length(type)>0){
-                    RS_type[l]<- type
+                
+                if(!is.na(p$Rtn_sweep[1])){
+                  if(sum(p$Rtn_sweep)>0){
+                    RS[l]<- 1
+                    
+                    # Return-sweep type:
+                    type<- p$Rtn_sweep_type[which(!is.na(p$Rtn_sweep_type))]
+                    if(length(type)>0){
+                      RS_type[l]<- type
+                    }
+                    
+                  }else{
+                    RS[l]<- 0
                   }
-                  
-                }else{
-                  RS[l]<- 0
                 }
+                
               }
               
               
