@@ -36,7 +36,7 @@
 #' 
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                          tBlink= 50, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE){
+                          tBlink= 150, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE){
   
   message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
