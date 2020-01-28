@@ -415,10 +415,10 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
             temp[1,]<- NA
             
             temp <- as.data.frame(lapply(temp, rep, length(not_fixated)))
-            temp$sub<- t$sub[1]
-            temp$item<- t$item[1]
-            temp$cond<- t$cond[1]
-            temp$seq<- t$seq[1]
+            temp$sub<- raw_fix_new$sub[1]
+            temp$item<- raw_fix_new$item[1]
+            temp$cond<- raw_fix_new$cond[1]
+            temp$seq<- raw_fix_new$seq[1]
             temp$sent<- s
             temp$word<- not_fixated
             temp$line<- sent_1$line[not_fixated]
