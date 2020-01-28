@@ -446,99 +446,99 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   } # end of subject
   
   
-  ### Add some columns useful for data processing:
-  cat("\n Calculating some useful measures for data processing. Hang tight... \n \n")
-  
-  raw_fix_new<- NULL
-  
-  raw_fix$prev_RS<- NA
-  raw_fix$next_RS<- NA
-  raw_fix$prevChar<-NA
-  raw_fix$nextChar<- NA
-  raw_fix$prevX<- NA
-  raw_fix$nextX<- NA
-  raw_fix$prevY<- NA
-  raw_fix$prev_max_char_line<- NA
-  
-  for(i in 1: length(unique(raw_fix$sub))){
-    n<- subset(raw_fix, sub==i)
-    nitems<- unique(n$item)
-    cat(i); cat(" ")
-    
-    for(j in 1:length(nitems)){
-      m<- subset(n, item== nitems[j])
-      
-      l1<- subset(m, line==1)
-      max_l1<- l1$max_char_line[1]
-      
-      for(k in 1:nrow(m)){
-        if(k==1){
-          m$prev_RS[k]<- 0
-          m$next_RS[k]<- 0
-          m$next_RS[k+1]<- 0
-          
-          ####
-          m$nextChar[k]<- m$char_line[k+1] # next char
-          m$nextX[k]<- m$xPos[k+1]
-          
-        }else{
-          # return sweep stuff
-          if(!is.na(m$Rtn_sweep[k])){
-            if(m$Rtn_sweep[k]==1){
-              m$prev_RS[k-1]<- 1
-              
-              if(k+1 <= nrow(m)){
-                m$next_RS[k+1]<- 1
-              }
-              
-            }else{
-              m$prev_RS[k-1]<- 0
-              
-              if(k+1 <= nrow(m)){
-                m$next_RS[k+1]<- 0
-              }
-            } 
-          }
-
-          ###
-          m$prevChar[k]<- m$char_line[k-1] # prev char
-          m$prevX[k] <- m$xPos[k-1] # prev x
-          m$prevY[k]<- m$yPos[k-1]
-          
-          if(k+1<= nrow(m)){
-            m$nextChar[k]<- m$char_line[k+1] # next char
-            m$nextX[k]<- m$xPos[k+1] # next x
-          }
-          
-          
-        }
-        
-        if(k== nrow(m)){
-          m$prev_RS[k]<- 0
-        }
-        
-        ## map previous line length (for launch site calculation):
-        if(!is.na(m$line[k])){
-          if(m$line[k]==2){
-            m$prev_max_char_line[k]<- max_l1
-          }else{
-            m$prev_max_char_line[k]<- NA
-          }
-        }else{
-          if(m$Rtn_sweep[k]==1){
-            m$prev_max_char_line[k]<- max_l1
-          }
-        }
-        
-      } # end of m
-      raw_fix_new<- rbind(raw_fix_new, m)
-    } # end of j
-    
-    
-  }
-  
-  raw_fix<- raw_fix_new;
-  rm(raw_fix_new)
+  # ### Add some columns useful for data processing:
+  # cat("\n Calculating some useful measures for data processing. Hang tight... \n \n")
+  # 
+  # raw_fix_new<- NULL
+  # 
+  # raw_fix$prev_RS<- NA
+  # raw_fix$next_RS<- NA
+  # raw_fix$prevChar<-NA
+  # raw_fix$nextChar<- NA
+  # raw_fix$prevX<- NA
+  # raw_fix$nextX<- NA
+  # raw_fix$prevY<- NA
+  # raw_fix$prev_max_char_line<- NA
+  # 
+  # for(i in 1: length(unique(raw_fix$sub))){
+  #   n<- subset(raw_fix, sub==i)
+  #   nitems<- unique(n$item)
+  #   cat(i); cat(" ")
+  #   
+  #   for(j in 1:length(nitems)){
+  #     m<- subset(n, item== nitems[j])
+  #     
+  #     l1<- subset(m, line==1)
+  #     max_l1<- l1$max_char_line[1]
+  #     
+  #     for(k in 1:nrow(m)){
+  #       if(k==1){
+  #         m$prev_RS[k]<- 0
+  #         m$next_RS[k]<- 0
+  #         m$next_RS[k+1]<- 0
+  #         
+  #         ####
+  #         m$nextChar[k]<- m$char_line[k+1] # next char
+  #         m$nextX[k]<- m$xPos[k+1]
+  #         
+  #       }else{
+  #         # return sweep stuff
+  #         if(!is.na(m$Rtn_sweep[k])){
+  #           if(m$Rtn_sweep[k]==1){
+  #             m$prev_RS[k-1]<- 1
+  #             
+  #             if(k+1 <= nrow(m)){
+  #               m$next_RS[k+1]<- 1
+  #             }
+  #             
+  #           }else{
+  #             m$prev_RS[k-1]<- 0
+  #             
+  #             if(k+1 <= nrow(m)){
+  #               m$next_RS[k+1]<- 0
+  #             }
+  #           } 
+  #         }
+  # 
+  #         ###
+  #         m$prevChar[k]<- m$char_line[k-1] # prev char
+  #         m$prevX[k] <- m$xPos[k-1] # prev x
+  #         m$prevY[k]<- m$yPos[k-1]
+  #         
+  #         if(k+1<= nrow(m)){
+  #           m$nextChar[k]<- m$char_line[k+1] # next char
+  #           m$nextX[k]<- m$xPos[k+1] # next x
+  #         }
+  #         
+  #         
+  #       }
+  #       
+  #       if(k== nrow(m)){
+  #         m$prev_RS[k]<- 0
+  #       }
+  #       
+  #       ## map previous line length (for launch site calculation):
+  #       if(!is.na(m$line[k])){
+  #         if(m$line[k]==2){
+  #           m$prev_max_char_line[k]<- max_l1
+  #         }else{
+  #           m$prev_max_char_line[k]<- NA
+  #         }
+  #       }else{
+  #         if(m$Rtn_sweep[k]==1){
+  #           m$prev_max_char_line[k]<- max_l1
+  #         }
+  #       }
+  #       
+  #     } # end of m
+  #     raw_fix_new<- rbind(raw_fix_new, m)
+  #   } # end of j
+  #   
+  #   
+  # }
+  # 
+  # raw_fix<- raw_fix_new;
+  # rm(raw_fix_new)
   
   
   
