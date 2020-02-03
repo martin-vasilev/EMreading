@@ -1,5 +1,5 @@
 
-#' Pre-processing of single-line reading data
+#' Pre-processing of multi-line reading data
 #'
 #' This function reads in data from .asc files and performs the pre-processing.
 #'
@@ -131,10 +131,11 @@ MultiLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
         if(!reAlign){
           raw_fix<- rbind(raw_fix, raw_fix_temp)
         }else{
-          RFalignTemp<- reAlign(raw_fix_temp, coords, map, ResX, ResY,
-                                Ythresh= RSpar[1],Xthresh= RSpar[2],
-                                threshSimilar= RSpar[3])
+          RFalignTemp<- reAlign(raw_fix_temp, coords, map, ResX, ResY, RSpar)
           RFalign<- rbind(raw_fix, RFalignTemp)
+          if(plot){
+            plot_fix(coords, RFalignTemp, i, j, ResX, ResY, reAligned=T)
+          }
         }
         
 
@@ -171,6 +172,10 @@ MultiLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 120,
   raw_fix$char_line<- NULL
   #raw_fix<- raw_fix[,-c(12,15)]
   
-  return(raw_fix)
-
+  if (reAlign){
+    return(RFalign)
+  }else{
+    return(raw_fix)
+  }
+  
 } # end of ParaFix
