@@ -16,6 +16,7 @@ Collate:
     'Drift.R'
     'ExtractMessages.R'
     'EyeDoctor_PadLines.R'
+    'Frequency.R'
     'GUI.R'
     'MultiLine.R'
     'Question.R'
@@ -28,6 +29,6 @@ Collate:
     'trialTime.R'
     'wordMeasures.R'
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
