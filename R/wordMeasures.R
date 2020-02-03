@@ -1,5 +1,5 @@
 
-#' Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
+#' Calculation of word-level fixation measures (FFD, SFD, GD, TVT, skipping, regressions, number of fixations) using raw fixation data.
 #' 
 #' @author Martin R. Vasilev
 #' 

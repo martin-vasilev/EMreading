@@ -2,7 +2,7 @@
 % Please edit documentation in R/wordMeasures.R
 \name{wordMeasures}
 \alias{wordMeasures}
-\title{Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.}
+\title{Calculation of word-level fixation measures (FFD, SFD, GD, TVT, skipping, regressions, number of fixations) using raw fixation data.}
 \usage{
 wordMeasures(data, multipleItems = FALSE, includeTimeStamps = FALSE)
 }
@@ -14,7 +14,7 @@ EMreading package}
 If it is set to TRUE, it will calculate a given item multiple times based on how many conditions it appears in.}
 }
 \description{
-Calculation of word-level fixation measures (FFD, SFD, GD, TVT) using raw fixation data.
+Calculation of word-level fixation measures (FFD, SFD, GD, TVT, skipping, regressions, number of fixations) using raw fixation data.
 }
 \author{
 Martin R. Vasilev
