@@ -56,7 +56,7 @@
 #' @include utility.R
 
 SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                     tBlink= 50, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
+                     tBlink= 150, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
   
   options(scipen=999)
   
