@@ -879,10 +879,15 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
       if(round(fix$y[j])>0 & round(fix$x[j])>0 & round(fix$y[j])<= ResY & round(fix$x[j])<= ResX){ # to prevent negative numbers
         loc<- map[round(fix$y[j]), round(fix$x[j])] # locate fixation
         
-        if(!is.numeric(loc)){
-          loc<- NA
-          cat(sprintf('Character location not found for sub %g, item %g, fixation %g, duration %g, Xpos %g, Ypos %g. This may be unusual, please investigate. Changing character location to NA.\n\n',
-                  i, trial_db$item, j, fix$fixDur[j], fix$x[j], fix$y[j]))
+        if(!is.na(loc)){
+          if(!is.null(loc)){
+            if(!is.numeric(loc)){
+              loc<- NA
+              cat(sprintf('Character location not found for sub %g, item %g, fixation %g, duration %g, Xpos %g, Ypos %g. This may be unusual, please investigate. Changing character location to NA.\n\n',
+                          i, trial_db$item, j, fix$fixDur[j], fix$x[j], fix$y[j]))
+            }
+            
+          }
         }
         
       }else{
