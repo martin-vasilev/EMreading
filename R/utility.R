@@ -877,7 +877,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
     if(hasText){
       if(round(fix$y[j])>0 & round(fix$x[j])>0 & round(fix$y[j])<= ResY & round(fix$x[j])<= ResX){ # to prevent negative numbers
-        loc<- map[fix$y[j], fix$x[j]] # locate fixation
+        loc<- map[round(fix$y[j]), round(fix$x[j])] # locate fixation
         
         if(!is.numeric(loc)){
           loc<- NA
