@@ -121,7 +121,7 @@ SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
 
         # Extract raw fixations from data and map them to the text:
         try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink,
-                                     SL= TRUE, addNonFixatedWords))
+                                     SL= TRUE, addNonFixatedWords= addNonFixatedWords))
 
         # Combine fixations:
         if(is.null(raw_fix_temp)){
