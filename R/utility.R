@@ -583,7 +583,7 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
 
 # Basic pre-processing and extraction of fixations from data file:
 parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
-                     hasText=TRUE, SL= FALSE){
+                     hasText=TRUE, SL= FALSE, addNonFixatedWords= FALSE){
 
   get_FIX_stamp<- function(string){
     
@@ -1042,6 +1042,42 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     raw_fix$hasText<-0
   }
 
+  
+  if(addNonFixatedWords){
+    
+    for(s in 1:max(coords$sent)){
+      t<- subset(raw_fix,  sent== s) # fixations that happened on this sentence
+      sent_w<- subset(coords, sent== s) # all words in current sentence
+      unique_read<- unique(t$word) # all word in curr sentence that were fixated
+      unique_sent<- unique(sent_w$word) # all words in sentence that were presented
+      not_fixated<- setdiff(unique_sent, unique_read)
+      
+      sent_1<- subset(sent_w, char_word==1)
+      
+      if(length(not_fixated)>0){ # add info about words
+        temp<- raw_fix[1,]
+        temp[1,]<- NA
+        
+        temp <- as.data.frame(lapply(temp, rep, length(not_fixated)))
+        temp$sub<- raw_fix$sub[1]
+        temp$item<- raw_fix$item[1]
+        temp$cond<- raw_fix$cond[1]
+        temp$seq<- raw_fix$seq[1]
+        temp$sent<- s
+        temp$word<- not_fixated
+        temp$line<- sent_1$line[not_fixated]
+        #temp$word_line<- sent_1$word_line[not_fixated]
+        temp$wordID<- sent_1$wordID[not_fixated]
+        
+        # merge fixated and non-fixated data frames:
+        raw_fix<- rbind(raw_fix, temp)
+        
+      }
+      
+    } # end of s loop
+    
+  }
+  
 
   return(raw_fix)
 }

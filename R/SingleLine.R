@@ -46,6 +46,9 @@
 #' @param xOffset Offset of the text in pixels on the x-axis of the screen. This should be
 #' the pixel location where the first letter of the sentence starts. Not needed if the text
 #' stimuli were printed to the data.
+#' 
+#' @addNonFixatedWords A logical indicating whether to add non-fixated words to the dataframe (default is TRUE).
+#' Please note that non-fixated words are needed for calculating variables such as skipping.
 #'
 #' @return A data frame containing the data
 #'
@@ -56,7 +59,8 @@
 #' @include utility.R
 
 SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                     tBlink= 150, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE){
+                     tBlink= 150, textStim= NULL, ppl= NULL, xOffset=NULL, plot=FALSE,
+                     addNonFixatedWords= TRUE){
   
   options(scipen=999)
   
@@ -116,7 +120,8 @@ SingleLine<- function(data_list= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         map<- coord_map(coords, x=ResX, y= ResY) # map them to pixels on the screen
 
         # Extract raw fixations from data and map them to the text:
-        try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink, SL= TRUE))
+        try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[j,], i, ResX, ResY, tBlink,
+                                     SL= TRUE, addNonFixatedWords))
 
         # Combine fixations:
         if(is.null(raw_fix_temp)){
