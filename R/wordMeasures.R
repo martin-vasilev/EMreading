@@ -15,9 +15,25 @@
 
 wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   
-  if(is.na(data$word[1])){
+  if(length(which(is.na(data$word)))== nrow(data)){
     stop("Only data with fixations mapped to the text stimuli can be processed!")
   }
+  
+  addBlinks= FALSE
+  
+  # check if prev_blink, blink, and after_blink columns exist:
+  if("blink" %in% colnames(data) & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)){
+    if(sum(data$blink, na.rm = T)+ sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)==0){
+      cat("Blinks appear to be already excluded! \n");
+    }else{
+      cat("There appears to be valid blink data! We will map blinks to individual words. \n");
+      addBlinks= TRUE
+    }
+  }else{
+    cat("No information about blinks appears to be in the data! \n");
+  }
+  
+  
   
   sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; o<- NULL; p<- NULL
   nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL; word_line<- NULL
@@ -26,6 +42,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
   
   cat("Processing data for subject... ");
+  
   
   if(multipleItems){ # special case where an item is seen in more than 1 cond per subject
     for(i in 1:length(unique(data$sub))){ # for each subect..
@@ -174,6 +191,11 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
             EFIX_TVT<- rep(NA, length(r))
           }
           
+          if(addBlinks){
+            blinks_1stPass<- rep(NA, length(r))
+            blinks_2ndPass<- rep(NA, length(r))
+          }
+          
           
           for(l in 1:length(r)){ # for each word in sentence k
             word[l]<- r[l]
@@ -223,9 +245,33 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
               }
               
               
-              # first-pass fixations:
-              p1<- subset(p, regress==0)
-              p2<- subset(p, regress==1)
+              # Split by fixation type:
+              p1<- subset(p, regress==0) # first-pass fixations
+              p2<- subset(p, regress==1) # second-pass fixations
+              
+              # if we have to include blinks...
+              if(addBlinks){
+                
+                # first-pass blinks:
+                sum_1st<- sum(p1$blink, na.rm = T) + sum(p1$prev_blink, na.rm = T) + sum(p1$after_blink, na.rm = T)
+                if(sum_1st>0){
+                  blinks_1stPass[l]<- 1 
+                }else{
+                  blinks_1stPass[l]<- 0
+                }
+                
+                # second-pass blinks:
+                sum_2nd<- sum(p2$blink, na.rm = T) + sum(p2$prev_blink, na.rm = T) + sum(p2$after_blink, na.rm = T)
+                if(sum_2nd>0){
+                  blinks_2ndPass[l]<- 1 
+                }else{
+                  blinks_2ndPass[l]<- 0
+                }
+                
+              }# if addBlinks
+              
+              
+              
               
               if(nrow(p1)==0){ # no first-pass fixations
                 FFD[l]<- NA
@@ -312,6 +358,11 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
             dataT$EFIX_SFD<- EFIX_SFD
             dataT$EFIX_GD<- EFIX_GD
             dataT$EFIX_TVT<- EFIX_TVT
+          }
+          
+          if(addBlinks){
+            dataT$blinks_1stPass<- blinks_1stPass
+            dataT$blinks_2ndPass <- blinks_2ndPass
           }
           
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
