@@ -547,16 +547,17 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   raw_fix<- raw_fix_new;
   rm(raw_fix_new)
   
+  # calculate some useful measures:
+  try(raw_fix$launchSite<- raw_fix$prev_max_char_line- raw_fix$prevChar)
+  try(raw_fix$landStart<- raw_fix$char_line)
+  try(raw_fix$undersweep_prob<- ifelse(raw_fix$Rtn_sweep_type=="undersweep", 1, 0))
+  
   # map fixations that occurred outside text area to "characters":
   a<- which(is.na(raw_fix$char_line) & !is.na(raw_fix$xPos)& raw_fix$outOfBnds==0) 
   x_offset<- coords$x1[1] # text offset 
   ppl<- coords$x2[1]- coords$x1[1] # number of pixels per letter (width)
-  raw_fix$landStart[a]<- ceiling((raw_fix$xPos[a]- x_offset)/ppl)
-  
-  # calculate some useful measures:
-  raw_fix$launchSite<- raw_fix$prev_max_char_line- raw_fix$prevChar
-  raw_fix$landStart<- raw_fix$char_line
-  raw_fix$undersweep_prob<- ifelse(raw_fix$Rtn_sweep_type=="undersweep", 1, 0)
+  try(raw_fix$landStart[a]<- ceiling((raw_fix$xPos[a]- x_offset)/ppl))
+
   
   cat("\n \n Re-alignment statistics:\n");
   cat(sprintf("Re-aligned %d out of %d fixations (%f percent)\n\n Subject breakdown\n\n",
@@ -572,7 +573,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
     perc[s]<- round(length(which(n$reMapped==1))/nrow(n),3)
   }
   
-  dfS<- data.frame(sub=subs, percent_reAligned= perc)
+  try(dfS<- data.frame(sub=subs, percent_reAligned= perc))
   
   print(dfS)
   
