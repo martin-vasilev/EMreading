@@ -186,6 +186,18 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         temp_fix$char_line <- da1$char[l]- padding
         
         loc<- which(coords$line == temp_fix$line & coords$line_char== temp_fix$char_line)
+        loc_orig<- which(coords$line == raw_fix_temp$line[a] & coords$line_char== raw_fix_temp$char_line[a])
+        
+        # save whether current fixation was remapped (for statistics):
+        temp_fix$reMapped<- NA
+        if(length(loc)>0 & length(loc_orig)>0){
+          if(!is.null(loc)){
+            if(!is.null(loc_orig)){
+              try(temp_fix$reMapped<- ifelse(loc==loc_orig, 0, 1))
+            }
+          }
+        }
+        
         
         if(length(loc)>0){
           
@@ -446,101 +458,123 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   } # end of subject
   
   
-  # ### Add some columns useful for data processing:
-  # cat("\n Calculating some useful measures for data processing. Hang tight... \n \n")
-  # 
-  # raw_fix_new<- NULL
-  # 
-  # raw_fix$prev_RS<- NA
-  # raw_fix$next_RS<- NA
-  # raw_fix$prevChar<-NA
-  # raw_fix$nextChar<- NA
-  # raw_fix$prevX<- NA
-  # raw_fix$nextX<- NA
-  # raw_fix$prevY<- NA
-  # raw_fix$prev_max_char_line<- NA
-  # 
-  # for(i in 1: length(unique(raw_fix$sub))){
-  #   n<- subset(raw_fix, sub==i)
-  #   nitems<- unique(n$item)
-  #   cat(i); cat(" ")
-  #   
-  #   for(j in 1:length(nitems)){
-  #     m<- subset(n, item== nitems[j])
-  #     
-  #     l1<- subset(m, line==1)
-  #     max_l1<- l1$max_char_line[1]
-  #     
-  #     for(k in 1:nrow(m)){
-  #       if(k==1){
-  #         m$prev_RS[k]<- 0
-  #         m$next_RS[k]<- 0
-  #         m$next_RS[k+1]<- 0
-  #         
-  #         ####
-  #         m$nextChar[k]<- m$char_line[k+1] # next char
-  #         m$nextX[k]<- m$xPos[k+1]
-  #         
-  #       }else{
-  #         # return sweep stuff
-  #         if(!is.na(m$Rtn_sweep[k])){
-  #           if(m$Rtn_sweep[k]==1){
-  #             m$prev_RS[k-1]<- 1
-  #             
-  #             if(k+1 <= nrow(m)){
-  #               m$next_RS[k+1]<- 1
-  #             }
-  #             
-  #           }else{
-  #             m$prev_RS[k-1]<- 0
-  #             
-  #             if(k+1 <= nrow(m)){
-  #               m$next_RS[k+1]<- 0
-  #             }
-  #           } 
-  #         }
-  # 
-  #         ###
-  #         m$prevChar[k]<- m$char_line[k-1] # prev char
-  #         m$prevX[k] <- m$xPos[k-1] # prev x
-  #         m$prevY[k]<- m$yPos[k-1]
-  #         
-  #         if(k+1<= nrow(m)){
-  #           m$nextChar[k]<- m$char_line[k+1] # next char
-  #           m$nextX[k]<- m$xPos[k+1] # next x
-  #         }
-  #         
-  #         
-  #       }
-  #       
-  #       if(k== nrow(m)){
-  #         m$prev_RS[k]<- 0
-  #       }
-  #       
-  #       ## map previous line length (for launch site calculation):
-  #       if(!is.na(m$line[k])){
-  #         if(m$line[k]==2){
-  #           m$prev_max_char_line[k]<- max_l1
-  #         }else{
-  #           m$prev_max_char_line[k]<- NA
-  #         }
-  #       }else{
-  #         if(m$Rtn_sweep[k]==1){
-  #           m$prev_max_char_line[k]<- max_l1
-  #         }
-  #       }
-  #       
-  #     } # end of m
-  #     raw_fix_new<- rbind(raw_fix_new, m)
-  #   } # end of j
-  #   
-  #   
-  # }
-  # 
-  # raw_fix<- raw_fix_new;
-  # rm(raw_fix_new)
+  ### Add some columns useful for data processing:
+  cat("\n Calculating some useful measures for data processing. Hang tight... \n \n")
+
+  raw_fix_new<- NULL
+
+  raw_fix$prev_RS<- NA
+  raw_fix$next_RS<- NA
+  raw_fix$prevChar<-NA
+  raw_fix$nextChar<- NA
+  raw_fix$prevX<- NA
+  raw_fix$nextX<- NA
+  raw_fix$prevY<- NA
+  raw_fix$prev_max_char_line<- NA
+
+  for(i in 1: length(unique(raw_fix$sub))){
+    n<- subset(raw_fix, sub==i)
+    nitems<- unique(n$item)
+    cat(i); cat(" ")
+
+    for(j in 1:length(nitems)){
+      m<- subset(n, item== nitems[j])
+
+      l1<- subset(m, line==1)
+      max_l1<- l1$max_char_line[1]
+
+      for(k in 1:nrow(m)){
+        if(k==1){
+          m$prev_RS[k]<- 0
+          m$next_RS[k]<- 0
+          m$next_RS[k+1]<- 0
+
+          ####
+          m$nextChar[k]<- m$char_line[k+1] # next char
+          m$nextX[k]<- m$xPos[k+1]
+
+        }else{
+          # return sweep stuff
+          if(!is.na(m$Rtn_sweep[k])){
+            if(m$Rtn_sweep[k]==1){
+              m$prev_RS[k-1]<- 1
+
+              if(k+1 <= nrow(m)){
+                m$next_RS[k+1]<- 1
+              }
+
+            }else{
+              m$prev_RS[k-1]<- 0
+
+              if(k+1 <= nrow(m)){
+                m$next_RS[k+1]<- 0
+              }
+            }
+          }
+
+          ###
+          m$prevChar[k]<- m$char_line[k-1] # prev char
+          m$prevX[k] <- m$xPos[k-1] # prev x
+          m$prevY[k]<- m$yPos[k-1]
+
+          if(k+1<= nrow(m)){
+            m$nextChar[k]<- m$char_line[k+1] # next char
+            m$nextX[k]<- m$xPos[k+1] # next x
+          }
+
+
+        }
+
+        if(k== nrow(m)){
+          m$prev_RS[k]<- 0
+        }
+
+        ## map previous line length (for launch site calculation):
+        if(k>1){
+          m$prev_max_char_line[k]<- m$max_char_line[k-1] 
+        }else{
+          m$prev_max_char_line[k]<- NA
+        }
+
+
+      } # end of m
+      raw_fix_new<- rbind(raw_fix_new, m)
+    } # end of j
+
+
+  }
+
+  raw_fix<- raw_fix_new;
+  rm(raw_fix_new)
   
+  # map fixations that occurred outside text area to "characters":
+  a<- which(is.na(raw_fix$char_line) & !is.na(raw_fix$xPos)& raw_fix$outOfBnds==0) 
+  x_offset<- coords$x1[1] # text offset 
+  ppl<- coords$x2[1]- coords$x1[1] # number of pixels per letter (width)
+  raw_fix$landStart[a]<- ceiling((raw_fix$xPos[a]- x_offset)/ppl)
   
+  # calculate some useful measures:
+  raw_fix$launchSite<- raw_fix$prev_max_char_line- raw_fix$prevChar
+  raw_fix$landStart<- raw_fix$char_line
+  raw_fix$undersweep_prob<- ifelse(raw_fix$Rtn_sweep_type=="undersweep", 1, 0)
+  
+  cat("\n \n Re-alignment statistics:\n");
+  cat(sprintf("Re-aligned %d out of %d fixations (%f percent)\n\n Subject breakdown\n\n",
+              length(which(raw_fix$reMapped==1)),
+              nrow(raw_fix), length(which(raw_fix$reMapped==1))/nrow(raw_fix)))
+  
+  # subject statistics:
+  subs<- unique(raw_fix$sub)
+  perc<- NULL
+  
+  for(s in 1: length(subs)){
+    n<- subset(raw_fix, sub== subs[s])
+    perc[s]<- round(length(which(n$reMapped==1))/nrow(n),3)
+  }
+  
+  dfS<- data.frame(sub=subs, percent_reAligned= perc)
+  
+  print(dfS)
   
   cat("\n \n All Done!");
   
