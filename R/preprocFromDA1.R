@@ -89,33 +89,17 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       item<- as.numeric(as.character(da$X3))
       sub<- i
       
-      da2<- da[,-c(1:8)] # subset part of da1 that contains fixation data
+      da1<- da[,-c(1:8)] # subset part of da1 that contains fixation data
       
       ####
       # Recode da1 file for easier processing:
-      count<- 1
-      da3<- NULL
-      
-      for(k in 1:(length(da2)/4)){ # for each fixation
-        
-        temp<- da2[1, count:(count+3)] # extract data:
-        colnames(temp)<- c("char", "line", "start", "end") # change colnames for rbind
-        
-        # Change from factor to num:
-        temp$char<- as.numeric(as.character(temp$char))
-        temp$line<- as.numeric(as.character(temp$line))
-        temp$start<- as.numeric(as.character(temp$start))
-        temp$end<- as.numeric(as.character(temp$end))
-        
-        # increment char and line number by 1 (EyeDoctor counts from 0):
-        temp[1,1:2]<- temp[1,1:2]+1
-        
-        da3<- rbind(da3, temp)
-        count= count+4
-      }
-      
-      da1<- da3; rm(da, da2, da3)
+      da1= as.data.frame(matrix(as.numeric(as.vector(t(da1))), ncol = 4,  byrow = TRUE),
+                       stringsAsFactors = FALSE)
+      colnames(da1)<- c("char", "line", "start", "end")
       da1$fix_num<- 1:nrow(da1)
+      # increment char and line number by 1 (EyeDoctor counts from 0):
+      da1$char<- da1$char+1
+      da1$line<- da1$line+1
       
       ##########################################
       
