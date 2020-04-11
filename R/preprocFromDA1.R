@@ -290,18 +290,25 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       ## remap other variables (saccade length, regress prob.) & add new ones:
       
       # max word for each sentence:
-      curr_sent<- matrix(0, max(coords$sent),2)
+      curr_sent<- matrix(0, max(coords$sent),4) # 2 col= max word; 3 col= max word in sent; 4 col= sent pass complete
       curr_sent[,1]<- c(1:max(coords$sent))
+      
+      # max words in current sentence:
+      curr_sent[,3]<- c(coords$word[which(diff(coords$sent)==1)], coords$word[nrow(coords)])
+      
       
       # reset prev values of variables:
       raw_fix_new$sacc_len<- NA
       raw_fix_new$regress<- NA
+      raw_fix_new$regress2nd<- NA
       
       raw_fix_new$Rtn_sweep<- NA
       raw_fix_new$Rtn_sweep_type<- NA
       
-      currentLine= 1
+      currentSent= 1
       maxLine= 1
+      newSent= FALSE
+      inReg= FALSE
       
       same_line= NA
       
@@ -320,17 +327,61 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           
           if(m==1){
             curr_sent[raw_fix_new$sent[m], 2]<- raw_fix_new$word[m] # first fixated word is current max word
-            raw_fix_new$regress[m]<- 0 # first fix can never be regression
+            raw_fix_new$regress[m]<- 0 # first fix can never be a regression
+            
           }else{
             
             if(raw_fix_new$word[m]> curr_sent[raw_fix_new$sent[m], 2]){
-              curr_sent[raw_fix_new$sent[m], 2]<- raw_fix_new$word[m] #update new max word 
+              curr_sent[raw_fix_new$sent[m], 2]<- raw_fix_new$word[m] #update new max word
+              inReg<- FALSE
             }
             
-            if(raw_fix_new$word[m]< curr_sent[raw_fix_new$sent[m], 2]){
+            # did we finish current sentence?
+            #maxWord<- curr_sent[raw_fix_new$sent[m], 2]== curr_sent[raw_fix_new$sent[m], 3]
+            #newSent<- currentSent< raw_fix_new$sent[m] 
+            if(currentSent< raw_fix_new$sent[m]){
+              curr_sent[currentSent, 4]<- 1 # sentence 1st-pass complete
+              currentSent<- raw_fix_new$sent[m] 
+            }
+            
+            # if new sentence, terminate first pass of previous sentence:
+            if(!is.na(raw_fix_new$sent[m-1])){ # continue only if previous sent is not NA..
+              if(raw_fix_new$sent[m]> raw_fix_new$sent[m-1]){
+                curr_sent[raw_fix_new$sent[m-1], 4]<- 1
+              }
+            }
+            
+            if(raw_fix_new$word[m]< curr_sent[raw_fix_new$sent[m], 2] & curr_sent[raw_fix_new$sent[m], 4]==0){
               raw_fix_new$regress[m]<- 1 # regression
+              inReg<- TRUE
             }else{
-              raw_fix_new$regress[m]<- 0 # no regression
+              
+              if(curr_sent[raw_fix_new$sent[m], 4]==0){
+                raw_fix_new$regress[m]<- 0 # no regression
+                
+                if(raw_fix_new$word[m]== curr_sent[raw_fix_new$sent[m], 2] & inReg){
+                  raw_fix_new$regress[m]<- 1 # still regressive
+                }
+                
+              }else{
+                raw_fix_new$regress[m]<- 1 # regression (2nd pass one)
+                raw_fix_new$regress2nd[m]<- 1
+                inReg<- TRUE
+              }
+              
+              
+              
+              # if(!is.na(raw_fix_new$regress[m-1])){
+              #   # if prev fix was regress and curr_word== max_word, that's still re-reading fixation
+              #   
+              #   if(raw_fix_new$regress[m-1]==1 & raw_fix_new$word[m]<= curr_sent[raw_fix_new$sent[m], 2]){
+              #     raw_fix_new$regress[m]<- 1 # still regression
+              #   }
+              #   
+              #}
+                
+              
+              
             }
             
           }
@@ -338,6 +389,8 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         } # end of regression stuff
         
         
+     # st<- raw_fix_new[,c("fix_num", "sent", 'line', 'word', 'wordID', 'regress', 'regress2nd')]
+      
         
         # Add return sweep stuff..
         if(!is.na(raw_fix_new$line[m])){
@@ -392,12 +445,14 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         }
         
         
-      }
+      } # end of m
       
       
       # Add non-fixated words in each sentence:
       if(addNonFixatedWords){
+        
         for(s in 1:max(coords$sent)){
+          
           t<- subset(raw_fix_new,  sent== s) # fixations that happened on this sentence
           sent_w<- subset(coords, sent== s) # all words in current sentence
           unique_read<- unique(t$word) # all word in curr sentence that were fixated
@@ -436,7 +491,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       raw_fix<- rbind(raw_fix, raw_fix_new)
       
       cat(toString(j)); cat(" ")
-    } # end of item
+    } # end of item (j loop)
     
     cat("\n DONE \n \n");
   } # end of subject

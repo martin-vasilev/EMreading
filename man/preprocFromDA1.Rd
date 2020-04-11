@@ -4,9 +4,16 @@
 \alias{preprocFromDA1}
 \title{Pre-processing of data using DA1 files}
 \usage{
-preprocFromDA1(data_dir = NULL, ResX = 1920, ResY = 1080,
-  maxtrial = 999, tBlink = 50, padding = 0,
-  CrashOnMissingFix = FALSE)
+preprocFromDA1(
+  data_dir = NULL,
+  ResX = 1920,
+  ResY = 1080,
+  maxtrial = 999,
+  tBlink = 150,
+  padding = 0,
+  addNonFixatedWords = TRUE,
+  CrashOnMissingFix = FALSE
+)
 }
 \arguments{
 \item{data_dir}{Input of data files to be processed, as a directory that contains BOTH the ASC
@@ -24,6 +31,9 @@ as having a blink. The default is 50 ms.}
 
 \item{padding}{Padding amount used around the text margin (used to assign fixations close to the margin to a line). Default is 0.
 If padding is greater than 0, then all letter positions will be decremented by the specified number.}
+
+\item{addNonFixatedWords}{A logical indicating whether to add non-fixated words to the dataset (default= TRUE).
+Useful for skipping analyses, etc.}
 
 \item{CrashOnMissingFix}{A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file.
 This can occur if you let EyeDoctor merge fixations.}
