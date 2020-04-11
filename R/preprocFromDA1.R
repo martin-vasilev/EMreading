@@ -306,6 +306,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       raw_fix_new$Rtn_sweep_type<- NA
       
       currentSent= 1
+      currentLine= 1
       maxLine= 1
       newSent= FALSE
       inReg= FALSE
