@@ -28,6 +28,10 @@
 #' @param CrashOnMissingFix A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file. 
 #' This can occur if you let EyeDoctor merge fixations. 
 #' 
+#' @param DontMapBlinks A logical indicating whether to map fixation type (progressive, regressive) if the there is a 
+#' blink on the current fixation (or immediately before or after it, as determined by tBlink; see above). If set to TRUE (default),
+#'  fixations types are not mapped.
+#' 
 #' @return A data frame containing the data
 #'
 #' @example
@@ -36,7 +40,7 @@
 #' 
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                          tBlink= 150, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE){
+                          tBlink= 150, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE, DontMapBlinks=TRUE){
   
   message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
@@ -131,7 +135,8 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       
       # check for fix num mismatch & print warnings
       if(nrow(raw_fix_temp)!= nrow(da1)){
-        message(sprintf("Warning! Detected different number of fixations from da1 file for subject %g, item %g !!! \n", i, j))
+        message(sprintf("Warning! Detected different number of fixations between the asc (%g) and da1 (%g) file for subject %g, item %g !!! \n",
+                        nrow(raw_fix_temp), nrow(da1), i, j))
         
         if(!warnMismatch){
           message("Please don't delete or merge fixations in EyeDoctor!\n\n")
@@ -323,6 +328,89 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
           
         }
         
+        
+        ######################################
+        
+        # Add return sweep stuff..
+        if(!is.na(raw_fix_new$line[m])){
+          currentLine<- raw_fix_new$line[m]
+        }
+        
+        
+        if(currentLine> maxLine){
+          maxLine<- currentLine # update max line
+          raw_fix_new$Rtn_sweep[m]<- 1 # return sweep
+          
+          # what type of return sweep is it?
+          if(m<nrow(raw_fix_new)){
+            
+            # check if fixations are on the same line:
+            if(!is.na(raw_fix_new$line[m+1])){
+              if(!is.na(raw_fix_new$line[m])){
+                if(raw_fix_new$line[m+1]== raw_fix_new$line[m]){
+                  same_line= TRUE
+                }else{
+                  same_line= FALSE
+                }
+              }else{
+                same_line= TRUE
+              }
+            }else{
+              same_line= TRUE
+            }
+            
+            if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
+              #if(same_line){
+              raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
+              #}else{
+              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              #}
+              
+            }else{
+              #if(same_line){
+              raw_fix_new$Rtn_sweep_type[m]<- "accurate"
+              #}else{
+              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
+              #}
+              
+            }
+            
+          }else{
+            raw_fix_new$Rtn_sweep_type[m]<- NA
+          }
+          
+        }else{
+          raw_fix_new$Rtn_sweep[m]<- 0
+        }
+        
+        ##################################
+        
+        if(DontMapBlinks){
+          # skip row if there is a blink:
+          
+          # current:
+          if(!is.na(raw_fix_new$blink[m])){
+            if(raw_fix_new$blink[m]==1){
+              next
+            }
+          }
+          
+          # previous:
+          if(!is.na(raw_fix_new$prev_blink[m])){
+            if(raw_fix_new$prev_blink[m]==1){
+              next
+            }
+          }
+          
+          # next:
+          if(!is.na(raw_fix_new$after_blink[m])){
+            if(raw_fix_new$after_blink[m]==1){
+              next
+            }
+          }
+          
+        }
+        
        # regression stuff
         if(!is.na(raw_fix_new$sent[m])){
           
@@ -392,59 +480,6 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         
      # st<- raw_fix_new[,c("fix_num", "sent", 'line', 'word', 'wordID', 'regress', 'regress2nd')]
       
-        
-        # Add return sweep stuff..
-        if(!is.na(raw_fix_new$line[m])){
-          currentLine<- raw_fix_new$line[m]
-        }
-        
-        
-        if(currentLine> maxLine){
-          maxLine<- currentLine # update max line
-          raw_fix_new$Rtn_sweep[m]<- 1 # return sweep
-          
-          # what type of return sweep is it?
-          if(m<nrow(raw_fix_new)){
-            
-            # check if fixations are on the same line:
-            if(!is.na(raw_fix_new$line[m+1])){
-              if(!is.na(raw_fix_new$line[m])){
-                if(raw_fix_new$line[m+1]== raw_fix_new$line[m]){
-                  same_line= TRUE
-                }else{
-                  same_line= FALSE
-                }
-              }else{
-                same_line= TRUE
-              }
-            }else{
-              same_line= TRUE
-            }
-            
-            if(raw_fix_new$xPos[m+1]< raw_fix_new$xPos[m]){ # leftward saccade on next fix
-              #if(same_line){
-                raw_fix_new$Rtn_sweep_type[m]<- "undersweep"
-              #}else{
-              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
-              #}
-              
-            }else{
-              #if(same_line){
-                raw_fix_new$Rtn_sweep_type[m]<- "accurate"
-              #}else{
-              #  raw_fix_new$Rtn_sweep_type[m]<- "accurate/line-final"
-              #}
-              
-            }
-            
-          }else{
-            raw_fix_new$Rtn_sweep_type[m]<- NA
-          }
-          
-        }else{
-          raw_fix_new$Rtn_sweep[m]<- 0
-        }
-        
         
       } # end of m
       
