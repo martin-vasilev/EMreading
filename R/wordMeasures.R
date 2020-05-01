@@ -20,15 +20,27 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   }
   
   addBlinks= FALSE
+  BlinkFixTypeNotMapped<- FALSE
   
   # check if prev_blink, blink, and after_blink columns exist:
   if("blink" %in% colnames(data) & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)){
     if(sum(data$blink, na.rm = T)+ sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)==0){
-      cat("Blinks appear to be already excluded! \n");
+      cat("Blinks appear to be already excluded! \n\n");
     }else{
-      cat("There appears to be valid blink data! We will map blinks to individual words. \n");
+      cat("There appears to be valid blink data! We will map blinks to individual words. \n\n");
       addBlinks= TRUE
     }
+    
+    regress_blinks<- which(!is.na(data$regress[which(data$blink==1 | data$prev_blink==1 | data$after_blink==1)]))
+    
+    if(length(regress_blinks)<1){
+      BlinkFixTypeNotMapped<- TRUE
+      
+      cat("Fixation type is not mapped for observations with blinks. Therefore, blinks can't be mapped in terms of 1st and 2nd pass reading. ");
+      cat("Please note that, by default, blink fixation durations will also not be added to fixation duration measures for that word since it's assumed you will delete this word from analysis.\n")
+      cat("If you need to change this, see settings in the pre-processing function.\n\n");
+    }
+    
   }else{
     cat("No information about blinks appears to be in the data! \n");
   }
@@ -194,6 +206,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
           if(addBlinks){
             blinks_1stPass<- rep(NA, length(r))
             blinks_2ndPass<- rep(NA, length(r))
+            blinks<- rep(NA, length(r)) # if fixation type was not tracked (by user choice..)
           }
           
           
@@ -267,7 +280,24 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
                 }else{
                   blinks_2ndPass[l]<- 0
                 }
+              
+              # if blink fixations are not mapped in terms for 1st and second pass-reading...  
+              if(BlinkFixTypeNotMapped){
+               
+                sum_all<- sum(p$blink, na.rm = T) + sum(p$prev_blink, na.rm = T) + sum(p$after_blink, na.rm = T)
                 
+                if(sum_all>0){
+                  blinks[l]<- 1 
+                }else{
+                  blinks[l]<- 0
+                }
+                
+                
+                 
+              }
+                  
+                
+                  
               }# if addBlinks
               
               
@@ -361,8 +391,14 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
           }
           
           if(addBlinks){
-            dataT$blinks_1stPass<- blinks_1stPass
-            dataT$blinks_2ndPass <- blinks_2ndPass
+            
+            if(BlinkFixTypeNotMapped){
+              dataT$blinks<- blinks
+            }else{
+              dataT$blinks_1stPass<- blinks_1stPass
+              dataT$blinks_2ndPass <- blinks_2ndPass
+            }
+            
           }
           
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
