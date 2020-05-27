@@ -14,6 +14,7 @@ Collate:
     'Boundary.R'
     'Calibr.R'
     'Drift.R'
+    'Validate.R'
     'ExtractMessages.R'
     'EyeDoctor_PadLines.R'
     'Frequency.R'
