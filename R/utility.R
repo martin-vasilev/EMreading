@@ -871,6 +871,14 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     curr_sent<- matrix(0, max(coords$sent),2)
     curr_sent[,1]<- c(1:max(coords$sent))
   }
+  
+  if(is.character(coords$char)){
+    coords$char<- as.numeric(coords$char)
+  }
+  
+  if(is.factor(coords$char)){
+    coords$char<- as.numeric(as.character(coords$char))
+  }
 
 
   for(j in 1:nrow(fix)){
@@ -944,7 +952,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         line[j]<- coords$line[loc]
         word[j]<- coords$word[loc]
         word_line[j]<- coords$word_line[loc]
-        char_trial[j]<- as.numeric(as.character(levels(coords$char[loc])[coords$char[loc]]))+1
+        char_trial[j]<- coords$char[loc]+1 # +1 because Eye-track counts from 0
         char_line[j]<- coords$line_char[loc]
         wordID[j]<- coords$wordID[loc]
         land_pos[j]<- coords$char_word[loc]
@@ -1515,3 +1523,38 @@ for(i in 0:length(RsweepFix)+1){
 
 
 isRS<- function(d, l, v, h, l_thresh= 0.33, h_thresh= 0.33){d>= l*l_thresh & v>= h*h_thresh}
+
+
+
+##### Regressions in and out:
+
+# RegINnOUT<- function(data){
+# data<- subset(raw_fix, sub==1 & item==1)
+# nsent<- unique(data$sent)  
+# new_dat<- NULL
+# 
+# for(i in 1:length(nsent)){
+#   s<- subset(data, sent== nsent[i])
+#   s$regIN<- NA
+#   s$regOUT<- NA
+#   
+#   inReg<- 0
+#   
+#   for(j in 1:nrow(s)){
+#     
+#     if(s$regress[j]==1){
+#       inReg<- 1
+#     }
+#     
+#     if(inReg){
+#       s$regOUT[j]<- 1
+#     }
+#   }
+#   
+# }
+# 
+# 
+# }
+# 
+
+
