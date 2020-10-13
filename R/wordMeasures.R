@@ -191,6 +191,49 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
           q<- subset(n, sent==o[k])
           r<- sort(unique(q$word))
           
+          
+          ## TEMP!: fix first-pass for corrective saccades:
+          check_next<- F
+          RS_word<- NA
+
+          for (z in 1:nrow(q)){
+            
+            if(!is.na(q$Rtn_sweep[z])){
+              if(q$Rtn_sweep[z]==1){
+                check_next= T
+                RS_word<- q$word_line[z]
+              }
+            }
+            
+            
+            if(check_next){
+              
+              if(!is.na(q$word_line[z]) & !is.na(q$regress[z])){
+                
+                if(q$word_line[z]<= RS_word){
+                  
+                  if(q$regress[z]==1){
+                    q$regress[z]=0
+                  }
+                  
+                  
+                }else{ # stop checking
+                  check_next <- F
+                  RS_word<- NA
+                }
+                
+              } # if not NA..
+              
+              
+            } # if check next
+            
+            
+            
+          } # z loop end
+          
+          
+          
+          
           # pre-alocate return sweeps as NAs (in case of single line):
           RS<- rep(NA, length(r))
           RS_type<- rep(NA, length(r))
