@@ -193,44 +193,49 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
           
           
           ## TEMP!: fix first-pass for corrective saccades:
-          check_next<- F
-          RS_word<- NA
-
-          for (z in 1:nrow(q)){
+          
+          if(max(n$line, na.rm = T)>1){
+            check_next<- F
+            RS_word<- NA
             
-            if(!is.na(q$Rtn_sweep[z])){
-              if(q$Rtn_sweep[z]==1){
-                check_next= T
-                RS_word<- q$word_line[z]
-              }
-            }
-            
-            
-            if(check_next){
+            for (z in 1:nrow(q)){
               
-              if(!is.na(q$word_line[z]) & !is.na(q$regress[z])){
+              if(!is.na(q$Rtn_sweep[z])){
+                if(q$Rtn_sweep[z]==1){
+                  check_next= T
+                  RS_word<- q$word_line[z]
+                }
+              }
+              
+              
+              if(check_next){
                 
-                if(q$word_line[z]<= RS_word){
+                if(!is.na(q$word_line[z]) & !is.na(q$regress[z])){
                   
-                  if(q$regress[z]==1){
-                    q$regress[z]=0
+                  if(q$word_line[z]<= RS_word){
+                    
+                    if(q$regress[z]==1){
+                      q$regress[z]=0
+                    }
+                    
+                    
+                  }else{ # stop checking
+                    check_next <- F
+                    RS_word<- NA
                   }
                   
-                  
-                }else{ # stop checking
-                  check_next <- F
-                  RS_word<- NA
-                }
+                } # if not NA..
                 
-              } # if not NA..
+                
+              } # if check next
               
               
-            } # if check next
+              
+            } # z loop end
             
-            
-            
-          } # z loop end
-          
+          } # end of check if there is more than 1 line
+
+
           
           
           
@@ -281,24 +286,28 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
             } else{
               
               # return-sweep stuff:
-              if (!is.null(p$Rtn_sweep[1])){
-                
-                if(!is.na(p$Rtn_sweep[1])){
-                  if(sum(p$Rtn_sweep)>0){
-                    RS[l]<- 1
-                    
-                    # Return-sweep type:
-                    type<- p$Rtn_sweep_type[which(!is.na(p$Rtn_sweep_type))]
-                    if(length(type)>0){
-                      RS_type[l]<- type
+              if(max(n$line, na.rm = T)>1){
+                if (!is.null(p$Rtn_sweep[1])){
+                  
+                  if(!is.na(p$Rtn_sweep[1])){
+                    if(sum(p$Rtn_sweep)>0){
+                      RS[l]<- 1
+                      
+                      # Return-sweep type:
+                      type<- p$Rtn_sweep_type[which(!is.na(p$Rtn_sweep_type))]
+                      if(length(type)>0){
+                        RS_type[l]<- type
+                      }
+                      
+                    }else{
+                      RS[l]<- 0
                     }
-                    
-                  }else{
-                    RS[l]<- 0
                   }
+                  
                 }
-                
               }
+              
+
               
               
               # Split by fixation type:
