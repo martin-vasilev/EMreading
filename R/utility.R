@@ -969,28 +969,35 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         wordID[j]<- NA; land_pos[j]<- NA; sacc_len[j]<- NA
       }
 
-      # saccade stuff:
-      if(j==1){
-        max_sent[j]<- sent[j]
-      } else{
-        max_sent[j]<- max_sent[j-1]
-
-        if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+      
+      if(!is.na(loc)){
+        # saccade stuff:
+        if(j==1){
           max_sent[j]<- sent[j]
+        } else{
+          max_sent[j]<- max_sent[j-1]
+          
+          if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+            max_sent[j]<- sent[j]
+          }
         }
-      }
-
-      # maximum word:
-      if(j==1){
-        max_word[j]<- abs(word[j])
-        curr_sent[sent[j],2]<- abs(word[j])
-      } else{
-        max_word[j]<- curr_sent[sent[j],2]
-        if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
+        
+        # maximum word:
+        if(j==1){
           max_word[j]<- abs(word[j])
-          curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
+          curr_sent[sent[j],2]<- abs(word[j])
+        } else{
+          max_word[j]<- curr_sent[sent[j],2]
+          
+          
+          if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
+            max_word[j]<- abs(word[j])
+            curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
+          }
         }
       }
+      
+
 
       # Regression stuff:
       #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
