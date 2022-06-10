@@ -995,31 +995,33 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
             curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
           }
         }
-      }
-      
-
-
-      # Regression stuff:
-      #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
-      #  intersent_regr[j]<- 1
-      #} else{
-      #  intersent_regr[j]<- 0
-      #}
-
-      # intra-sentence regressions:
-      if(!is.na(word[j])& abs(word[j])<max_word[j]){
-      #  intrasent_regr[j]<- 1
-        regress[j]<- 1
-      }else{
-        regress[j]<- 0
-      #  intrasent_regr[j]<- 0
-      }
-      
-      if(j>1 & !is.na(word[j])){
-        if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
+        
+        # Regression stuff:
+        #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
+        #  intersent_regr[j]<- 1
+        #} else{
+        #  intersent_regr[j]<- 0
+        #}
+        
+        # intra-sentence regressions:
+        if(!is.na(word[j])& abs(word[j])<max_word[j]){
+          #  intrasent_regr[j]<- 1
           regress[j]<- 1
+        }else{
+          regress[j]<- 0
+          #  intrasent_regr[j]<- 0
         }
+        
+        if(j>1 & !is.na(word[j])){
+          if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
+            regress[j]<- 1
+          }
+        
       }
+      
+
+
+
 
     } else{ # end of if hasText
       sent[j]=NA; max_sent[j]=NA; line[j]=NA; word[j]=NA; max_word[j]=NA;
