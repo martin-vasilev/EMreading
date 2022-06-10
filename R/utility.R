@@ -1013,8 +1013,13 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         }
         
         if(j>1 & !is.na(word[j])){
-          if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
-            regress[j]<- 1
+          
+          if(is.na(regress[j-1])){
+            regress[j]<- NA
+          }else{
+            if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
+              regress[j]<- 1
+            }
           }
         
         }
