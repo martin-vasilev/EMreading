@@ -1017,6 +1017,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
             regress[j]<- 1
           }
         
+        }
       }
       
 
