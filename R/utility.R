@@ -969,63 +969,66 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
         wordID[j]<- NA; land_pos[j]<- NA; sacc_len[j]<- NA
       }
 
-      
-      if(!is.na(loc)){
-        # saccade stuff:
-        if(j==1){
-          max_sent[j]<- sent[j]
-        } else{
-          max_sent[j]<- max_sent[j-1]
-          
-          if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+      if(SL){
+        
+        if(!is.na(loc)){
+          # saccade stuff:
+          if(j==1){
             max_sent[j]<- sent[j]
-          }
-        }
-        
-        # maximum word:
-        if(j==1){
-          max_word[j]<- abs(word[j])
-          curr_sent[sent[j],2]<- abs(word[j])
-        } else{
-          max_word[j]<- curr_sent[sent[j],2]
-          
-          
-          if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
-            max_word[j]<- abs(word[j])
-            curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
-          }
-        }
-        
-        # Regression stuff:
-        #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
-        #  intersent_regr[j]<- 1
-        #} else{
-        #  intersent_regr[j]<- 0
-        #}
-        
-        # intra-sentence regressions:
-        if(!is.na(word[j])& abs(word[j])<max_word[j]){
-          #  intrasent_regr[j]<- 1
-          regress[j]<- 1
-        }else{
-          regress[j]<- 0
-          #  intrasent_regr[j]<- 0
-        }
-        
-        if(j>1 & !is.na(word[j])){
-          
-          if(is.na(regress[j-1])){
-            regress[j]<- NA
-          }else{
-            if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
-              regress[j]<- 1
+          } else{
+            max_sent[j]<- max_sent[j-1]
+            
+            if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]> max_sent[j]){
+              max_sent[j]<- sent[j]
             }
           }
-        
+          
+          # maximum word:
+          if(j==1){
+            max_word[j]<- abs(word[j])
+            curr_sent[sent[j],2]<- abs(word[j])
+          } else{
+            max_word[j]<- curr_sent[sent[j],2]
+            
+            
+            if(!is.na(word[j])& abs(word[j])>curr_sent[sent[j],2]){
+              max_word[j]<- abs(word[j])
+              curr_sent[sent[j],2]<- abs(word[j]) # replace new max word
+            }
+          }
+          
+          # Regression stuff:
+          #if(!is.na(max_sent[j])& !is.na(sent[j]) & sent[j]< max_sent[j]){
+          #  intersent_regr[j]<- 1
+          #} else{
+          #  intersent_regr[j]<- 0
+          #}
+          
+          # intra-sentence regressions:
+          if(!is.na(word[j])& abs(word[j])<max_word[j]){
+            #  intrasent_regr[j]<- 1
+            regress[j]<- 1
+          }else{
+            regress[j]<- 0
+            #  intrasent_regr[j]<- 0
+          }
+          
+          if(j>1 & !is.na(word[j])){
+            
+            if(is.na(regress[j-1])){
+              regress[j]<- NA
+            }else{
+              if(abs(word[j])== max_word[j] & regress[j-1]==1 & is.element(word[j], unique(word[1:(j-1)]))){
+                regress[j]<- 1
+              }
+            }
+            
+          }
         }
+        
+        
       }
-      
-
+    
 
 
 
