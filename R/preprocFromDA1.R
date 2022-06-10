@@ -112,6 +112,10 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       # find position in asc trial info db:
       whichDB<- which(trial_db$cond== cond & trial_db$item== item)
       
+      if(length(whichDB)==0){ # trial not present in asc file..
+        next
+      }
+      
       text<- get_text(file[trial_db$ID[whichDB]:trial_db$start[whichDB]])
       try(coords<- suppressWarnings(get_coord(text)))
       try(map<- coord_map(coords, x=ResX, y= ResY)) # map them to pixels on the screen
