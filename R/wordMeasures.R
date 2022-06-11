@@ -24,14 +24,14 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   
   # check if prev_blink, blink, and after_blink columns exist:
   if("blink" %in% colnames(data) & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)){
-    if(sum(data$blink, na.rm = T)+ sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)==0){
+    if(sum(data$blink, na.rm = T)==0){ # + sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)
       cat("Blinks appear to be already excluded! \n\n");
     }else{
       cat("There appears to be valid blink data! We will map blinks to individual words. \n\n");
       addBlinks= TRUE
     }
     
-    regress_blinks<- which(!is.na(data$regress[which(data$blink==1 | data$prev_blink==1 | data$after_blink==1)]))
+    regress_blinks<- which(!is.na(data$regress[which(data$blink==1)])) # data$prev_blink==1 | data$after_blink==1
     
     if(length(regress_blinks)<1){
       BlinkFixTypeNotMapped<- TRUE
@@ -318,7 +318,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
               if(addBlinks){
                 
                 # first-pass blinks:
-                sum_1st<- sum(p1$blink, na.rm = T) + sum(p1$prev_blink, na.rm = T) + sum(p1$after_blink, na.rm = T)
+                sum_1st<- sum(p1$blink, na.rm = T) #+ sum(p1$prev_blink, na.rm = T) + sum(p1$after_blink, na.rm = T)
                 if(sum_1st>0){
                   blinks_1stPass[l]<- 1 
                 }else{
@@ -326,7 +326,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
                 }
                 
                 # second-pass blinks:
-                sum_2nd<- sum(p2$blink, na.rm = T) + sum(p2$prev_blink, na.rm = T) + sum(p2$after_blink, na.rm = T)
+                sum_2nd<- sum(p2$blink, na.rm = T)# + sum(p2$prev_blink, na.rm = T) + sum(p2$after_blink, na.rm = T)
                 if(sum_2nd>0){
                   blinks_2ndPass[l]<- 1 
                 }else{
@@ -336,7 +336,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
               # if blink fixations are not mapped in terms for 1st and second pass-reading...  
               if(BlinkFixTypeNotMapped){
                
-                sum_all<- sum(p$blink, na.rm = T) + sum(p$prev_blink, na.rm = T) + sum(p$after_blink, na.rm = T)
+                sum_all<- sum(p$blink, na.rm = T) #+ sum(p$prev_blink, na.rm = T) + sum(p$after_blink, na.rm = T)
                 
                 if(sum_all>0){
                   blinks[l]<- 1 
@@ -482,4 +482,3 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
 
   return(dataN)
 }
-
