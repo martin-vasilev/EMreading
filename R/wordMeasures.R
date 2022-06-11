@@ -23,7 +23,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   BlinkFixTypeNotMapped<- FALSE
   
   # check if prev_blink, blink, and after_blink columns exist:
-  if("blink" %in% colnames(data) & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)){
+  if("blink" %in% colnames(data) ){ # & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)
     if(sum(data$blink, na.rm = T)==0){ # + sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)
       cat("Blinks appear to be already excluded! \n\n");
     }else{
