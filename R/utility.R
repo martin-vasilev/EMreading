@@ -773,84 +773,84 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
 
   # new blink code:
   blink<- NULL
-  prev_blink<- NULL
-  after_blink<- NULL
-  
-  
-  for(k in 1:length(s_time)){
-    
-    # don't check if either stamp is missing
-    if(is.na(s_time[k]) | is.na(e_time[k])){
-      blink[k]<- NA
-      after_blink[k]<- NA
-      prev_blink[k]<- NA
-      next
-    }
-    
-    GP<- suppressWarnings(get_seq(s_time[k], e_time[k], trialFile))
-      
-    eye_clozed<- which(GP$V4==0)
-    if(length(eye_clozed)>0){
-      blink[k]<- 1
-    }else{
-      blink[k]<- 0
-    }
-    
-    
-    # blink after start of fix?
-    if(k!= length(s_time)){ #if not last fix on trial
-      if(length(grep(e_time[k]+tBlink, trialFile))>0){
-        after<- suppressWarnings(get_seq(e_time[k], e_time[k]+tBlink, trialFile, prev=T))
-        after_closed<- which(after$V4==0)
-        if(length(after_closed)>0){
-          after_blink[k]<- 1
-        }else{
-          after_blink[k]<- 0
-        }
-      } else{ # if not enough data..
-        after_blink[k]<- NA
-      }
-      
-    }else{ # na, no data after this fix
-      after_blink[k]<- NA
-    }
-    
-    
-    # blink before start of fix?
-    if(k>1){
-      #Start_trial<- which(grepl(s_time[k]-tBlink, trialFile)) # check if this time exists in trial:
-      prev<- suppressWarnings(get_seq(s_time[k]-tBlink, s_time[k], trialFile, prev=T))
-      
-      prev_closed<- which(prev$V4==0)
-      if(length(prev_closed)>0){
-        prev_blink[k]<- 1
-      }else{
-        prev_blink[k]<- 0
-      }
-    }else{
-      prev_blink[k]<- NA
-    }
-  
-
-
-  } # end of k
+  # prev_blink<- NULL
+  # after_blink<- NULL
+  # 
+  # 
+  # for(k in 1:length(s_time)){
+  #   
+  #   # don't check if either stamp is missing
+  #   if(is.na(s_time[k]) | is.na(e_time[k])){
+  #     blink[k]<- NA
+  #     after_blink[k]<- NA
+  #     prev_blink[k]<- NA
+  #     next
+  #   }
+  #   
+  #   GP<- suppressWarnings(get_seq(s_time[k], e_time[k], trialFile))
+  #     
+  #   eye_clozed<- which(GP$V4==0)
+  #   if(length(eye_clozed)>0){
+  #     blink[k]<- 1
+  #   }else{
+  #     blink[k]<- 0
+  #   }
+  #   
+  #   
+  #   # blink after start of fix?
+  #   if(k!= length(s_time)){ #if not last fix on trial
+  #     if(length(grep(e_time[k]+tBlink, trialFile))>0){
+  #       after<- suppressWarnings(get_seq(e_time[k], e_time[k]+tBlink, trialFile, prev=T))
+  #       after_closed<- which(after$V4==0)
+  #       if(length(after_closed)>0){
+  #         after_blink[k]<- 1
+  #       }else{
+  #         after_blink[k]<- 0
+  #       }
+  #     } else{ # if not enough data..
+  #       after_blink[k]<- NA
+  #     }
+  #     
+  #   }else{ # na, no data after this fix
+  #     after_blink[k]<- NA
+  #   }
+  #   
+  #   
+  #   # blink before start of fix?
+  #   if(k>1){
+  #     #Start_trial<- which(grepl(s_time[k]-tBlink, trialFile)) # check if this time exists in trial:
+  #     prev<- suppressWarnings(get_seq(s_time[k]-tBlink, s_time[k], trialFile, prev=T))
+  #     
+  #     prev_closed<- which(prev$V4==0)
+  #     if(length(prev_closed)>0){
+  #       prev_blink[k]<- 1
+  #     }else{
+  #       prev_blink[k]<- 0
+  #     }
+  #   }else{
+  #     prev_blink[k]<- NA
+  #   }
+  # 
+  # 
+  # 
+  # } # end of k
 
 
   # find blinks:
-#  blink_stamp<- which(grepl('EBLINK', file[trial_db$start:trial_db$end]))
-#  blink_time<- get_FIX_stamp(file[blink_stamp+ trial_db$start])-1
-#  blink_out<- which(blink_time<s_time[1]| blink_time>e_time[length(e_time)])
+  blink_stamp<- which(grepl('EBLINK', file[trial_db$start:trial_db$end]))
+  blink_time<- get_FIX_stamp(file[blink_stamp+ trial_db$start])-1
+  blink_out<- which(blink_time<s_time[1]| blink_time>e_time[length(e_time)])
 
-#  if(length(blink_out>0)){ # blinks outside time window that is analysed
-#    blink_time<- blink_time[-blink_out]  # remove them
-#  }
+  if(length(blink_out>0)){ # blinks outside time window that is analysed
+    blink_time<- blink_time[-blink_out]  # remove them
+  }
 
-#  blink_pos<- loc_blinks(blink_time, s_time)
-#  blink<- rep(0, length(s_time))
-#  blink[blink_pos]<-1
+  blink_pos<- loc_blinks(blink_time, s_time)
+  blink<- rep(0, length(s_time))
+  blink[blink_pos]<-1
 
   # merge into a dataframe:
-  fix<- data.frame(s_time, e_time, fixDur, saccDur, x, y, blink, prev_blink, after_blink)
+  fix<- data.frame(s_time, e_time, fixDur, saccDur, x, y, blink) #prev_blink, after_blink)
   # fix$x<- as.numeric(as.character(fix$x))
   # fix$y<- as.numeric(as.character(fix$y))
 
@@ -1053,11 +1053,11 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   if(SL){
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
                          sent, line, word, word_line, char_trial, char_line, regress, wordID, land_pos,
-                         sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
+                         sacc_len, blink, outOfBnds, outsideText) # prev_blink, after_blink, 
   }else{
     raw_fix<- data.frame(sub,item, cond, seq, SFIX, EFIX, xPos, yPos, fix_num, fix_dur, sacc_dur,
                          sent, line, word, word, char_trial, char_line, wordID, land_pos,
-                         sacc_len, blink, prev_blink, after_blink, outOfBnds, outsideText)
+                         sacc_len, blink, outOfBnds, outsideText) # prev_blink, after_blink,
   }
 
     #raw_fix<- raw_fix[-nrow(raw_fix),]

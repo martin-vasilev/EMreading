@@ -399,19 +399,19 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
             }
           }
           
-          # previous:
-          if(!is.na(raw_fix_new$prev_blink[m])){
-            if(raw_fix_new$prev_blink[m]==1){
-              next
-            }
-          }
-          
-          # next:
-          if(!is.na(raw_fix_new$after_blink[m])){
-            if(raw_fix_new$after_blink[m]==1){
-              next
-            }
-          }
+          # # previous:
+          # if(!is.na(raw_fix_new$prev_blink[m])){
+          #   if(raw_fix_new$prev_blink[m]==1){
+          #     next
+          #   }
+          # }
+          # 
+          # # next:
+          # if(!is.na(raw_fix_new$after_blink[m])){
+          #   if(raw_fix_new$after_blink[m]==1){
+          #     next
+          #   }
+          # }
           
         }
         
