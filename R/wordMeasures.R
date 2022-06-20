@@ -51,7 +51,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   nitems<- NULL; n<- NULL; p1<- NULL; p2<- NULL; wordID<- NULL; word_line<- NULL
   dataN<- NULL; dataT<- NULL; q<- NULL; r<- NULL; sent<- NULL
   FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
-  nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
+  nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL; ILP<- NULL
   
   cat("Processing data for subject... ");
   
@@ -282,6 +282,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
               nfix1[l]<- 0
               nfix2[l]<- 0
               nfixAll[l]<- 0
+              ILP[l]<- NA
               
             } else{
               
@@ -359,6 +360,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
                 FFD[l]<- NA
                 SFD[l]<- NA
                 GD[l]<- NA
+                ILP[l]<-NA
                 
               }
               
@@ -367,12 +369,14 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
                 SFD[l]<- p1$fix_dur
                 GD[l]<- p1$fix_dur
                 #  TVT[l]<- p1$fix_dur
+                ILP[l]<- p1$land_pos[1]
               }
               
               if(nrow(p1)>1){
                 FFD[l]<- p1$fix_dur[1]
                 SFD[l]<-NA
                 GD[l]<- sum(p1$fix_dur)
+                ILP[l]<- p1$land_pos[1]
                 #  TVT[l]<- sum(p1$fix_dur)
                 
               }
@@ -426,13 +430,13 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
             sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
             p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
             FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
-            nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL
+            nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL; ILP<- NULL
             
             next
           }
           
           dataT<- data.frame(sub, item, cond, seq, word, word_line, wordID, sent, line, FFD, SFD, GD, TVT,
-                             nfix1, nfix2, nfixAll, regress, RS, RS_type)
+                             nfix1, nfix2, nfixAll, ILP, regress, RS, RS_type)
           
           if(includeTimeStamps){
             dataT$SFIX<- SFIX
@@ -456,7 +460,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
           sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
           p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
           FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
-          nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL
+          nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL; ILP<- NULL
           
           dataN<- rbind(dataN, dataT)
           
