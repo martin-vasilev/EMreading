@@ -95,6 +95,16 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   out <- suppressWarnings(data.frame(do.call(rbind, strsplit(out, ' ' ))))
 
   out<- subset(out, X2!="DELAY") # Remove DELAY 1ms lines (Eyetrack)
+  
+  # # workaround for incorrect parses:
+  # for(i in 1:nrow(out)){
+  #   if(out$X1[i]!= out$X11[i]){
+  #     out$X7[i]<- out$X8[i]
+  #     out$X8[i]<- out$X9[i]
+  #     out$X9[i]<- out$X10[i]
+  #     out$X10[i]<- out$X11[i]
+  #   }
+  # }
 
   out$X7<- as.numeric(as.character(out$X7))
   out$X8<- as.numeric(as.character(out$X8))
@@ -102,6 +112,8 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   out$X10<- as.numeric(as.character(out$X10))
   out$X11<- as.numeric(as.character(out$X11))
 
+  out<- subset(out, X2== "REGION")
+  
   fix_spaces<- function(out){
     out$space<- NULL
     a<- which(out$X6=="") # find position of empty spaces
@@ -153,6 +165,8 @@ get_coord<- function(string){ # extracts text coordinates from trial info
     lines<- sort(unique(out$X8));
     # as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
     #lines<- as.numeric.factor(lines)
+    
+    out<- subset(out, !is.na(X8))
 
     for(i in 1:length(lines)){
       loc_lines<- which(out$X8==lines[i])
