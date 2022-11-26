@@ -62,6 +62,13 @@ Question<- function(data_list= NULL, maxtrial= 9999, Correct_Answ_Flag= "QUESTIO
     file<- readLines(data[i]) # load file
     cat(" Done"); cat("\n")
     trial_db<- trial_info(file, maxtrial= maxtrial, selectEXP = F) # extract info about trials to be processed
+    
+    if(nrow(trial_db)==0){
+      next # go to next participant, no questions found
+      cat("No questions found for participant!\n")
+    }
+    
+    
     cat("Trial... ")
     
     for(j in 1:nrow(trial_db)){ # for each item

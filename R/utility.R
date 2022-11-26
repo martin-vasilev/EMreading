@@ -580,8 +580,9 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
 
   }
   
-  
-  trial_db$seq<- 1:nrow(trial_db)
+  if(nrow(trial_db)>0){
+    trial_db$seq<- 1:nrow(trial_db)
+  }
   
   trial_db$E<- NULL
   trial_db$stamp<- NULL
