@@ -63,6 +63,10 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
     data$word= data$word_line
   }
   
+  if(is.null(data$cond)){
+    data$cond=1
+  }
+  
   cat("Processing data for subject... ");
   
   
