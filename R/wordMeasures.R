@@ -21,29 +21,31 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   
   addBlinks= FALSE
   BlinkFixTypeNotMapped<- FALSE
-  
-  # check if prev_blink, blink, and after_blink columns exist:
-  if("blink" %in% colnames(data) ){ # & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)
-    if(sum(data$blink, na.rm = T)==0){ # + sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)
-      cat("Blinks appear to be already excluded! \n\n");
-    }else{
-      cat("There appears to be valid blink data! We will map blinks to individual words. \n\n");
-      addBlinks= TRUE
-    }
-    
-    regress_blinks<- which(!is.na(data$regress[which(data$blink==1)])) # data$prev_blink==1 | data$after_blink==1
-    
-    if(length(regress_blinks)<1){
-      BlinkFixTypeNotMapped<- TRUE
+  if(is.numeric(data$blink)){
+    # check if prev_blink, blink, and after_blink columns exist:
+    if("blink" %in% colnames(data) ){ # & "prev_blink" %in% colnames(data) & "after_blink" %in% colnames(data)
+      if(sum(data$blink, na.rm = T)==0){ # + sum(data$prev_blink, na.rm = T) +sum(data$after_blink, na.rm = T)
+        cat("Blinks appear to be already excluded! \n\n");
+      }else{
+        cat("There appears to be valid blink data! We will map blinks to individual words. \n\n");
+        addBlinks= TRUE
+      }
       
-      cat("Fixation type is not mapped for observations with blinks. Therefore, blinks can't be mapped in terms of 1st and 2nd pass reading. ");
-      cat("Please note that, by default, blink fixation durations will also not be added to fixation duration measures for that word since it's assumed you will delete this word from analysis.\n")
-      cat("If you need to change this, see settings in the pre-processing function.\n\n");
+      regress_blinks<- which(!is.na(data$regress[which(data$blink==1)])) # data$prev_blink==1 | data$after_blink==1
+      
+      if(length(regress_blinks)<1){
+        BlinkFixTypeNotMapped<- TRUE
+        
+        cat("Fixation type is not mapped for observations with blinks. Therefore, blinks can't be mapped in terms of 1st and 2nd pass reading. ");
+        cat("Please note that, by default, blink fixation durations will also not be added to fixation duration measures for that word since it's assumed you will delete this word from analysis.\n")
+        cat("If you need to change this, see settings in the pre-processing function.\n\n");
+      }
+      
+    }else{
+      cat("No information about blinks appears to be in the data! \n");
     }
-    
-  }else{
-    cat("No information about blinks appears to be in the data! \n");
   }
+
   
   
   
@@ -53,19 +55,29 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
   nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL; ILP<- NULL
   
+  if(is.null(data$Rtn_sweep)==1){
+    data$Rtn_sweep= NA
+  }
+  
+  if(is.null(data$word)==1){
+    data$word= data$word_line
+  }
+  
   cat("Processing data for subject... ");
   
   
   if(multipleItems){ # special case where an item is seen in more than 1 cond per subject
     for(i in 1:length(unique(data$sub))){ # for each subect..
       
-      nitems<- unique(data$item[data$sub==i])# trials that participant saw
+      nsubs<- as.character(unique(data$sub))
+    
+      nitems<- unique(data$item[data$sub== nsubs[i]])# trials that participant saw
       nitems<- sort(nitems)
       cat(paste(i, " ", sep=""));
       
       for(j in 1: length(nitems)){ # for each item of subject i
         
-        n<- subset(data, sub==i & item==nitems[j]) # subset data for subect i & item j
+        n<- subset(data, sub== nsubs[i] & item==nitems[j]) # subset data for subect i & item j
         conditions<- unique(n$cond)
         
         for(c in 1:length(conditions)){ # for each condition c...
@@ -178,13 +190,14 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
     
     for(i in 1:length(unique(data$sub))){ # for each subect..
       
-      nitems<- unique(data$item[data$sub==i])# trials that participant saw
+      nsubs<- as.character(unique(data$sub))
+      nitems<- unique(data$item[data$sub==nsubs[i]])# trials that participant saw
       nitems<- sort(nitems)
       cat(paste(i, " ", sep=""));
       
       for(j in 1: length(nitems)){ # for each item of subject i
         
-        n<- subset(data, sub==i & item==nitems[j]) # subset data for subect i & item j
+        n<- subset(data, sub==nsubs[i] & item==nitems[j]) # subset data for subect i & item j
         o<- sort(unique(n$sent))
         
         for(k in 1:length(o)){ # for each sentence...
@@ -369,14 +382,21 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
                 SFD[l]<- p1$fix_dur
                 GD[l]<- p1$fix_dur
                 #  TVT[l]<- p1$fix_dur
-                ILP[l]<- p1$land_pos[1]
+                if(!is.null(p1$land_pos[1])){
+                  ILP[l]<- p1$land_pos[1] 
+                }
+
               }
               
               if(nrow(p1)>1){
                 FFD[l]<- p1$fix_dur[1]
                 SFD[l]<-NA
                 GD[l]<- sum(p1$fix_dur)
-                ILP[l]<- p1$land_pos[1]
+                if(!is.null(p1$land_pos[1])){
+                  ILP[l]<- p1$land_pos[1]
+                }
+                
+               
                 #  TVT[l]<- sum(p1$fix_dur)
                 
               }
