@@ -60,7 +60,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   }
   
   if(is.null(data$word)==1){
-    data$word= data$word_line
+    data$word= data$word_sent
   }
   
   if(is.null(data$cond)){
