@@ -1,8 +1,8 @@
 
 #' Extract message timestamps data from .asc files
 #'
-#' This function reads in data from .asc files and returns the timestamps for when the message occured.
-#' Currently supports up to 3 message at a time.
+#' This function reads in data from .asc files and returns the timestamps for when the message(s) occured.
+#' It can extract an arbitrary number of flags per file.
 #'
 #' @author Martin R. Vasilev
 #'
@@ -20,7 +20,7 @@
 #' 
 #' @param message_name Name of the message flag in the data which needs to be extracted. If only one message
 #' needs to be extracted, provide it as a string (e.g., message_name= "DISPLAY CHANGE STARTED"). If there is more
-#' than one message, provide it as a vector of string (e.g., message_name= c('DISPLAY CHANGE STARTED', 
+#' than one message, provide it as a vector of strings (e.g., message_name= c('DISPLAY CHANGE STARTED', 
 #' 'DISPLAY CHANGE COMPLETED')).
 #' 
 #' @include utility.R
@@ -46,10 +46,6 @@ ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG")
   
   dat<- NULL
   
-  
-  if(length(message_name)>3){
-    stop('Currently only up to 3 messages at a time are supported')
-  }
 
   for (i in 1:length(data)){ # for each subject..
     
@@ -64,61 +60,36 @@ ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG")
     
     for(j in 1:nrow(trial_db)){ # for each item
       
-      temp<- data.frame(sub= NA, item= NA, cond= NA, seq= NA)
-      if(length(message_name)==1){
-        temp$MSG1<- NA
+      
+      for(k in 1:length(message_name)){
+        
+        temp<- data.frame(sub= NA, item= NA, cond= NA, seq= NA) # temp df with trial info
+        var_name= message_name[k]
+        temp[[var_name]]= NA # assign message name as new column in df
+        
+        trialFile<- file[trial_db$ID[j]:trial_db$end[j]]
+        
+        
+        # basic info:
+        temp$sub<- i # subject
+        temp$item<- trial_db$item[j] # item
+        temp$cond<- trial_db$cond[j] # condition
+        temp$seq<- trial_db$seq[j]
+        #dependnum<- trial_db$depend[j]
+        
+        
+        msg_stamp<- trialFile[which(grepl(message_name[k], trialFile))]
+        msg_stamp<- substr(msg_stamp, 1, unlist(gregexpr(' ', msg_stamp))[1])
+        msg_time<- get_num(msg_stamp) 
+        
+        # add stamps to data frame:
+        temp= temp[rep(seq_len(nrow(temp)), each = length(msg_time)), ]
+        temp[[var_name]]<- msg_time
+        
+        dat<- rbind(dat, temp)
+        
       }
       
-      if(length(message_name)==2){
-        temp$MSG1<- NA
-        temp$MSG2<- NA
-      }
-      
-      if(length(message_name)==3){
-        temp$MSG1<- NA
-        temp$MSG2<- NA
-        temp$MSG3<- NA
-      }
-      
-      trialFile<- file[trial_db$ID[j]:trial_db$end[j]]
-      
-      # basic info:
-      
-      temp$sub<- i # subject
-      temp$item<- trial_db$item[j] # item
-      temp$cond<- trial_db$cond[j] # condition
-      temp$seq<- trial_db$seq[j]
-      #dependnum<- trial_db$depend[j]
-      
-
-     a1<- trialFile[which(grepl(message_name[1], trialFile))]
-     a1<- substr(a1, 1, unlist(gregexpr(' ', a1))[1])
-     a1<- get_num(a1) 
-     
-     if(length(a1)>0){
-       temp$MSG1<- a1 
-     }
-     
-     
-     if(length(message_name)==2 | length(message_name)==3){
-       a2<- trialFile[which(grepl(message_name[2], trialFile))]
-       a2<- substr(a2, 1, unlist(gregexpr(' ', a2))[1])
-       a2<- get_num(a2) 
-       if(length(a2)>0){
-         temp$MSG2<- a2
-       }
-     }
-     
-     if(length(message_name)==3){
-       a3<- trialFile[which(grepl(message_name[3], trialFile))]
-       a3<- substr(a3, 1, unlist(gregexpr(' ', a3))[1])
-       a3<- get_num(a3) 
-       if(length(a3)>0){
-         temp$MSG3<- a3
-       }
-     }
-     
-     dat<- rbind(dat, temp)
       
      cat(toString(j)); cat(" ")
       
