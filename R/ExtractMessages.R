@@ -63,9 +63,7 @@ ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG")
       
       for(k in 1:length(message_name)){
         
-        temp<- data.frame(sub= NA, item= NA, cond= NA, seq= NA) # temp df with trial info
-        var_name= message_name[k]
-        temp[[var_name]]= NA # assign message name as new column in df
+        temp<- data.frame(sub= NA, item= NA, cond= NA, seq= NA, message= message_name[k]) # temp df with trial info
         
         trialFile<- file[trial_db$ID[j]:trial_db$end[j]]
         
@@ -84,7 +82,7 @@ ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG")
         
         # add stamps to data frame:
         temp= temp[rep(seq_len(nrow(temp)), each = length(msg_time)), ]
-        temp[[var_name]]<- msg_time
+        temp$message_time<- msg_time
         
         dat<- rbind(dat, temp)
         
