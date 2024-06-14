@@ -4,11 +4,21 @@
 \alias{cleanData}
 \title{Clean up of pre-processed data}
 \usage{
-cleanData(raw_fix = data, removeOutsideText = TRUE,
-  removeBlinks = TRUE, combineNearbySmallFix = TRUE,
-  combineMethod = "char", combineDist = 1, removeSmallFix = TRUE,
-  smallFixCutoff = 80, removeOutliers = TRUE, outlierMethod = "ms",
-  outlierCutoff = 800, keepRS = FALSE, silent = FALSE)
+cleanData(
+  raw_fix = data,
+  removeOutsideText = TRUE,
+  removeBlinks = TRUE,
+  combineNearbySmallFix = TRUE,
+  combineMethod = "char",
+  combineDist = 1,
+  removeSmallFix = TRUE,
+  smallFixCutoff = 80,
+  removeOutliers = TRUE,
+  outlierMethod = "ms",
+  outlierCutoff = 800,
+  keepRS = FALSE,
+  silent = FALSE
+)
 }
 \arguments{
 \item{raw_fix}{Dataframe containing the raw fixation data that were extracted with the

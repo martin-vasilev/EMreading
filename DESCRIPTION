@@ -14,14 +14,15 @@ Collate:
     'Boundary.R'
     'Calibr.R'
     'Drift.R'
-    'Validate.R'
     'ExtractMessages.R'
+    'ExtractSamples.R'
     'EyeDoctor_PadLines.R'
     'Frequency.R'
     'GUI.R'
     'MultiLine.R'
     'Question.R'
     'SingleLine.R'
+    'Validate.R'
     'cleanData.R'
     'num_fix.R'
     'ocr.r'
@@ -30,6 +31,6 @@ Collate:
     'trialTime.R'
     'wordMeasures.R'
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

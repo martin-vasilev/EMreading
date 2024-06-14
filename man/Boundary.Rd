@@ -4,9 +4,13 @@
 \alias{Boundary}
 \title{Checks the display change implementation in Boundary experiments (Rayner, 1975)}
 \usage{
-Boundary(data_list = "", maxtrial = 999, boundary_loc = "BOUNDARY",
+Boundary(
+  data_list = "",
+  maxtrial = 999,
+  boundary_loc = "BOUNDARY",
   start_flag = "DISPLAY CHANGE STARTED",
-  end_flag = "DISPLAY CHANGE COMPLETED")
+  end_flag = "DISPLAY CHANGE COMPLETED"
+)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:

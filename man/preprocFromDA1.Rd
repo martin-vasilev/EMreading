@@ -12,7 +12,8 @@ preprocFromDA1(
   tBlink = 150,
   padding = 0,
   addNonFixatedWords = TRUE,
-  CrashOnMissingFix = FALSE
+  CrashOnMissingFix = FALSE,
+  DontMapBlinks = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,10 @@ Useful for skipping analyses, etc.}
 
 \item{CrashOnMissingFix}{A logical indicating whether to stop script if a DA1 fixation is not found in ASC data file.
 This can occur if you let EyeDoctor merge fixations.}
+
+\item{DontMapBlinks}{A logical indicating whether to map fixation type (progressive, regressive) if the there is a
+blink on the current fixation (or immediately before or after it, as determined by tBlink; see above). If set to TRUE (default),
+fixations types are not mapped.}
 }
 \value{
 A data frame containing the data

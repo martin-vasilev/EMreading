@@ -4,8 +4,7 @@
 \alias{ExtractMessages}
 \title{Extract message timestamps data from .asc files}
 \usage{
-ExtractMessages(data_list = NULL, maxtrial = 9999,
-  message_name = "MSG")
+ExtractMessages(data_list = NULL, maxtrial = 9999, message_name = "MSG")
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
@@ -24,12 +23,12 @@ C:/My Data/subject2.asc
 
 \item{message_name}{Name of the message flag in the data which needs to be extracted. If only one message
 needs to be extracted, provide it as a string (e.g., message_name= "DISPLAY CHANGE STARTED"). If there is more
-than one message, provide it as a vector of string (e.g., message_name= c('DISPLAY CHANGE STARTED',
+than one message, provide it as a vector of strings (e.g., message_name= c('DISPLAY CHANGE STARTED',
 'DISPLAY CHANGE COMPLETED')).}
 }
 \description{
-This function reads in data from .asc files and returns the timestamps for when the message occured.
-Currently supports up to 3 message at a time.
+This function reads in data from .asc files and returns the timestamps for when the message(s) occured.
+It can extract an arbitrary number of flags per file.
 }
 \author{
 Martin R. Vasilev

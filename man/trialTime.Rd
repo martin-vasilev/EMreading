@@ -4,8 +4,12 @@
 \alias{trialTime}
 \title{Extracts trial times from raw .asc files}
 \usage{
-trialTime(data_list, maxtrial = 999, startFlag = "SYNCTIME",
-  endFlag = "DISPLAY OFF")
+trialTime(
+  data_list,
+  maxtrial = 999,
+  startFlag = "SYNCTIME",
+  endFlag = "DISPLAY OFF"
+)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:

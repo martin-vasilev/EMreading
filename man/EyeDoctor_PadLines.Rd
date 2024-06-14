@@ -17,7 +17,7 @@ Nothing; the padded asc files are directly saved to the input directory
 }
 \description{
 This function pads text lines in the raw asc files to enable processing of fixations that are just to the left or to the
-right text margin. Please note that if lines are not padded, EyeDoctor maps all fixations outside the text area as -1, which 
+right text margin. Please note that if lines are not padded, EyeDoctor maps all fixations outside the text area as -1, which
 makes it impossible to map them to the line area on which they occured.
 }
 \author{

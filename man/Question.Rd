@@ -4,27 +4,33 @@
 \alias{Question}
 \title{Extract question data from .asc files}
 \usage{
-Question(data_list = NULL, maxtrial = 9999,
+Question(
+  data_list = NULL,
+  maxtrial = 9999,
   Correct_Answ_Flag = "QUESTION_ANSWER",
-  Answ_Button_Flag = "ENDBUTTON", summary = TRUE)
+  Answ_Button_Flag = "ENDBUTTON",
+  summary = TRUE
+)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
-1) a directory that contains all the files (it will select all files ending with ".asc",
+\enumerate{
+\item a directory that contains all the files (it will select all files ending with ".asc",
 and order them by participant number, if present).
-2) Directory to a txt file that contains all the .asc data file names inside:
+\item Directory to a txt file that contains all the .asc data file names inside:
 e.g., data_list= "C:/My Data/data_list.txt".
 In the .txt file, the directory for each .asc data file should appear on a separate row,
 e.g.: C:/My Data/subject1.asc /n
 C:/My Data/subject2.asc
-3) A directory to a single .asc file: e.g., data_list= "C:/My Data/subject1.asc".}
+\item A directory to a single .asc file: e.g., data_list= "C:/My Data/subject1.asc".
+}}
 
 \item{maxtrial}{Maximum number of trials in the experiment (default= 9999)}
 
-\item{Correct_Answ_Flag}{Name of the message flag in the data which indicates what the correct answer was 
+\item{Correct_Answ_Flag}{Name of the message flag in the data which indicates what the correct answer was
 (default= "QUESTION_ANSWER"; Umass convention)}
 
-\item{Answ_Button_Flag}{Name of the message flag in the data which indicates the answer button press 
+\item{Answ_Button_Flag}{Name of the message flag in the data which indicates the answer button press
 (default= "ENDBUTTON"; Umass convention)}
 
 \item{summary}{a logical indicating whether to print average accuracy per subject (default= TRUE)}

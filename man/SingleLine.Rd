@@ -4,9 +4,18 @@
 \alias{SingleLine}
 \title{Pre-processing of single-line reading data}
 \usage{
-SingleLine(data_list = NULL, ResX = 1920, ResY = 1080,
-  maxtrial = 999, tBlink = 50, textStim = NULL, ppl = NULL,
-  xOffset = NULL, plot = FALSE)
+SingleLine(
+  data_list = NULL,
+  ResX = 1920,
+  ResY = 1080,
+  maxtrial = 999,
+  tBlink = 150,
+  textStim = NULL,
+  ppl = NULL,
+  xOffset = NULL,
+  plot = FALSE,
+  addNonFixatedWords = TRUE
+)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
