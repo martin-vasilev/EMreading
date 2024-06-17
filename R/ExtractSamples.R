@@ -21,7 +21,7 @@
 #' 
 #' @include utility.R
 
-ExtractSamples<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG"){
+ExtractSamples<- function(data_list= NULL, maxtrial= 9999){
   
   # check if user provided data dir:
   if(length(data_list)==0){
@@ -63,7 +63,7 @@ ExtractSamples<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG"){
     end<- db$end
   
     trialF<- file[start:end] # extract trial data:
-    
+
     # remove messages and other flags:
     trialF<- trialF[!grepl("SFIX", trialF)]
     trialF<- trialF[!grepl("EFIX", trialF)]
@@ -73,6 +73,12 @@ ExtractSamples<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG"){
     trialF<- trialF[!grepl("EBLINK", trialF)]
     trialF<- trialF[!grepl("MSG", trialF)]
     trialF<- trialF[!grepl("END", trialF)]
+    
+    if(length(trialF)<1){
+      
+      cat('No samples- trial skipped!\n')
+      next
+    }
     
     # turn samples into a data frame:
     samples <-  as.data.frame(do.call( rbind, strsplit( trialF, '\t' ) ))
@@ -97,7 +103,12 @@ ExtractSamples<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG"){
     
     samples<- samples[, c(5,6,7,1,2,3,4)]
     
-    dat<- rbind(dat, samples)
+    if(length(samples)==0){
+      next;
+    }else{
+      dat<- rbind(dat, samples) 
+    }
+    
   
     } # end of j
     

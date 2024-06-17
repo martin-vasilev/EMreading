@@ -4,7 +4,7 @@
 \alias{ExtractSamples}
 \title{Extract raw eye samples data from .asc files}
 \usage{
-ExtractSamples(data_list = NULL, maxtrial = 9999, message_name = "MSG")
+ExtractSamples(data_list = NULL, maxtrial = 9999)
 }
 \arguments{
 \item{data_list}{Input of data files to be processed. This can be specified in three ways:
