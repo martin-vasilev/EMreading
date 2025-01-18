@@ -153,6 +153,10 @@ cleanData<- function(raw_fix= data, removeOutsideText= TRUE, removeBlinks= TRUE,
       
       for(i in 1:nrow(raw_fix)){
         
+        if(is.na(raw_fix$SFIX[i])){
+          next
+        }
+        
   #      if(silent & is.element(i, unname(round(quantile(1:nrow(raw_fix))-1)[2:4]))){
   #        cat(".")}
         prev_line_same<- F
