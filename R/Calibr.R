@@ -14,6 +14,8 @@
 #' C:/My Data/subject2.asc
 #' 3) A directory to a single .asc file: e.g., data_list= "C:/My Data/subject1.asc".
 #'
+#'@param keepLast Keep only the last calibration before recording new samples (TRUE= yes)
+#'
 #' @return A data frame containing the calibration accuracy data
 #'
 #' @example
@@ -23,7 +25,7 @@
 #' 
 
 
-Calibr<- function(data_list, keep_time_diff=0){
+Calibr<- function(data_list, keepLast=TRUE){
   
   
   get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
@@ -59,51 +61,135 @@ Calibr<- function(data_list, keep_time_diff=0){
     
     text<- file[which(grepl("VALIDATE", file))]
     
-    # parse message text:
-    out <-  do.call( rbind, strsplit( text, '\t' ) )
-    out<- out[, 2]
-    out <-  do.call( rbind, strsplit(out, ' ' ) )
+    df_temp<- NULL
     
-    # remove empty columns that can mess up parsing sometimes:
-    out<- out[, colSums(out != "") != 0]
+    for(j in 1:length(text)){
+      
+      # subject:
+      subject<- i
+      
+      # time flag:
+      string<- text[j]
+      
+      time_stamp<- get_num(unlist(strsplit(string, ' '))[1])
+      
+      if(length(time_stamp)<1){
+        time_stamp<- NA
+      }
+      
+      # filename: 
+      flnm<- filename
+      
+      # eye:
+      eye <- unlist(regmatches(string, gregexpr("\\b(LEFT|RIGHT)\\b", string)))
+      
+      if(length(eye)<1){
+        eye<- NA
+      }
+      
+      # calibration point:
+      point<- unlist(strsplit(x = string, 'POINT '))[2]
+      point<- as.numeric(unlist(strsplit(x = point, ' '))[1])
+      
+      if(length(point)<1){
+        point<- NA
+      }
+      
+      
+      # offset: 
+      offset_deg<- unlist(strsplit(x = string, 'OFFSET '))[2]
+      offset_deg<- as.numeric(unlist(strsplit(x = offset_deg, 'deg.'))[1])
+      
+      if(length(offset_deg)<1){
+        offset_deg<- NA
+      }
+      
+      try(t<- data.frame(subject, flnm, time_stamp, eye, point, offset_deg))
+      
+      df_temp<- rbind(df_temp, t)
+    }
     
-    time_stamp<- as.numeric(out[,1])
-    eye<- out[, 6]
-    
-    offset<- as.numeric(out[,10])
-    pos<- as.numeric(unlist(strsplit(out[,8], ',')))
-    x_pos<- pos[c(TRUE, FALSE)]
-    y_pos<- pos[c(FALSE, TRUE)]
-    
-    pix_offset<- as.numeric(unlist(strsplit(out[,12], ',')))
-    x_offset<- pix_offset[c(TRUE, FALSE)]
-    y_offset<- pix_offset[c(FALSE, TRUE)]
-    sub= rep(i, length(time_stamp))
-    
-    df_temp<- try(data.frame(sub, time_stamp, eye, offset, x_pos, y_pos, x_offset, y_offset))
-    try(assign('df_temp$filename', filename))
-    
-    
+  
     ##### check for repeated calibrations (take last attempt):
     
-    if(keep_time_diff>0){
+    if(keepLast){
       
-      try(assign('df_temp$keep', 1)) 
-      done= FALSE
-      curr_step= type
-      for(j in 1:(nrow(df_temp)/type-1)){
-        t_diff<- (df_temp$time_stamp[curr_step+type]- df_temp$time_stamp[curr_step])/(60*1000) # in mins
-        if(length(t_diff)<1){
-          next
+      ### between each calibration attempt, check if there any new samples. 
+      # If there were none, it means it wasn't the last calibration attempt
+      # in the sequence
+      new_df<- NULL
+      
+      # find where new calibrations start:
+      df_temp$diff<- c(0, diff(df_temp$time_stamp))
+      
+      # row numbers with new calibration start:
+      which_rows<- c(1, which(df_temp$diff>0))
+      
+      
+      
+      for(r in 1:length(which_rows)){
+        if(r<length(which_rows)){
+          
+          start<- which(grepl(as.character(df_temp$time_stamp[which_rows[r]]), file))
+          if(length(start)>1){
+            start= start[length(start)] # keep only last row in sequence
+          }
+          
+          # find start of NEXT calibration event:
+          end<- which(grepl(as.character(df_temp$time_stamp[which_rows[r+1]]), file))
+          
+          if(length(end)>1){
+            end<- end[1]
+          }
+          
+          snippet<- file[start:end]
+          
+          check_flag<- which(grepl('START', snippet))
+          
+          if(length(check_flag)>0){
+            start_time= get_num(unlist(strsplit(file[start], ' '))[1])
+            new_df<- rbind(new_df, df_temp[which(df_temp$time_stamp==start_time),])
+          }
+          
+        }else{
+          
+          start<- which(grepl(as.character(df_temp$time_stamp[which_rows[r]]), file))
+          if(length(start)>1){
+            start= start[length(start)] # keep only last row in sequence
+          }
+          
+          start_time= get_num(unlist(strsplit(file[start], ' '))[1])
+          
+          new_df<- rbind(new_df, df_temp[which(df_temp$time_stamp==start_time),])
+          
         }
-        if(t_diff<keep_time_diff){
-          df_temp$keep[(curr_step- type+1) :curr_step]= 0
-        }
-        curr_step= curr_step +type # increment
-        # if(curr_step+type== nrow(df_temp)){
-        #   done= TRUE
-        }
+        
+        
       }
+      
+      df_temp= new_df 
+    }
+    
+
+    
+    # if(keep_time_diff>0){
+    #   
+    #   try(assign('df_temp$keep', 1)) 
+    #   done= FALSE
+    #   curr_step= type
+    #   for(j in 1:(nrow(df_temp)/type-1)){
+    #     t_diff<- (df_temp$time_stamp[curr_step+type]- df_temp$time_stamp[curr_step])/(60*1000) # in mins
+    #     if(length(t_diff)<1){
+    #       next
+    #     }
+    #     if(t_diff<keep_time_diff){
+    #       df_temp$keep[(curr_step- type+1) :curr_step]= 0
+    #     }
+    #     curr_step= curr_step +type # increment
+    #     # if(curr_step+type== nrow(df_temp)){
+    #     #   done= TRUE
+    #     }
+    #   }
     
     df<- try(rbind(df, df_temp))
     
