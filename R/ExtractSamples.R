@@ -61,6 +61,10 @@ ExtractSamples<- function(data_list= NULL, maxtrial= 9999){
     
     start<- db$start
     end<- db$end
+    
+    if(is.na(end)){
+      end<- length(file)
+    }
   
     trialF<- file[start:end] # extract trial data:
 

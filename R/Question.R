@@ -157,6 +157,7 @@ Question<- function(data_list= NULL, maxtrial= 9999, Correct_Answ_Flag= "QUESTIO
       temp<- data.frame(sub, item, cond, seq, dependnum, start, end, duration_ms, correctresp,
                         subresp, accuracy)
       
+      temp$filename= filename
       Quest<- rbind(Quest, temp)
       
       

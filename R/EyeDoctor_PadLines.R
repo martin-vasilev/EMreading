@@ -77,6 +77,10 @@ EyeDoctor_PadLines<- function(data_dir= NULL, paddingSize= 5){
       lastString= NULL
       TextStarted= FALSE
       
+      if(is.na(trialDone)){
+        trialDone= FALSE
+      }
+      
       while(!trialDone){
         
         string= file[count]
@@ -91,84 +95,89 @@ EyeDoctor_PadLines<- function(data_dir= NULL, paddingSize= 5){
             x2= as.numeric(string2[length(string2)-1])
             y2= as.numeric(string2[length(string2)])
             
-            if(lastY < y1){ # triger only when moving to next line:
-              padString= NULL
-              padStringEnd= NULL
-              
-              for(k in 1:paddingSize){
-                if(k==1){
-                  cx2= x1 # current x2 (left margin)
-                  cx1= x1- (x2-x1)
+            if(!is.na(lastY) & !is.na(y1)){
+              if(lastY < y1){ # triger only when moving to next line:
+                padString= NULL
+                padStringEnd= NULL
+                
+                for(k in 1:paddingSize){
+                  if(k==1){
+                    cx2= x1 # current x2 (left margin)
+                    cx1= x1- (x2-x1)
+                    
+                    string3<- string2
+                    string3[6]<- " "
+                    string3[7]<- toString(cx1)
+                    string3[9]<- toString(cx2)
+                    
+                    padString[k]<- paste(string3, collapse = " ")
+                    
+                    #padString[k]<- paste(string2[1], string2[2], string2[3], "0", string2[5], "~", 
+                    #                    toString(cx1), toString(y1), toString(cx2), toString(y1))
+                    
+                    if(!FirstLine){
+                      string2End= unlist(strsplit(lastString, " "))
+                      
+                      string3End<- string2End
+                      string3End[6]<- " "
+                      string3End[7]<- toString(as.numeric(string2End[9])- (as.numeric(string2End[9])-as.numeric(string2End[7])))
+                      string3End[9]<- toString(as.numeric(string2End[9])) #+ (as.numeric(string2End[9])-as.numeric(string2End[7])))
+                      
+                      padStringEnd[k]<- paste(string3End, collapse = " ")
+                      
+                      nextX<- as.numeric(string3End[9])
+                    }
+                    
+                  }else{
+                    cx2= cx1
+                    cx1= cx2- (x2-x1)
+                    
+                    string3<- string2
+                    string3[6]<- " "
+                    string3[7]<- toString(cx1)
+                    string3[9]<- toString(cx2)
+                    
+                    padString[k]<- paste(string3, collapse = " ")
+                    #padString[k]<- paste(string2[1], string2[2], string2[3], "0", string2[5], "~", 
+                    #                     toString(cx1), toString(y1), toString(cx2), toString(y1))
+                  }
+                  padString<- padString[paddingSize:1] # reverse order
                   
-                  string3<- string2
-                  string3[6]<- " "
-                  string3[7]<- toString(cx1)
-                  string3[9]<- toString(cx2)
-                  
-                  padString[k]<- paste(string3, collapse = " ")
-                  
-                  #padString[k]<- paste(string2[1], string2[2], string2[3], "0", string2[5], "~", 
-                   #                    toString(cx1), toString(y1), toString(cx2), toString(y1))
                   
                   if(!FirstLine){
-                    string2End= unlist(strsplit(lastString, " "))
-                    
-                    string3End<- string2End
-                    string3End[6]<- " "
-                    string3End[7]<- toString(as.numeric(string2End[9])- (as.numeric(string2End[9])-as.numeric(string2End[7])))
-                    string3End[9]<- toString(as.numeric(string2End[9])) #+ (as.numeric(string2End[9])-as.numeric(string2End[7])))
-                    
+                    string3End[7]<- toString(nextX)
+                    string3End[9]<- toString(nextX + (as.numeric(string2End[9])-as.numeric(string2End[7])))
                     padStringEnd[k]<- paste(string3End, collapse = " ")
-                    
-                    nextX<- as.numeric(string3End[9])
+                    nextX<- nextX+ (as.numeric(string2End[9])-as.numeric(string2End[7]))
                   }
                   
-                }else{
-                  cx2= cx1
-                  cx1= cx2- (x2-x1)
                   
-                  string3<- string2
-                  string3[6]<- " "
-                  string3[7]<- toString(cx1)
-                  string3[9]<- toString(cx2)
-                  
-                  padString[k]<- paste(string3, collapse = " ")
-                  #padString[k]<- paste(string2[1], string2[2], string2[3], "0", string2[5], "~", 
-                  #                     toString(cx1), toString(y1), toString(cx2), toString(y1))
-                }
-                padString<- padString[paddingSize:1] # reverse order
+                } # end of k (padding n)
                 
-                
+                # add padded string to new asc file:
                 if(!FirstLine){
-                  string3End[7]<- toString(nextX)
-                  string3End[9]<- toString(nextX + (as.numeric(string2End[9])-as.numeric(string2End[7])))
-                  padStringEnd[k]<- paste(string3End, collapse = " ")
-                  nextX<- nextX+ (as.numeric(string2End[9])-as.numeric(string2End[7]))
+                  newFile<- c(newFile, padStringEnd, padString, file[count])
+                  #writeLines(padString, fileOut)
+                  padString<- NULL # reset
+                  padStringEnd<- NULL # reset
+                }else{
+                  newFile<- c(newFile, padString, file[count])
+                  #writeLines(padString, fileOut)
+                  padString<- NULL # reset 
                 }
                 
                 
-              } # end of k (padding n)
-              
-              # add padded string to new asc file:
-              if(!FirstLine){
-                newFile<- c(newFile, padStringEnd, padString, file[count])
-                #writeLines(padString, fileOut)
-                padString<- NULL # reset
-                padStringEnd<- NULL # reset
+                # turn on FirsLine permanently (i.e., pad also at the end from now on):
+                FirstLine= FALSE
+                
               }else{
-                newFile<- c(newFile, padString, file[count])
-                #writeLines(padString, fileOut)
-                padString<- NULL # reset 
+                newFile<- c(newFile, file[count])
+                #writeLines(file[count], fileOut)
               }
               
               
-              # turn on FirsLine permanently (i.e., pad also at the end from now on):
-              FirstLine= FALSE
-              
-            }else{
-              newFile<- c(newFile, file[count])
-              #writeLines(file[count], fileOut)
             }
+            
             
             lastY<-  y1
             

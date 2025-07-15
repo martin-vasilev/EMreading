@@ -81,7 +81,13 @@ get_text<- function(file){ ## extracts the loaded text material                 
 
 
 # Create a database with position of text on screen
-get_coord<- function(string){ # extracts text coordinates from trial info
+get_coord<- function(string, padding){ # extracts text coordinates from trial info
+  
+  if(padding>0){
+    padded= T
+  }else{
+    padded= F
+  }
 
   # check to make sure there are no button press flags here..
   a= which(gregexpr(pattern ='BUTTON', string)==1)
@@ -106,6 +112,7 @@ get_coord<- function(string){ # extracts text coordinates from trial info
   #   }
   # }
 
+  out$X4<- as.numeric(as.character(out$X4))
   out$X7<- as.numeric(as.character(out$X7))
   out$X8<- as.numeric(as.character(out$X8))
   out$X9<- as.numeric(as.character(out$X9))
@@ -114,9 +121,22 @@ get_coord<- function(string){ # extracts text coordinates from trial info
 
   out<- subset(out, X2== "REGION")
   
-  fix_spaces<- function(out){
+  # if(padded){
+  #  seqs_keep<- which(diff(out$X4)==1)
+  #  out<- out[c(seqs_keep, seqs_keep[length(seqs_keep)]+1),]
+  # }
+  
+  
+  fix_spaces<- function(out, padded){
     out$space<- NULL
     a<- which(out$X6=="") # find position of empty spaces
+    
+    if(padded){
+      a<-a[which(diff(a)>1)]
+      a<- a[-1]
+    }
+    
+
     out$space<- NA
     out$space[a]<- 1
     # Re-arrange misplaced coords
@@ -127,7 +147,7 @@ get_coord<- function(string){ # extracts text coordinates from trial info
     out<- out[,-11]
   }
 
-  out<- fix_spaces(out)
+  out<- fix_spaces(out, padded)
   out<- out[,-c(1,2,3,5)] # remove useless columns
   
   
@@ -275,6 +295,10 @@ get_coord<- function(string){ # extracts text coordinates from trial info
     for(j in 1:length(word_list)){
       cols<- which(out$sent == i & out$word == j)
       out$wordID[cols]<- paste(out$letter[cols], collapse = "")
+      
+      if(length(cols)<1){
+        next;
+      }
       
       if(out$letter[cols[1]]==""){
         out$char_word[cols]<- 0:(length(cols)-1)
