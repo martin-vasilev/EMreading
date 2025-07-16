@@ -117,7 +117,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       }
       
       text<- get_text(file[trial_db$ID[whichDB]:trial_db$start[whichDB]])
-      try(coords<- suppressWarnings(get_coord(text, padding)))
+      try(coords<- suppressWarnings(get_coord(text, padding=0)))
       try(map<- coord_map(coords, x=ResX, y= ResY)) # map them to pixels on the screen
       
       # Extract raw fixations from data and map them to the text:

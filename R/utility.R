@@ -81,7 +81,7 @@ get_text<- function(file){ ## extracts the loaded text material                 
 
 
 # Create a database with position of text on screen
-get_coord<- function(string, padding){ # extracts text coordinates from trial info
+get_coord<- function(string, padding=0){ # extracts text coordinates from trial info
   
   if(padding>0){
     padded= T
@@ -139,6 +139,7 @@ get_coord<- function(string, padding){ # extracts text coordinates from trial in
 
     out$space<- NA
     out$space[a]<- 1
+    
     # Re-arrange misplaced coords
     out$X7[a]<- out$X8[a]
     out$X8[a]<- out$X9[a]
