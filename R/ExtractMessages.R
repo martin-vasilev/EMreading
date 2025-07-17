@@ -23,9 +23,13 @@
 #' than one message, provide it as a vector of strings (e.g., message_name= c('DISPLAY CHANGE STARTED', 
 #' 'DISPLAY CHANGE COMPLETED')).
 #' 
+#' @return_whole_message A logical indicating whether to return the whole line from the file,
+#' rather than the searcher message keyword.
+#' 
 #' @include utility.R
 
-ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG"){
+ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG",
+                           return_whole_message= TRUE){
  
   # check if user provided data dir:
   if(length(data_list)==0){
@@ -77,16 +81,20 @@ ExtractMessages<- function(data_list= NULL, maxtrial= 9999, message_name= "MSG")
         
         
         msg_stamp<- trialFile[which(grepl(message_name[k], trialFile))]
-        msg_stamp<- substr(msg_stamp, 1, unlist(gregexpr(' ', msg_stamp))[1])
-        msg_time<- get_num(msg_stamp) 
+        msg_stamp2<- substr(msg_stamp, 1, unlist(gregexpr(' ', msg_stamp))[1])
+        msg_time<- get_num(msg_stamp2) 
         
         # add stamps to data frame:
         temp= temp[rep(seq_len(nrow(temp)), each = length(msg_time)), ]
         temp$message_time<- msg_time
         
+        if(return_whole_message){
+          try(temp$whole_message<- msg_stamp)
+        }
+        
         dat<- rbind(dat, temp)
         
-      }
+      } # end of k
       
       
      cat(toString(j)); cat(" ")
