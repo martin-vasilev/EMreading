@@ -549,10 +549,13 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   raw_fix$prevX<- NA
   raw_fix$nextX<- NA
   raw_fix$prevY<- NA
-  raw_fix$prev_max_char_line<- NA
-
-  for(i in 1: length(unique(raw_fix$sub))){
-    n<- subset(raw_fix, sub==i)
+  raw_fix$prev_max_char_line<- NA#
+  
+  nsubs<- unique(raw_fix$sub)
+  
+  
+  for(i in 1: length(nsubs)){
+    n<- subset(raw_fix, sub==nsubs[i])
     nitems<- unique(n$item)
     cat(i); cat(" ")
 
