@@ -525,7 +525,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
         
       } # end of  if addNonFixatedWords
       
-      try(raw_fix_temp$filename<- dataASC[i])
+      try(raw_fix_new$filename<- dataASC[i])
       
       # merge trial-level data:
       raw_fix<- rbind(raw_fix, raw_fix_new)
