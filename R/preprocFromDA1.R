@@ -123,6 +123,8 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       # Extract raw fixations from data and map them to the text:
       try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[whichDB,], i, ResX, ResY, tBlink, SL= F))
       
+      try(raw_fix_temp$filename<- dataASC[i])
+      
       # Find when the time when the trial starts:
       # NB!: For some weird reason, EyeDoctor starts counting trial time from the
       # "GAZE TARGET ON" flag in the asc data
