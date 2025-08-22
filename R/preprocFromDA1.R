@@ -652,7 +652,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   
   for(s in 1: length(subs)){
     n<- subset(raw_fix, sub== subs[s])
-    perc[s]<- round(length(which(n$reMapped==1))/nrow(n),3)
+    perc[s]<- round(length(which(n$reMapped==1))/nrow(n),3)*100
   }
   
   try(dfS<- data.frame(sub=subs, percent_reAligned= perc))
