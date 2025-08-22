@@ -52,6 +52,10 @@ get_text<- function(file){ ## extracts the loaded text material                 
 
   start<- which(grepl("DISPLAY TEXT", file))+1 # start point
   end<- which(grepl("START", file))
+  
+  if(length(end)==0){
+    end<- which(grepl("REGION", file))[length(which(grepl("REGION", file)))]
+  }
 
   if(length(start)==0){ # no start of text detected
     return(0) # don't map fixations to stimuli
