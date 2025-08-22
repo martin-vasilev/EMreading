@@ -54,6 +54,7 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
   dataN<- NULL; dataT<- NULL; q<- NULL; r<- NULL; sent<- NULL
   FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
   nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress<- NULL; ILP<- NULL
+  GPT<- NULL
   
   if(is.null(data$Rtn_sweep)==1){
     data$Rtn_sweep= NA
@@ -450,17 +451,58 @@ wordMeasures<- function(data, multipleItems=FALSE, includeTimeStamps= FALSE){
             
           } # end of l
           
+          # include go-past time:
+          
+          GPT<- data.frame(r, GPT= rep(0, length(r)))
+          pass_completed<- NULL
+          
+          for (t in 1:nrow(q)){
+            
+            if(!is.na(q$word[t])){
+              
+              if(t==1){
+                max_word= q$word[t]
+                GPT$GPT[max_word]= GPT$GPT[max_word]+ q$fix_dur[t] 
+              }else{
+                
+                if(q$word[t]>max_word){
+                  pass_completed<- c(pass_completed, max_word)
+                  max_word<- q$word[t]
+                  GPT$GPT[max_word]= GPT$GPT[max_word]+ q$fix_dur[t]
+                  
+                }else{
+                  
+                  if(!is.element(q$word[t], pass_completed)){
+                    GPT$GPT[max_word]= GPT$GPT[max_word]+ q$fix_dur[t]
+                  }
+                  
+                }
+                
+              }
+              
+            }
+            
+            
+          }
+          
+          GPT$GPT[which(GPT$GPT==0)]<- NA
+          GPT<- GPT$GPT
+          
+          
           if(is.na(word[1])){
             sub<- NULL; item<- NULL; seq<- NULL; cond<- NULL; word<- NULL; p<- NULL; sent<- NULL
             p1<- NULL; p2<- NULL; q<- NULL; r<- NULL; wordID<- NULL; word_line<- NULL
             FFD<- NULL; SFD<- NULL; GD<-NULL; TVT<- NULL; line<- NULL
-            nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL; ILP<- NULL
+            nfix1<- NULL; nfix2<- NULL; nfixAll<- NULL; regress <- NULL; ILP<- NULL; GPT<- NULL
             
             next
           }
           
           dataT<- data.frame(sub, item, cond, seq, word, word_line, wordID, sent, line, FFD, SFD, GD, TVT,
-                             nfix1, nfix2, nfixAll, ILP, regress, RS, RS_type)
+                             GPT, nfix1, nfix2, nfixAll, ILP, regress, RS, RS_type)
+          
+
+          
           
           if(includeTimeStamps){
             dataT$SFIX<- SFIX
