@@ -7,7 +7,9 @@
 ########################
 
 # Short functions:
-get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
+get_num <- function(string) {
+  as.numeric(gsub("[^0-9]", "", string))
+}
 
 isInside2D<- function(value, x1, x2){ value>= x1 & value <= x2}
 
@@ -26,7 +28,10 @@ get_files<- function(dir= "C:/Users/Martin Vasilev/Documents/Test", file_ext= ".
   all_files<- all_files[!grepl(".txt", all_files)]
 
   # sort files by number in string
-  get_num<- function(string){as.numeric(unlist(gsub("[^0-9]", "", unlist(string)), ""))}
+  get_num <- function(string) {
+    as.numeric(gsub("[^0-9]", "", string))
+  }
+  
   num<- get_num(all_files)
 
   if(!is.na(num[1])){
@@ -627,7 +632,8 @@ trial_info<- function(file, maxtrial, trial_flag= "TRIALID", trial_start_flag= "
 
 # Basic pre-processing and extraction of fixations from data file:
 parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
-                     hasText=TRUE, SL= FALSE, addNonFixatedWords= FALSE){
+                     hasText=TRUE, SL= FALSE, addNonFixatedWords= FALSE, 
+                     binocular= F){
 
   get_FIX_stamp<- function(string){
     
@@ -741,11 +747,21 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   }
 
   trialFile<- file[trial_db$ID:trial_db$end]
+  
+  if(binocular){
+    
+    # get position of fixation stamps:
+    SFIX_stamps<- which(grepl('SFIX R', trialFile))
+    EFIX_stamps<- which(grepl('EFIX R', trialFile))
+    
+  }else{
+    # get position of fixation stamps:
+    SFIX_stamps<- which(grepl('SFIX', file[trial_db$start:trial_db$end]))
+    EFIX_stamps<- which(grepl('EFIX', file[trial_db$start:trial_db$end]))
+  }
 
 
-  # get position of fixation stamps:
-  SFIX_stamps<- which(grepl('SFIX', file[trial_db$start:trial_db$end]))
-  EFIX_stamps<- which(grepl('EFIX', file[trial_db$start:trial_db$end]))
+
   
   # # get position of fixation stamps:
   # SSACC_stamps<- which(grepl('SSACC', file[trial_db$start:trial_db$end]))
@@ -777,18 +793,71 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   #   SSACC_stamps<- SSACC_stamps[-length(SSACC_stamps)]
   # } # sacc was not terminated before the end of trial
   
+  if(binocular){
+    esacc_time<- which(grepl('ESACC R', trialFile))
+    
+    esacc_time<- esacc_time[which(esacc_time> SFIX_stamps[1])]
+    esacc_flag<- trialFile[esacc_time]
+    
+    
+  }else{
+    esacc_flag<- file[SFIX_stamps+ trial_db$start-2]
+  }
+  
+  
   parse_sacc<- function(string){a<- unlist(strsplit(string, "\t")); return(as.numeric(a[3]))}
   
-  esacc_flag<- file[SFIX_stamps+ trial_db$start-2]
   saccDur<- NULL
   for(k in 1:length(esacc_flag)){
     saccDur[k]<- parse_sacc(esacc_flag[k])
   }
   
-  # get start and end time of fixations:
-  s_time<- get_FIX_stamp(file[SFIX_stamps+ trial_db$start])  # start time of fixation
-  e_time<- get_FIX_stamp(file[EFIX_stamps+ trial_db$start-2]) # end time of fixation
-  
+  if(binocular){
+    s_time<- get_num(trialFile[SFIX_stamps])
+    e_time<- rep(NA, length(EFIX_stamps))
+    
+    x<- rep(NA, length(EFIX_stamps))
+    y<- rep(NA, length(EFIX_stamps))
+    
+    for(l in 1:length(EFIX_stamps)){
+      stamp<- trialFile[EFIX_stamps[l]]
+      e_time[l]<- as.numeric(unlist(strsplit(stamp, '\t'))[2])
+      
+      # X AND Y COORDS:
+      x[l]<- as.numeric(unlist(strsplit(stamp, '\t'))[4])
+      y[l]<- as.numeric(unlist(strsplit(stamp, '\t'))[5])
+    }
+    
+    
+  }else{
+    # get start and end time of fixations:
+    s_time<- get_FIX_stamp(file[SFIX_stamps+ trial_db$start])  # start time of fixation
+    e_time<- get_FIX_stamp(file[EFIX_stamps+ trial_db$start-2]) # end time of fixation
+    
+    
+    # X AND Y COORDS:
+    
+    # get x pixel position:
+    x<- get_x_pixel(file[EFIX_stamps+ trial_db$start-1])
+    if(length(x)!= length(fixDur)){
+      x<- NULL
+      for (m in 1:length(fixDur)){
+        x<- c(x, as.numeric(get_x_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
+      }
+    }
+    
+    # get y pixel position:
+    y<- get_y_pixel(file[EFIX_stamps+ trial_db$start-1])
+    if(length(y)!= length(fixDur)){
+      y<- NULL
+      for (m in 1:length(fixDur)){
+        y<- c(y, as.numeric(get_y_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
+      }
+    }
+    
+    
+  }
+
   # # get start and end time of saccade:
   # s_time_sacc<- get_FIX_stamp(file[SSACC_stamps+ trial_db$start])  # start time of sacc
   # e_time_sacc<- get_FIX_stamp(file[ESACC_stamps+ trial_db$start-1]) # end time of sacc
@@ -796,25 +865,7 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   # calculate fixation durations:
   fixDur<- e_time- s_time
   # saccDur<- e_time_sacc- s_time_sacc
-
-  # get x pixel position:
-  x<- get_x_pixel(file[EFIX_stamps+ trial_db$start-1])
-  if(length(x)!= length(fixDur)){
-    x<- NULL
-    for (m in 1:length(fixDur)){
-     x<- c(x, as.numeric(get_x_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
-    }
-  }
-
-  # get y pixel position:
-  y<- get_y_pixel(file[EFIX_stamps+ trial_db$start-1])
-  if(length(y)!= length(fixDur)){
-    y<- NULL
-    for (m in 1:length(fixDur)){
-      y<- c(y, as.numeric(get_y_pixel_ALT(file[EFIX_stamps+ trial_db$start-1][m])))  
-    }
-  }
-
+  
   # new blink code:
   blink<- NULL
   # prev_blink<- NULL
@@ -892,6 +943,15 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   blink_pos<- loc_blinks(blink_time, s_time)
   blink<- rep(0, length(s_time))
   blink[blink_pos]<-1
+  
+  if(length(fixDur)> length(saccDur)){
+    s_time<- s_time[1:length(saccDur)]
+    e_time<- e_time[1:length(saccDur)]
+    fixDur<- fixDur[1:length(saccDur)]
+    x<- x[1:length(saccDur)]
+    y<- y[1:length(saccDur)]
+    blink<- blink[1:length(saccDur)]
+  }
 
   # merge into a dataframe:
   fix<- data.frame(s_time, e_time, fixDur, saccDur, x, y, blink) #prev_blink, after_blink)

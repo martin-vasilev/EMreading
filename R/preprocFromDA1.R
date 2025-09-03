@@ -31,6 +31,8 @@
 #' @param DontMapBlinks A logical indicating whether to map fixation type (progressive, regressive) if the there is a 
 #' blink on the current fixation (or immediately before or after it, as determined by tBlink; see above). If set to TRUE (default),
 #'  fixations types are not mapped.
+#'  
+#' @param binocular A logical indicating whether the data is binocular (TRUE) or not (FALSE). False by default (assuming monocular data).
 #' 
 #' @return A data frame containing the data
 #'
@@ -40,7 +42,8 @@
 #' 
 
 preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999, 
-                          tBlink= 150, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE, DontMapBlinks=TRUE){
+                          tBlink= 150, padding= 0, addNonFixatedWords= TRUE, CrashOnMissingFix= FALSE, DontMapBlinks=TRUE,
+                          binocular=F){
   
   message(paste("Using", toString(padding), "letter(s) padding in the analysis!"))
   
@@ -121,7 +124,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
       try(map<- coord_map(coords, x=ResX, y= ResY)) # map them to pixels on the screen
       
       # Extract raw fixations from data and map them to the text:
-      try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[whichDB,], i, ResX, ResY, tBlink, SL= F))
+      try(raw_fix_temp<- parse_fix(file, map, coords, trial_db[whichDB,], i, ResX, ResY, tBlink, SL= F, binocular= binocular))
       
       # Find when the time when the trial starts:
       # NB!: For some weird reason, EyeDoctor starts counting trial time from the
@@ -644,7 +647,7 @@ preprocFromDA1<- function(data_dir= NULL, ResX= 1920, ResY=1080, maxtrial= 999,
   cat("\n \n Re-alignment statistics:\n");
   cat(sprintf("Re-aligned %d out of %d fixations (%f percent)\n\n Subject breakdown\n\n",
               length(which(raw_fix$reMapped==1)),
-              nrow(raw_fix), length(which(raw_fix$reMapped==1))/nrow(raw_fix)))
+              nrow(raw_fix), length(which(raw_fix$reMapped==1))/nrow(raw_fix)*100))
   
   # subject statistics:
   subs<- unique(raw_fix$sub)
