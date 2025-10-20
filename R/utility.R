@@ -834,6 +834,8 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
     s_time<- get_FIX_stamp(file[SFIX_stamps+ trial_db$start])  # start time of fixation
     e_time<- get_FIX_stamp(file[EFIX_stamps+ trial_db$start-2]) # end time of fixation
     
+    # calculate fixation durations:
+    fixDur<- e_time- s_time
     
     # X AND Y COORDS:
     
@@ -862,8 +864,6 @@ parse_fix<- function(file, map, coords, trial_db, i, ResX, ResY, tBlink,
   # s_time_sacc<- get_FIX_stamp(file[SSACC_stamps+ trial_db$start])  # start time of sacc
   # e_time_sacc<- get_FIX_stamp(file[ESACC_stamps+ trial_db$start-1]) # end time of sacc
 
-  # calculate fixation durations:
-  fixDur<- e_time- s_time
   # saccDur<- e_time_sacc- s_time_sacc
   
   # new blink code:
