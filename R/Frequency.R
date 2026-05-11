@@ -37,7 +37,7 @@ Frequency <- function(data, database = "SUBTLEX-UK", PoS = FALSE) {
     word_loc <- 1
     freq_loc <- 2
     zipf_loc <- 15
-    PoS_loc <- 16
+    PoS_loc <- 13
   } else {
     stop("database must be either 'SUBTLEX-UK' or 'SUBTLEX-US'")
   }
