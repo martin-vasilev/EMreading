@@ -11,68 +11,74 @@
 #' @param database A string indicating which frequency database to use ("SUBTLEX-UK" or "SUBTLEX-US")
 #' 
 #' 
-Frequency<- function(data, database= 'SUBTLEX-UK'){
-
-  cat("This function requires internet connection to download the requested database.\n")
-  cat("Attempting to load frequency database. Please wait...\n\n");
+Frequency <- function(data, database = "SUBTLEX-UK", PoS = FALSE) {
   
-  if(database== 'SUBTLEX-UK'){
-    db<- read.delim(url("https://github.com/martin-vasilev/R_scripts/raw/master/SUBTLEX-UK.csv"), sep = ';')
-    word_loc=1
-    freq_loc=2
-    zipf_loc=6
-  }
+  message("This function requires internet connection to download the requested database.")
+  message("Attempting to load frequency database...")
   
-  if(database== 'SUBTLEX-US'){
-    db<- read.delim(url("https://github.com/martin-vasilev/R_scripts/raw/master/SUBTLEX-US.csv"), sep = ';')
-    word_loc=1
-    freq_loc= 2
-    zipf_loc= 15
-  }
-  
-  data$freq<- NA
-  data$zipf<- NA
-
-  if(!"wordID" %in% colnames(data)){
+  if (!"wordID" %in% names(data)) {
     stop("wordID column not found in dataframe!")
   }
   
-  data$wordID<- as.character(data$wordID)
+  if (database == "SUBTLEX-UK") {
+    db <- read.delim(
+      url("https://github.com/martin-vasilev/R_scripts/raw/master/SUBTLEX-UK.csv"),
+      sep = ";"
+    )
+    word_loc <- 1
+    freq_loc <- 2
+    zipf_loc <- 6
+    PoS_loc <- 16
+  } else if (database == "SUBTLEX-US") {
+    db <- read.delim(
+      url("https://github.com/martin-vasilev/R_scripts/raw/master/SUBTLEX-US.csv"),
+      sep = ";"
+    )
+    word_loc <- 1
+    freq_loc <- 2
+    zipf_loc <- 15
+    PoS_loc <- 16
+  } else {
+    stop("database must be either 'SUBTLEX-UK' or 'SUBTLEX-US'")
+  }
   
-  cat("Mapping frequency to database...\n");
+  message("Mapping frequency to database...")
   
-  for(i in 1:nrow(data)){
-    word<- data$wordID[i]
-    loc<- which(db[,1]== word)
-    
-    if(length(loc)<1){ # remove capital case and try again
-      word<- try(tolower(word))
-      loc<- which(db[,1]== word)
+  # Convert words to character
+  data$wordID <- as.character(data$wordID)
+  db_word <- as.character(db[[word_loc]])
+  
+  # Create fallback versions of the words
+  word_exact <- data$wordID
+  word_lower <- tolower(word_exact)
+  word_clean <- gsub("[[:punct:] ]+", "", word_lower)
+  
+  # Match in stages: exact -> lowercase -> punctuation-stripped
+  loc <- match(word_exact, db_word)
+  
+  missing <- is.na(loc)
+  loc[missing] <- match(word_lower[missing], db_word)
+  
+  missing <- is.na(loc)
+  loc[missing] <- match(word_clean[missing], db_word)
+  
+  # Add results
+  data$freq <- NA
+  data$zipf <- NA
+  
+  matched <- !is.na(loc)
+  data$freq[matched] <- db[[freq_loc]][loc[matched]]
+  data$zipf[matched] <- db[[zipf_loc]][loc[matched]]
+  
+  if (PoS) {
+    if (is.na(PoS_loc)) {
+      warning("PoS information is not available for this database.")
+      data$PoS <- NA
+    } else {
+      data$PoS <- NA
+      data$PoS[matched] <- db[[PoS_loc]][loc[matched]]
     }
-    
-    if(length(loc)<1){ # remove last character and try again
-      word<- gsub('[[:punct:] ]+',' ', word)
-      word<- gsub(" ", "", word, fixed = TRUE)
-      
-      loc<- which(db[,1]== word)
-    }
-    
-    if(length(loc)>0){
-      
-      if(length(loc)>1){
-        loc<- loc[1]
-      }
-      data$freq[i]<- db[loc, freq_loc]
-      data$zipf[i]<- db[loc, zipf_loc]
-    }
-    
-    if(i%%1000==0){
-      cat(round(i/nrow(data)*100,1)); cat("% ") 
-    }
-    
   }
   
   return(data)
-      
 }
-
