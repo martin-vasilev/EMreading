@@ -28,6 +28,7 @@
 
 
 Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY', 
+                    fixed_boundary= NULL, horizontal_boundary= TRUE,
                     start_flag= 'DISPLAY CHANGE STARTED', end_flag= 'DISPLAY CHANGE COMPLETED'){
   
   
@@ -79,13 +80,23 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       # Try to find boundary location:
       Bnd_txt<- trialFile[which(grepl(boundary_loc, trialFile))]
       loc<- substr(Bnd_txt[1], unlist(gregexpr(' ', Bnd_txt[1]))[1]+nchar(boundary_loc)+1, nchar(Bnd_txt[1]))
-      loc<- as.numeric(loc) 
+      #loc<- as.numeric(loc) 
       temp$Bnd_loc<- loc
+      
+      # overwrite if using a fixed boundary:
+      if(!is.null(fixed_boundary)){
+        temp$Bnd_loc<- fixed_boundary
+      }
       
       # Find the start flag:
       Start_text<- trialFile[which(grepl(start_flag, trialFile))]
       start_time<-  substr(Start_text, 1, unlist(gregexpr(' ', Start_text))[1])
       start_time<- get_num(start_time)
+      
+      if(length(Start_text)==0){
+        dat<- rbind(dat, temp)
+        next
+      }
       temp$tStarted<- start_time
       
       # Find the end flag:
@@ -111,8 +122,15 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       samples <-  as.data.frame(do.call( rbind, strsplit( samples, '\t' ) )) # V2 is xpos
       samples$V2= as.numeric(as.character(samples$V2)) # x pos vector
       samples$V1= as.numeric(as.character(samples$V1))
+      samples$V3= as.numeric(as.character(samples$V3))
       
-      time_cross<- which(samples$V2>= temp$Bnd_loc)
+      if(horizontal_boundary){
+        time_cross<- which(samples$V2>= temp$Bnd_loc)
+      }else{
+        time_cross<- which(samples$V3>= temp$Bnd_loc)
+      }
+      
+      
       if(length(time_cross)>0){
         temp$tCross<- samples$V1[time_cross[1]]
       }else{
@@ -128,28 +146,32 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       nextSFIX<- which(grepl(c('SFIX') , AfterBnd))
       nextEFIX<- which(grepl(c('EFIX') , AfterBnd))
       
-      if(nextSFIX[1]< nextEFIX[1]){
-        temp$nextFlag<- 'SFIX'
-        tNextFlag= AfterBnd[nextSFIX[1]]
-        #tNextFlag= get_num(unlist(strsplit(tNextFlag, '\t'))[1])
-        temp$tNextFlag<- get_num(tNextFlag)
-      }else{
-        temp$nextFlag<- 'EFIX'
-        tNextFlag= AfterBnd[nextEFIX[1]]
-        tNextFlag= get_num(unlist(strsplit(tNextFlag, '\t'))[1])
-        temp$tNextFlag<- tNextFlag
+      if(!is.na(nextSFIX[1])& !is.na(nextEFIX[1])){
+        
+        if(nextSFIX[1]< nextEFIX[1]){
+          temp$nextFlag<- 'SFIX'
+          tNextFlag= AfterBnd[nextSFIX[1]]
+          #tNextFlag= get_num(unlist(strsplit(tNextFlag, '\t'))[1])
+          temp$tNextFlag<- get_num(tNextFlag)
+        }else{
+          temp$nextFlag<- 'EFIX'
+          tNextFlag= AfterBnd[nextEFIX[1]]
+          tNextFlag= get_num(unlist(strsplit(tNextFlag, '\t'))[1])
+          temp$tNextFlag<- tNextFlag
+        }
       }
       
       # timing of change relative to next fixation onset?
       
-      if(temp$nextFlag== "SFIX"){
-        temp$tChangetoFixOnset<- temp$tCompleted - temp$tNextFlag
-      }else{ # EFIX flag
-        tNextSFIX= AfterBnd[nextSFIX[2]]
-        tNextSFIX<- get_num(tNextSFIX) 
-        temp$tChangetoFixOnset<- tNextSFIX-temp$tCompleted
+      if(!is.na(temp$nextFlag)){
+        if(temp$nextFlag== "SFIX"){
+          temp$tChangetoFixOnset<- temp$tCompleted - temp$tNextFlag
+        }else{ # EFIX flag
+          tNextSFIX= AfterBnd[nextSFIX[2]]
+          tNextSFIX<- get_num(tNextSFIX) 
+          temp$tChangetoFixOnset<- tNextSFIX-temp$tCompleted
+        }
       }
-      
       
       dat<- rbind(dat, temp)
       
