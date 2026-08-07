@@ -323,7 +323,7 @@ get_coord<- function(string, padding=0){ # extracts text coordinates from trial 
 }
 
 
-mapTextSL<- function(sent, ppl= 11, xOffset= 50, ResY= 1080){
+mapTextSL<- function(string, ppl= 11, xOffset= 50, ResY= 1080){
   
   ###
   char<- 0:(nchar(string)-1)
