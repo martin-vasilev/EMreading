@@ -23,15 +23,47 @@
 #' @param start_flag start flag for the beginning of the display change
 #' 
 #' @param end_flag end flag indicating the completion of the display change
+#' @param blink_window_ms Number of milliseconds before the display change starts
+#'   and after it completes to check for nearby blinks (default 200).
+#' @param fixed_boundary Optional fixed boundary pixel coordinate.
+#' @param horizontal_boundary TRUE to analyse x-coordinate, FALSE for y-coordinate.
+#' @return Data frame including blinkBefore, blinkDuring, blinkAfter, blinkAny,
+#'   tBlinkBefore (ms since last blink ended), and tBlinkAfter (ms until next
+#'   blink starts). A missing blink is FALSE if change timestamps are available.
+#'   Blink timing is NA if no blink is recorded before/after the change.
 #' 
 #' @include utility.R
 
 
 Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY', 
                     fixed_boundary= NULL, horizontal_boundary= TRUE,
-                    start_flag= 'DISPLAY CHANGE STARTED', end_flag= 'DISPLAY CHANGE COMPLETED'){
+                    start_flag= 'DISPLAY CHANGE STARTED', end_flag= 'DISPLAY CHANGE COMPLETED',
+                    blink_window_ms= 200){
   
   
+  if (length(blink_window_ms) != 1L || !is.numeric(blink_window_ms) ||
+      is.na(blink_window_ms) || !is.finite(blink_window_ms) ||
+      blink_window_ms < 0) {
+    stop("blink_window_ms must be a single non-negative number of milliseconds")
+  }
+
+  # EyeLink EBLINK records: EBLINK [eye] [start] [end] [duration].
+  # Keep the complete interval, not just the end timestamp.
+  get_trial_blinks <- function(trialFile) {
+    lines <- grep("^[[:space:]]*EBLINK[[:space:]]", trialFile, value = TRUE)
+    if (!length(lines)) {
+      return(data.frame(start = numeric(0), end = numeric(0)))
+    }
+    fields <- strsplit(trimws(lines), "[[:space:]]+")
+    times <- t(vapply(fields, function(x) {
+      if (length(x) < 5L) return(c(NA_real_, NA_real_))
+      suppressWarnings(as.numeric(x[3:4]))
+    }, numeric(2)))
+    blinks <- data.frame(start = times[, 1], end = times[, 2])
+    blinks[is.finite(blinks$start) & is.finite(blinks$end) &
+             blinks$end >= blinks$start, , drop = FALSE]
+  }
+
   # check if user provided data dir:
   if(length(data_list)==0){
     data_list= file.choose() # make them chose a file
@@ -68,7 +100,9 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       
       temp<- data.frame(sub=NA, item= NA, cond=NA, seq= NA, Bnd_loc= NA, tCross=NA, tStarted=NA, tCompleted=NA, 
                        tChange=NA, tActualChange= NA, prevFlag= NA, nextFlag= NA, tPrevFlag= NA, tNextFlag=NA,
-                       tChangetoFixOnset= NA)
+                       tChangetoFixOnset= NA, blinkBefore= NA, blinkDuring= NA,
+                       blinkAfter= NA, blinkAny= NA, tBlinkBefore= NA_real_,
+                       tBlinkAfter= NA_real_)
       temp$prevFlag<- NULL
       temp$tPrevFlag<- NULL
       
@@ -101,38 +135,71 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
       
       # Find the end flag:
       End_text<- trialFile[which(grepl(end_flag, trialFile))]
+      if (length(End_text)==0) {
+        dat<- rbind(dat, temp)
+        next
+      }
       end_time<-  substr(End_text, 1, unlist(gregexpr(' ', End_text))[1])
       end_time<- get_num(end_time)
       temp$tCompleted<- end_time
       
       # difference between started and completed:
       temp$tChange<- temp$tCompleted - temp$tStarted
-      
-      # what is the actual time the boudary was crossed?
-      whichRow<- which(grepl(start_flag, trialFile))
-      samples<- trialFile[(whichRow-51): whichRow-1] 
-      
-      # remove flags from samples data:
-      samples<- samples[!grepl("EFIX", samples)]
-      samples<- samples[!grepl("SFIX", samples)]
-      samples<- samples[!grepl("ESACC", samples)]
-      samples<- samples[!grepl("SSACC", samples)]
-      samples<- samples[!grepl("MSG", samples)]
-      
-      samples <-  as.data.frame(do.call( rbind, strsplit( samples, '\t' ) )) # V2 is xpos
-      samples$V2= as.numeric(as.character(samples$V2)) # x pos vector
-      samples$V1= as.numeric(as.character(samples$V1))
-      samples$V3= as.numeric(as.character(samples$V3))
-      
-      if(horizontal_boundary){
-        time_cross<- which(samples$V2>= temp$Bnd_loc)
-      }else{
-        time_cross<- which(samples$V3>= temp$Bnd_loc)
+
+      # Blink intervals relative to the display change.
+      # Before: the blink ENDED within the preceding window.
+      # During: a blink overlaps the display-change interval.
+      # After: the blink STARTED within the following window.
+      if (is.finite(temp$tStarted) && is.finite(temp$tCompleted)) {
+        blinks <- get_trial_blinks(trialFile)
+        preceding <- blinks$end[blinks$end < temp$tStarted]
+        following <- blinks$start[blinks$start > temp$tCompleted]
+
+        if (length(preceding)) {
+          temp$tBlinkBefore <- temp$tStarted - max(preceding)
+        }
+        if (length(following)) {
+          temp$tBlinkAfter <- min(following) - temp$tCompleted
+        }
+
+        temp$blinkBefore <- !is.na(temp$tBlinkBefore) &&
+          temp$tBlinkBefore <= blink_window_ms
+        temp$blinkDuring <- any(blinks$start <= temp$tCompleted &
+                                 blinks$end >= temp$tStarted)
+        temp$blinkAfter <- !is.na(temp$tBlinkAfter) &&
+          temp$tBlinkAfter <= blink_window_ms
+        temp$blinkAny <- temp$blinkBefore || temp$blinkDuring || temp$blinkAfter
       }
       
+      # what is the actual time the boudary was crossed?
+      whichRow<- which(grepl(start_flag, trialFile))[1]
+      if (whichRow > 1L) {
+        samples <- trialFile[seq.int(max(1L, whichRow - 51L), whichRow - 1L)]
+      } else {
+        samples <- character(0)
+      }
       
+      # Retain gaze samples only, excluding blink/event/message lines.
+      samples <- samples[grepl("^[[:space:]]*[0-9]+[[:space:]]", samples)]
+      pieces <- strsplit(trimws(samples), "[[:space:]]+")
+      pieces <- pieces[vapply(pieces, length, integer(1)) >= 3L]
+      time_cross <- integer(0)
+      if (length(pieces)) {
+        sample_mat <- do.call(rbind, lapply(pieces, function(x) x[1:3]))
+        sample_time <- suppressWarnings(as.numeric(sample_mat[, 1]))
+        sample_x <- suppressWarnings(as.numeric(sample_mat[, 2]))
+        sample_y <- suppressWarnings(as.numeric(sample_mat[, 3]))
+        bnd <- suppressWarnings(as.numeric(temp$Bnd_loc))
+
+        if (isTRUE(horizontal_boundary)) {
+          time_cross <- which(sample_x >= bnd)
+        } else {
+          time_cross <- which(sample_y >= bnd)
+        }
+      }
+
       if(length(time_cross)>0){
-        temp$tCross<- samples$V1[time_cross[1]]
+        temp$tCross<- sample_time[time_cross[1]]
       }else{
           temp$tCross<- temp$tStarted
       }
@@ -167,9 +234,11 @@ Boundary<- function(data_list= '', maxtrial= 999, boundary_loc= 'BOUNDARY',
         if(temp$nextFlag== "SFIX"){
           temp$tChangetoFixOnset<- temp$tCompleted - temp$tNextFlag
         }else{ # EFIX flag
-          tNextSFIX= AfterBnd[nextSFIX[2]]
-          tNextSFIX<- get_num(tNextSFIX) 
-          temp$tChangetoFixOnset<- tNextSFIX-temp$tCompleted
+          if (length(nextSFIX) >= 2L) {
+            tNextSFIX= AfterBnd[nextSFIX[2]]
+            tNextSFIX<- get_num(tNextSFIX)
+            temp$tChangetoFixOnset<- tNextSFIX-temp$tCompleted
+          }
         }
       }
       
