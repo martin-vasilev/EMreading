@@ -8,8 +8,11 @@ Boundary(
   data_list = "",
   maxtrial = 999,
   boundary_loc = "BOUNDARY",
+  fixed_boundary = NULL,
+  horizontal_boundary = TRUE,
   start_flag = "DISPLAY CHANGE STARTED",
-  end_flag = "DISPLAY CHANGE COMPLETED"
+  end_flag = "DISPLAY CHANGE COMPLETED",
+  blink_window_ms = 200
 )
 }
 \arguments{
@@ -29,13 +32,25 @@ C:/My Data/subject2.asc
 
 \item{boundary_loc}{The name of the message flag in the data file for the pixel location of the boundary (if present)}
 
+\item{fixed_boundary}{Optional fixed boundary pixel coordinate.}
+
+\item{horizontal_boundary}{TRUE to analyse x-coordinate, FALSE for y-coordinate.}
+
 \item{start_flag}{start flag for the beginning of the display change}
 
 \item{end_flag}{end flag indicating the completion of the display change}
+
+\item{blink_window_ms}{Number of milliseconds before the display change starts and after it completes to check for nearby blinks (default 200).}
 }
 \description{
 Checks the implementation of 1 boundary change during sentence reading. Checks the timing of the display change,
-as well as whether the boundary was crossed in a forwards saccade.
+as well as whether the boundary was crossed in a forwards saccade. Also checks whether EyeLink blink events occurred near or during the display change.
+}
+\value{
+Data frame including blinkBefore, blinkDuring, blinkAfter, blinkAny,
+tBlinkBefore (ms since last blink ended), and tBlinkAfter (ms until next
+blink starts). A missing blink is FALSE if change timestamps are available.
+Blink timing is NA if no blink is recorded before/after the change.
 }
 \author{
 Martin R. Vasilev
